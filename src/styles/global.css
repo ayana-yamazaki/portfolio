@@ -68,8 +68,8 @@ h3 { font-size: clamp(36px, 5.5vw, 82px); line-height: .92; letter-spacing: -.06
 .pillar-award { margin-top: 36px; }
 .pillar-award p { margin-bottom: 0; }
 .pillar-award-label { font-size: clamp(13px, 1.15vw, 17px); font-weight: 700; letter-spacing: -.02em; }
-.pillar-award-name { margin-top: 20px; color: #d71920; font-size: clamp(17px, 1.8vw, 26px); font-weight: 700; line-height: 1; letter-spacing: .01em; }
-.pillar-award-prize { color: #d71920; font-size: clamp(28px, 3.2vw, 46px); font-weight: 700; line-height: .95; letter-spacing: -.045em; white-space: nowrap; }
+.pillar-award-name { margin-top: 20px; color: #F23737; font-size: clamp(17px, 1.8vw, 26px); font-weight: 700; line-height: 1; letter-spacing: .01em; }
+.pillar-award-prize { color: #F23737; font-size: clamp(28px, 3.2vw, 46px); font-weight: 700; line-height: .95; letter-spacing: -.045em; white-space: nowrap; }
 .pillar-award-prize small { color: #696970; font-size: clamp(12px, 1.15vw, 17px); font-weight: 500; letter-spacing: -.02em; }
 .pillar-award + .description { margin-top: 30px; }
 .description { font-size: clamp(13px, 1.1vw, 16px); line-height: 1.5; letter-spacing: -.015em; max-width: 34ch; margin: 44px 0; }
