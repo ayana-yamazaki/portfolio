@@ -16,6 +16,7 @@
 .case-section { padding-top: var(--case-section-padding); padding-bottom: var(--case-section-padding); border-top: 1px solid var(--divider-color); }
 .case-section h3 { max-width: none; margin: 0; font-size: 36px; line-height: 1.6; letter-spacing: -.02em; font-weight: 500; }
 .case-block { display: flex; flex-direction: column; gap: 12px; }
+.case-block-offset { margin-top: 32px; }
 .case-prose { display: flex; flex-direction: column; gap: 12px; max-width: 760px; margin-left: auto; }
 .case-prose :where(p, li) { font-size: clamp(15px, 1.35vw, 19px); line-height: 1.6; }
 .case-prose > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote) { margin: 0; }
@@ -25,11 +26,12 @@
 .case-prose > .case-label:not(:first-child) { margin-top: 20px; }
 .case-observation-list { margin: 0; padding-left: 0; border-top: 1px solid #181818; list-style: none; }
 .case-observation-list li { padding: 16px 0; border-bottom: 1px solid #181818; }
+.case-prose .case-observation-list { padding-left: 0; }
 .case-prose > .text-emphasis { margin-block: 16px; }
 .case-prose p.text-emphasis { font-size: clamp(16px, 2vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-prose .text-emphasis > p { margin: 0; font-size: clamp(16px, 2vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-prose ul { margin: 0; padding-left: 1.25em; }
-.case-prose blockquote { margin: 0; padding-left: 16px; border-left: 2px solid #d9d9d9; font-style: normal; }
+.case-prose blockquote { margin: 16px 0 0 8px; padding-left: 28px; border-left: 2px solid #d9d9d9; font-style: normal; }
 .case-prose blockquote p { margin: 0; font-size: clamp(14px, 1.4vw, 18px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 80px; padding-top: 32px; border-top: 1px solid #181818; }
 .case-meta dt { margin-bottom: 16px; }
