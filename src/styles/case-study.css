@@ -5,8 +5,8 @@
 .case-header a { color: inherit; font-size: 12px; text-decoration: none; }
 .case-header .case-brand { font-weight: 600; letter-spacing: -.02em; }
 .case-hero { min-height: 92svh; display: flex; flex-direction: column; justify-content: space-between; padding-top: clamp(56px, 10vw, 140px); padding-bottom: 32px; }
-.case-award, .case-label, .case-meta dt, .case-image span, .case-image small { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
-.case-label { padding-left: 12px; border-left: 3px solid var(--accent-color); color: var(--accent-color); font-size: 16px; }
+.case-award, .section-title, .case-meta dt, .case-image span, .case-image small { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.section-title { padding-left: 12px; border-left: 3px solid var(--accent-color); color: var(--accent-color); font-size: 16px; }
 .case-award { line-height: 1.6; }
 .case-hero h1, .case-section h2 { width: 100%; max-width: none; margin: 0; font-family: 'Noto Sans JP', sans-serif; font-size: 60px; line-height: 1.3; letter-spacing: -.03em; font-weight: 500; }
 .case-lead { max-width: 760px; }
@@ -19,6 +19,10 @@
 .case-prose p, .case-prose li { font-size: clamp(15px, 1.35vw, 19px); line-height: 1.6; }
 .case-prose p { margin-bottom: 1em; }
 .case-prose p.body-sm { color: inherit; font-size: 13px; font-weight: 400; line-height: 1.7; }
+.case-label { width: fit-content; margin: 0; padding: 2px 8px; color: #181818; background: color-mix(in srgb, #181818 8%, transparent); font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.case-prose .case-label { margin: 0; }
+.case-observation-list { margin: 0; padding-left: 0; border-top: 1px solid #181818; list-style: none; }
+.case-observation-list li { padding: 16px 0; border-bottom: 1px solid #181818; }
 .case-prose p.text-emphasis { margin: 32px 0; font-size: clamp(16px, 2vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-prose .text-emphasis > p { margin: 0; font-size: clamp(16px, 2vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-prose ul { padding-left: 1.25em; margin: 36px 0; }
@@ -52,7 +56,7 @@
 .case-page .reposaku-content .field-research-gallery img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
 .case-page .reposaku-content .reposaku-section { display: flex; flex-direction: column; gap: var(--case-block-gap); }
 .case-page .reposaku-content .reposaku-section-header { display: flex; flex-direction: column; gap: var(--case-heading-gap); }
-.case-page .reposaku-content .reposaku-section-header .case-label,
+.case-page .reposaku-content .reposaku-section-header .section-title,
 .case-page .reposaku-content .reposaku-section-header h2,
 .case-page .reposaku-content .reposaku-section > h3 { margin: 0; }
 .case-page .reposaku-content .reposaku-decision-copy { display: flex; flex-direction: column; gap: var(--case-subblock-gap); }
