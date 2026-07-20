@@ -1,0 +1,15 @@
+---
+import { selectedProjects } from '../data/site';
+---
+
+<section id="projects" class="projects" aria-labelledby="projects-title">
+  <div class="rule"></div>
+  <h2 id="projects-title">{selectedProjects.label}</h2>
+  <div class="project-list">
+    {selectedProjects.projects.map((project, index) => (
+      <a href="#" class="project-row">
+        <span>0{index + 1}</span><strong>{project}</strong><span aria-hidden="true">↗</span>
+      </a>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,28 @@
+---
+import { buildIntro, pillars } from '../data/site';
+---
+
+<section id="how" class="pillars" aria-labelledby="how-title">
+  <h2 id="how-title">{buildIntro.description.map((line) => <>{line}<br /></>)}</h2>
+  {pillars.map((pillar) => (
+    <article class="pillar">
+      <div class="pillar-copy">
+        <p class="number">{pillar.number}</p>
+        <h3><a class="pillar-title" href={pillar.href}>{pillar.title}</a></h3>
+        <p class="eyebrow">{pillar.eyebrow}</p>
+        {pillar.award && (
+          <div class="pillar-award">
+            <p class="pillar-award-label">{pillar.award.label}</p>
+            <p class="pillar-award-name">{pillar.award.name}</p>
+            <p class="pillar-award-prize">{pillar.award.prize} <small>{pillar.award.rank}</small></p>
+          </div>
+        )}
+        <p class="description">{pillar.text}</p>
+      </div>
+      <div class="image-placeholder" aria-label={`Image placeholder: ${pillar.image}`}>
+        <span>Image placeholder</span>
+        <small>{pillar.image}</small>
+      </div>
+    </article>
+  ))}
+</section>

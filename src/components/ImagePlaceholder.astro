@@ -1,0 +1,13 @@
+---
+interface Props {
+  label: string;
+  ratio?: 'wide' | 'portrait';
+}
+
+const { label, ratio = 'wide' } = Astro.props;
+---
+
+<div class:list={['case-image', `case-image--${ratio}`]} role="img" aria-label={`Image placeholder: ${label}`}>
+  <span>Image placeholder</span>
+  <small>{label}</small>
+</div>

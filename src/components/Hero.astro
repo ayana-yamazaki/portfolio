@@ -1,0 +1,27 @@
+---
+import { hero } from '../data/site';
+import panel01 from '../../img/panel01.png';
+import panel01Texture from '../../img/panel01-texture.png';
+import panel02 from '../../img/panel02.png';
+import panel03 from '../../img/panel03.png';
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <p class="name">{hero.name}</p>
+  <h1 id="hero-title">{hero.title}</h1>
+  <div class="hero-panels" aria-label="How I build">
+    <div class="hero-panel-edge hero-panel-edge--01" aria-hidden="true"><img src={panel01Texture.src} alt="" /></div>
+    <a class="hero-panel hero-panel--01" href="/reposaku">
+      <img src={panel01.src} alt="Working with soil in the field" />
+      <span class="hero-panel-info"><strong>Understand Reality</strong><span>From the Field to the Product</span><small>現場やユーザーの現実を理解する</small></span>
+    </a>
+    <a class="hero-panel hero-panel--02" href="/decide-what-to-build">
+      <img src={panel02.src} alt="Dental product interface prototypes" />
+      <span class="hero-panel-info"><strong>Decide What to Build</strong><span>From Discovery to the Roadmap</span><small>調査や事業課題から、何を作るべきか決める</small></span>
+    </a>
+    <a class="hero-panel hero-panel--03" href="#projects">
+      <img src={panel03.src} alt="Building a product in the terminal" />
+      <span class="hero-panel-info"><strong>Build with AI</strong><span>From Prototype to Production</span><small>AI・デザイン・コードを横断して、素早く形にする</small></span>
+    </a>
+  </div>
+</section>

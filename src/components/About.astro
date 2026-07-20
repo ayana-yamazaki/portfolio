@@ -1,0 +1,27 @@
+---
+import { about } from '../data/site';
+---
+
+<section id="about" class="about" aria-labelledby="about-title">
+  <div class="rule"></div>
+  <p class="section-kicker">{about.label}</p>
+  <h2 id="about-title">{about.label}</h2>
+  <div class="about-intro">
+    <div class="about-copy">{about.description.map((line) => <p>{line}</p>)}</div>
+    <img src={about.profileImage} alt="山崎文菜のプロフィール写真" loading="lazy" />
+  </div>
+  <div class="experience">
+    <h3>Experience</h3>
+    <div class="experience-list">
+      {about.experience.map((item) => (
+        <article class="experience-item">
+          <p class="experience-period">{item.period}</p>
+          <div>
+            <h4>{item.organization}</h4>
+            {item.description && <p>{item.description}</p>}
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
