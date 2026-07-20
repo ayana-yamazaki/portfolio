@@ -45,7 +45,6 @@
 .outcome-list--bulleted li { display: list-item; padding: 2px 0; line-height: 1.4; }
 .case-page .reposaku-content .outcome-list li { padding-block: 8px; font-size: 16px; }
 .case-page .reposaku-content .outcome-list li span:first-child { font-size: 16px; font-weight: 400; }
-.case-source { color: inherit; text-underline-offset: 4px; }
 .case-intro-list { margin: 40px 0 0; padding: 0; list-style: none; border-top: 1px solid #181818; }
 .case-intro-list li { padding: 18px 0; border-bottom: 1px solid #181818; font-size: clamp(14px, 1.3vw, 18px); line-height: 1.6; }
 .case-subsection { margin-top: clamp(80px, 10vw, 140px); }
@@ -63,7 +62,7 @@
 .case-page .reposaku-content .reposaku-section-header { display: flex; flex-direction: column; gap: var(--case-heading-gap); }
 .case-page .reposaku-content .reposaku-impact-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(40px, 7vw, 110px); align-items: start; }
 .case-page .reposaku-content .reposaku-impact-layout .case-prose { max-width: none; margin: 0; }
-.case-page .reposaku-content .reposaku-recognition { display: flex; flex-direction: column; gap: var(--case-subblock-gap); margin: 0; }
+.case-page .reposaku-content .reposaku-recognition { display: flex; flex-direction: column; gap: var(--case-subblock-gap); margin: var(--case-block-gap) 0 0; }
 .case-page .reposaku-content .reposaku-recognition > h3 { max-width: none; margin: 0; }
 .case-page .reposaku-content .reposaku-recognition-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(40px, 7vw, 110px); align-items: start; }
 .case-page .reposaku-content .reposaku-recognition-layout .case-prose { max-width: none; margin: 0; }
