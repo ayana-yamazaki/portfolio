@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import '../styles/case-study.css';
 import SiteHeader from '../components/SiteHeader.astro';
+import RevealObserver from '../components/RevealObserver.astro';
 
 interface Props {
   title: string;
@@ -29,5 +30,7 @@ const { title, description } = Astro.props;
     <footer class="case-footer">
       <a href="/">← Back to Home</a>
     </footer>
+
+    <RevealObserver />
   </body>
 </html>
