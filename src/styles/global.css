@@ -1,12 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
+
+:root { --accent-color: #006AB6; --keyvisual-background: #f6f3f1; }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; color: #181818; background: #ffffff; font-family: 'Inter', sans-serif; }
+body { margin: 0; color: #181818; background: #ffffff; font-family: 'Inter', 'Noto Sans JP', sans-serif; }
 main { overflow: hidden; }
 section { padding: 0 clamp(24px, 7vw, 112px); }
+.media-caption { margin-top: 4px; color: #4a4a4a; font-size: 12px; font-weight: 400; line-height: 1.5; text-align: center; }
+.body-sm { color: inherit; font-size: 13px; font-weight: 400; line-height: 1.7; }
+.text-emphasis { margin: 32px 0; font-size: clamp(16px, 2vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .rule { height: 1px; background: #181818; width: 100%; }
-.hero { min-height: 100svh; display: flex; flex-direction: column; padding-top: 28px; padding-bottom: 0; background: #f6f3f1; }
+.hero { min-height: 100svh; display: flex; flex-direction: column; padding-top: 28px; padding-bottom: 0; background: var(--keyvisual-background); }
 .name, .number, .section-kicker, .scroll, .image-placeholder span, .image-placeholder small { font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: .04em; }
 .name { margin: 0; padding-top: clamp(40px, 10vh, 110px); font-size: 16px; }
 .hero > .name, .hero > h1 { transform: translateY(-20px); }
@@ -84,7 +89,7 @@ h3 { font-size: clamp(36px, 5.5vw, 82px); line-height: .92; letter-spacing: -.06
 .experience-item p { margin-bottom: 0; font-size: 14px; line-height: 1.6; }
 .experience-item h4 { margin: 0 0 8px; font-size: clamp(18px, 2vw, 26px); font-weight: 500; letter-spacing: -.03em; }
 
-.hero-alt { min-height: 100svh; padding: 0; display: grid; grid-template-columns: 33% 67%; background: #f6f3f1; overflow: hidden; }
+.hero-alt { min-height: 100svh; padding: 0; display: grid; grid-template-columns: 33% 67%; background: var(--keyvisual-background); overflow: hidden; }
 .hero-alt-copy { position: relative; z-index: 4; padding: 28px clamp(24px, 7vw, 112px) 0; display: flex; flex-direction: column; overflow: visible; }
 .hero-alt header p { margin: 0; padding-top: clamp(40px, 10vh, 110px); font-size: 16px; letter-spacing: .04em; transform: translateY(-20px); }
 .hero-alt h1 { position: relative; margin: 0; font-size: clamp(38px, 7.6vw, 115px); line-height: .88; font-weight: 500; letter-spacing: -.07em; white-space: nowrap; transform: translateY(-20px); }

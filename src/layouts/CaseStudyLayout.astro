@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import '../styles/case-study.css';
+import SiteHeader from '../components/SiteHeader.astro';
 
 interface Props {
   title: string;
@@ -19,10 +20,7 @@ const { title, description } = Astro.props;
     <title>{title} — Ayana Yamazaki</title>
   </head>
   <body>
-    <header class="case-header">
-      <a class="case-brand" href="/">AYANA YAMAZAKI</a>
-      <a href="/">← Back to Home</a>
-    </header>
+    <SiteHeader />
 
     <main class="case-page">
       <slot />

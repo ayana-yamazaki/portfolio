@@ -10,15 +10,14 @@ import fieldResearch02 from '../../img/reposaku/Field Research02.jpg';
 import fieldResearch04 from '../../img/reposaku/Field Research04.jpg';
 import fieldResearch05 from '../../img/reposaku/Field Research05.jpg';
 import fieldResearchSenior from '../../img/reposaku/Field Research-senior.jpg';
-import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png';
+import reposakuDeviceOn from '../../img/reposaku/device-on.jpg';
+import reposakuKeyVisual from '../../img/reposaku/keyvisual.jpg';
 ---
 
 <CaseStudyLayout title="Reposaku" description="レポサク — From the Field to the Product">
       <section class="case-hero reposaku-hero">
         <div class="reposaku-hero-heading">
           <div>
-            <p class="reposaku-hero-kicker">01 — Understand Reality</p>
-            <p class="reposaku-hero-title">From the Field to the Product</p>
             <h1>"ITが苦手"を、<br />ユーザーのせいにしない。</h1>
           </div>
           <div class="pillar-award reposaku-award">
@@ -50,9 +49,11 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
       </section>
 
       <div class="case-content reposaku-content">
-        <section class="case-section">
-          <p class="case-label">01 — Field Research</p>
-          <h2>「IT屋」と呼ばれた私が、畑に入るまで。</h2>
+        <section class="case-section reposaku-section">
+          <header class="reposaku-section-header">
+            <p class="case-label">01 — Field Research</p>
+          <h2>現場に入り、<br />課題を定義し直す。</h2>
+          </header>
           <div class="field-research-layout">
             <div class="field-research-gallery" aria-label="農業現場とシニアスマホ教室でのフィールドリサーチ">
               <img class="field-research-image--large" src={fieldResearch01.src} alt="農業現場でのフィールドリサーチ" />
@@ -62,113 +63,132 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
               <img class="field-research-image--large" src={fieldResearchSenior.src} alt="シニア向けスマホ教室でのフィールドリサーチ" />
             </div>
             <div class="case-prose">
-              <p>農作業の自動化には、ベテランがどう車両を動かし、作業を組み立てているかを示す「全員」の精密なデータが必要でした。しかし、農家さんから返ってきたのは「俺らはIT無理だから」という言葉でした。</p>
-              <p>当初、私たちは「IT屋」と呼ばれ、困りごとさえ話してもらえませんでした。最初はジャケットを着て訪ねていましたが、次第にツナギを着て現場へ入るようになりました。</p>
-              <p>近所の農家さんから畑の一部を借り、2年間かけて14種類の野菜を育てました。しかし、ほとんどうまくいきませんでした。</p>
-              <p>土壌、天候、虫、害獣。組み合わせる変数は膨大で、失敗しても原因を特定できない。ITなら短い周期で回せる改善も、農業では次に試せるのが一年後になることがあります。</p>
-              <blockquote><p>「ITが苦手な人」だと思っていた相手は、私にはできない仕事をする専門家でした。</p></blockquote>
-              <p>同時に、シニア向けスマホ教室の手伝いを通して、お年寄りがどこでつまずくのかを観察しました。</p>
-              <p>孫とテーマパークへ行くためにスマホ決済を覚えようとしていた女性は、馴染みのない言葉や複雑な操作に何度もつまずき、「私は頭が悪いから、無理なのね」と教室へ来なくなりました。</p>
-              <p>操作の失敗が続くと、単に使えないだけでなく、「自分にはできない」という苦手意識が強化されていく。その瞬間を目の当たりにしました。</p>
-              <p>農家さんの仕事を本当の意味で尊敬するようになると、農家さんも開発側を尊重し、困っていることを話してくれるようになりました。</p>
-            </div>
-          </div>
-        </section>
+              <p class="case-observation-label">Context</p>
+              <p>レポサクが目指す屋外型完全自動農場には、現場全員の精密な行動データが必要である。しかし、農家さんから返ってきたのは「俺らはIT無理だから」という言葉だった。</p>
+              <p>当初、私たちは全員参加を阻む原因を、ITへの不慣れさにあると考えた。高齢者にも分かりやすいUIを作れば解決できるのではないか。しかし、その前提は正しいのか。確かめるために、自ら農作業を経験し、シニア向けスマホ教室で利用者の行動を観察した。</p>
 
-        <section class="case-section">
-          <p class="case-label">02 — Insight</p>
-          <h2>使えない原因は、人ではなく環境と設計にあった。</h2>
-          <div class="reposaku-insight-layout">
-            <div class="case-prose">
-              <p>実際に農作業をすると、画面上では簡単に見える操作も、現場では大きな負担になると分かりました。</p>
+              <h3>Research 1 — 農業を、自分の身体で理解する</h3>
+              <p>近所の農家さんから畑を借り、2年間で14種類の野菜を育てた。しかし、ほとんどうまくいかなかった。</p>
+              <p>土壌、天候、虫、害獣。無数の変数が重なり、失敗しても原因を特定できない。次に試せるのが一年後になることもある。</p>
+              <p class="text-emphasis"><strong>農家さんの「勘」は、簡単には再現できない複雑な判断の積み重ねだった。</strong></p>
+
               <p class="case-observation-label">Observed</p>
               <ul class="case-observation-list">
                 <li>強い日差しで、画面の文字が読めない</li>
                 <li>軍手や手汗で、細かな操作ができない</li>
-                <li>繁忙期には、一度手を止める余裕もない</li>
+                <li>繁忙期には、作業を止める余裕がない</li>
               </ul>
-            </div>
-            <div class="case-prose reposaku-insight-quote">
-              <blockquote><p><strong>「ITが苦手」なのではない。現場を前提にしていない設計が、使えない状況を作っていた。</strong></p></blockquote>
-            </div>
-          </div>
-        </section>
 
-        <section class="case-section">
-          <p class="case-label">03 — Product Decisions</p>
-          <h2>操作をなくし、使いたくなる体験を作る。</h2>
-          <h3>Decision 1 — 負担をゼロにする</h3>
-          <div class="reposaku-decision-row">
-            <div class="case-prose">
-              <p>CEOとともに決めたのは、UIを簡単にすることではなく、操作そのものをなくすことでした。</p>
-              <p>朝、車両のUSBに端末を挿す。それだけで位置情報が自動的に送信されます。アプリのインストール、初期設定、計測開始ボタンは必要ありません。</p>
-              <p>高齢者、外国語話者、日雇いの作業者。誰が運転しても、仕事を止めることなくデータが集まります。</p>
-              <p>マップを見る人は、紙の会員証にあるQRコードをスマートフォンで読み取るだけでアクセスできます。IDやパスワードを覚える必要はありません。</p>
-            </div>
-            <figure class="reposaku-decision-image">
-              <img src={reposakuDeviceAndMap.src} alt="軍手で扱えるレポサク端末と、車両内に設置したライブマップ" />
-            </figure>
-          </div>
+              <h3>Research 2 — 「使えない」が生まれる瞬間を見る</h3>
+              <p>シニア向けスマホ教室でボランティアをし、デジタル操作につまずく場面を観察した。</p>
+              <p>孫とテーマパークへ行くためにスマホ決済を覚えようとしていた女性は、失敗を重ねるうちに「私は頭が悪いから無理なのね」と話し、教室へ来なくなった。</p>
+              <p class="text-emphasis"><strong>使えない体験は、操作を妨げるだけでなく、「自分にはできない」という認識まで作っていた。</strong></p>
 
-          <div class="reposaku-turning-point">
-            <h3>「俺らはIT無理だから」を、<br />「これ、かっこいいだろ」へ。</h3>
-          </div>
-
-          <h3>Decision 2 — 義務を好奇心に変える</h3>
-          <div class="reposaku-live-map-row">
-            <figure class="case-image reposaku-real-image">
-              <img src="/images/reposaku-live-map.gif" alt="農作業車両の走行軌跡を表示したレポサクのライブマップ画面" />
-            </figure>
-            <div class="case-prose">
-              <p>「分かりやすく、間違えずに使える」だけでは、全員参加には足りません。</p>
-              <p>シニア向けスマホ教室では、スマートフォンを苦手としている人でも、パチンコやゲームは楽しんでいました。</p>
-              <p>また農家さんの間には、新しい車両やシステムを「かっこいいだろ」と見せ合う文化がありました。</p>
-              <p>高齢者向けだからと、地味で簡素な画面にする必要はない。</p>
-              <p>現実の車両とシンクロして動くマップを、ゲームのように楽しく、思わず人に見せたくなる体験へ作り直しました。</p>
-              <p>農家さん自身が近隣の人にレポサクを見せるようになり、「何それ、かっこいい」と口コミが広がっていきました。</p>
-              <div class="reposaku-cover-awards reposaku-inline-awards" aria-label="レポサクの受賞実績">
-                <img src={reposakuAward01.src} alt="農林水産技術会議会長賞" />
-                <img src={reposakuAward02.src} alt="デジタル田園都市国家構想" />
-                <img src={reposakuAward03.src} alt="CEATEC AWARD" />
-                <img src={reposakuAward04.src} alt="イチBizアワード2023 最優秀賞" />
+              <p class="case-observation-label">Insight</p>
+              <div class="text-emphasis">
+                <p><strong>「ITが苦手」は原因ではない。</strong></p>
+                <p><strong>現場を前提にしない設計と、失敗体験の積み重ねによって生まれた結果だった。</strong></p>
               </div>
             </div>
           </div>
         </section>
 
-        <section class="case-section">
-          <p class="case-label">04 — Impact</p>
-          <h2>無線で指示を待つチームから、マップを見て動くチームへ。</h2>
-          <div class="case-prose">
+        <section class="case-section reposaku-section">
+          <header class="reposaku-section-header">
+            <p class="case-label">02 — Product Decisions</p>
+            <h2>操作をなくし、使いたくなる体験を作る。</h2>
+          </header>
+          <div class="reposaku-decision-row">
+            <div class="reposaku-decision-copy">
+              <h3>Decision 1 — 負担をゼロにする</h3>
+              <div class="case-prose">
+                <p>CEOとともに決めたのは、UIを簡単にすることではなく、作業者に操作を求めないことでした。</p>
+                <p>朝、車両のUSBに端末を挿す。それだけで起動し、位置情報が自動的に送信されます。アプリのインストール、初期設定、計測開始の操作は必要ありません。</p>
+                <p>マップを見る人も、紙の会員証にあるQRコードを読み取るだけ。IDやパスワードを覚える必要はありません。</p>
+                <p class="text-emphasis">高齢者、外国語話者、日雇いの作業者。誰が運転しても、仕事を止めることなく全員のデータが集まる仕組みにしました。</p>
+              </div>
+            </div>
+            <figure class="reposaku-decision-image">
+              <img src={reposakuDeviceOn.src} alt="車両のUSBに接続されたレポサク端末" />
+              <figcaption class="media-caption">車両のUSBに端末を挿せば位置情報が自動で送られる</figcaption>
+            </figure>
+          </div>
+
+          <figure class="reposaku-keyvisual">
+            <img src={reposakuKeyVisual.src} alt="レポサクのキービジュアル" />
+          </figure>
+
+          <h3>Decision 2 — 使いたくなる理由をつくる</h3>
+          <div class="reposaku-live-map-row">
+            <div class="case-prose">
+              <p><strong>操作の負担をなくし、「誰でも使える」だけでは全員参加は達成できません。自ら使いたくなる理由が必要でした。</strong></p>
+              <p>シニア向けスマホ教室では、スマートフォンを苦手としている人でも、スマホゲームは楽しんでいました。</p>
+              <p>また農家さんの間には、新しい車両やシステムを「かっこいいだろ」と見せ合う文化がありました。</p>
+              <p>そこで、楽しく思わず人に見せたくなる体験へ設計するため、マップ全体をゲームのように実装。</p>
+              <p class="text-emphasis">結果、農家さん自身が近隣の人にレポサクを自慢してくれるようになり、「何それ、かっこいい」と口コミが広がり、導入が拡大しました。</p>
+            </div>
+            <figure class="case-image reposaku-real-image">
+              <img src="/images/reposaku-live-map.gif" alt="農作業車両の走行軌跡を表示したレポサクのライブマップ画面" />
+            </figure>
+          </div>
+        </section>
+
+        <section class="case-section reposaku-section">
+          <header class="reposaku-section-header">
+            <p class="case-label">03 — Impact</p>
+            <h2>「俺らはIT無理だから」を、<br />「これ、かっこいいだろ」へ。</h2>
+          </header>
+          <div class="reposaku-impact-layout">
+            <div class="case-prose">
             <p>牧草の収穫では、刈る、集める、運ぶ、踏み固める複数の車両が連携します。以前は「今どこ？」「どこまで終わった？」を無線や電話で何度も確認していました。</p>
             <p>導入後は、作業者自身がマップを見て、指示を待たずに動けるようになりました。遅れている場所へ、別の車両が自らサポートに向かいます。</p>
             <p>さらに、高精度に記録されたベテランの走行軌跡は、若手が運転を学ぶための教材にもなりました。</p>
+            <div class="reposaku-cover-awards reposaku-inline-awards" aria-label="レポサクの受賞実績">
+              <img src={reposakuAward01.src} alt="農林水産技術会議会長賞" />
+              <img src={reposakuAward02.src} alt="デジタル田園都市国家構想" />
+              <img src={reposakuAward03.src} alt="CEATEC AWARD" />
+              <img src={reposakuAward04.src} alt="イチBizアワード2023 最優秀賞" />
+            </div>
+          </div>
+            <ol class="outcome-list">
+              <li><span>01</span><span>車両の位置確認に使われていた無線連絡を84％削減</span></li>
+              <li><span>02</span><span>作業効率を18％向上</span></li>
+              <li><span>03</span><span>事務作業を58％削減</span></li>
+              <li><span>04</span><span>ベテランの軌跡を、若手の学習や作業相談に活用</span></li>
+              <li><span>05</span><span>全国200社規模、農協24組合へ導入</span></li>
+              <li><span>06</span><span>除雪、配送、クマ対策など、農業以外の11自治体へ展開</span></li>
+            </ol>
           </div>
 
-          <ol class="outcome-list">
-            <li><span>01</span><span>車両の位置確認に使われていた無線連絡を84％削減</span></li>
-            <li><span>02</span><span>作業効率を18％向上</span></li>
-            <li><span>03</span><span>事務作業を58％削減</span></li>
-            <li><span>04</span><span>ベテランの軌跡を、若手の学習や作業相談に活用</span></li>
-            <li><span>05</span><span>全国200社規模、農協24組合へ導入</span></li>
-            <li><span>06</span><span>除雪、配送、クマ対策など、農業以外の11自治体へ展開</span></li>
-          </ol>
-
-          <div class="case-prose reposaku-recognition">
-            <p class="case-observation-label">Recognition</p>
+          <div class="reposaku-recognition">
             <h3>2025年度グッドデザイン金賞・ベスト100</h3>
-            <p>審査対象5,225件の中から、グッドデザイン・ベスト100、さらに金賞19件の一つに選出されました。</p>
-            <blockquote><p>「農家の尊厳を大切にしつつ、畑で働くすべての人々の努力から美を生み出している。」</p></blockquote>
-            <p>Hong Khai Seng<br />デザインディレクター<br />グッドデザイン賞2025「私の選んだ一品」</p>
-            <p><a class="case-source" href="https://www.g-mark.org/gallery/winners/33628?years=2025">グッドデザイン賞 審査員評価 ↗</a></p>
+            <div class="reposaku-recognition-layout">
+              <div class="case-prose">
+                <p>審査対象5,225件の中から、グッドデザイン・ベスト100、さらに金賞19件の一つに選出されました。</p>
+                <figure class="reposaku-recognition-video">
+                  <div class="reposaku-recognition-video-frame">
+                    <iframe
+                      src="https://www.youtube.com/embed/E-YzihfEwVA?start=2&autoplay=0"
+                      title="レポサク グッドデザイン賞紹介動画"
+                      loading="lazy"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowfullscreen
+                    ></iframe>
+                  </div>
+                  <figcaption class="media-caption">グッドデザイン賞最終審査のプレゼン</figcaption>
+                </figure>
+              </div>
+              <div class="case-prose reposaku-recognition-copy">
+                <blockquote><p>「農家の尊厳を大切にしつつ、畑で働くすべての人々の努力から美を生み出している。」</p></blockquote>
+                <p class="body-sm reposaku-reviewer">Hong Khai Seng<br />デザインディレクター<br />グッドデザイン賞2025「私の選んだ一品」</p>
+                <blockquote><p>徹底的にユーザーに寄り添ったサービス設計哲学が高く評価された。現場の多様なニーズや利用者層を深く観察し、高齢者や経験の浅い利用者でも直感的に扱える操作環境や細やかな安全配慮、リアルな課題への対応策が随所に盛り込まれている。</p></blockquote>
+                <p class="body-sm"><strong>審査員評価</strong></p>
+                <p><a class="case-source" href="https://www.g-mark.org/gallery/winners/33628?years=2025">グッドデザイン賞 審査員評価 ↗</a></p>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section class="reposaku-ending">
-          <p>現場理解とは、要望を聞くことではない。</p>
-          <p>同じ環境に身を置き、自分の前提を疑い、その理解をプロダクトの判断へ変えること。</p>
-          <p><strong>私は、画面を作る前に現実を理解することから始めます。</strong></p>
-        </section>
       </div>
 </CaseStudyLayout>
 
@@ -203,13 +223,6 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
   .reposaku-hero-title {
     margin-bottom: 20px;
     color: #666;
-  }
-
-  .reposaku-hero h1 {
-    max-width: none;
-    margin: 0;
-    font-size: clamp(29px, 4.1vw, 62px);
-    line-height: 1.2;
   }
 
   .reposaku-award {
@@ -313,7 +326,7 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
   .reposaku-cover-awards {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(8px, 1vw, 16px);
+    gap: 4px;
     align-items: center;
   }
 
@@ -324,9 +337,9 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
   }
 
   .reposaku-inline-awards {
-    margin-top: 40px;
-    padding: clamp(18px, 2vw, 28px);
-    background: #181818;
+    margin-top: 16px;
+    padding: 0;
+    background: transparent;
   }
 
   .case-observation-label {
@@ -369,28 +382,73 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
     margin: clamp(70px, 9vw, 120px) 0;
   }
 
-  .reposaku-turning-point {
-    margin: clamp(90px, 12vw, 170px) 0;
-    padding: clamp(52px, 8vw, 110px) clamp(28px, 6vw, 80px);
-    color: #fff;
-    background: #181818;
+  .reposaku-keyvisual {
+    width: 100%;
+    margin: 0;
   }
 
-  .reposaku-turning-point h3 {
-    max-width: 14ch;
+  .reposaku-keyvisual img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .reposaku-impact-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(40px, 7vw, 110px);
+    align-items: start;
+  }
+
+  .reposaku-impact-layout :global(.case-prose) {
+    max-width: none;
     margin: 0;
-    font-size: clamp(36px, 6vw, 86px);
-    line-height: 1.05;
-    letter-spacing: -.06em;
-    font-weight: 500;
   }
 
   .reposaku-recognition {
-    margin-top: clamp(100px, 12vw, 170px);
+    margin: 0;
+  }
+
+  .reposaku-recognition-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(40px, 7vw, 110px);
+    align-items: start;
+  }
+
+  .reposaku-recognition-layout :global(.case-prose) {
+    max-width: none;
+    margin: 0;
+  }
+
+  .reposaku-recognition-video {
+    margin: 0;
+  }
+
+  .reposaku-recognition-video-frame {
+    aspect-ratio: 16 / 9;
+  }
+
+  .reposaku-recognition-video-frame iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .reposaku-reviewer {
+    margin-bottom: 32px !important;
+    padding-bottom: 0;
+  }
+
+  .reposaku-recognition-copy {
+    display: flex;
+    flex-direction: column;
   }
 
   .reposaku-recognition h3 {
-    margin: 20px 0 36px;
+    max-width: none;
+    margin: 0;
     font-size: clamp(28px, 3.8vw, 52px);
     line-height: 1.1;
     letter-spacing: -.05em;
@@ -425,7 +483,7 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
 
   .field-research-layout {
     display: grid;
-    grid-template-columns: minmax(260px, .6fr) minmax(0, 1.4fr);
+    grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
     gap: clamp(40px, 7vw, 110px);
     align-items: start;
   }
@@ -454,8 +512,8 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
 
   .reposaku-live-map-row {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(40px, 6vw, 96px);
+    grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
+    gap: clamp(40px, 7vw, 110px);
     align-items: start;
   }
 
@@ -469,6 +527,15 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
   .reposaku-decision-row :global(.case-prose) {
     max-width: none;
     margin: 0;
+  }
+
+  .reposaku-decision-copy > h3 {
+    max-width: none;
+    margin: 0;
+    font-size: clamp(24px, 2.8vw, 40px);
+    line-height: 1.15;
+    letter-spacing: -.05em;
+    font-weight: 500;
   }
 
   .reposaku-decision-image {
@@ -489,7 +556,6 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
 
   .reposaku-content :global(.case-section > h2) {
     max-width: none;
-    font-size: clamp(44px, 5.5vw, 84px);
   }
 
   .reposaku-content :global(.case-section:first-child) {
@@ -553,6 +619,14 @@ import reposakuDeviceAndMap from '../../img/reposaku/reposaku-device-and-map.png
     }
 
     .reposaku-decision-row {
+      grid-template-columns: 1fr;
+    }
+
+    .reposaku-impact-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .reposaku-recognition-layout {
       grid-template-columns: 1fr;
     }
   }
