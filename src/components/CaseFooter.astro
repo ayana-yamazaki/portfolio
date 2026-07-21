@@ -1,0 +1,68 @@
+---
+const currentPath = Astro.url.pathname;
+
+const footerByPath: Record<string, {
+  label: string;
+  number?: string;
+  title: string;
+  description: string;
+  href: string;
+  action: string;
+  image?: string;
+}> = {
+  '/reposaku': {
+    label: 'Next Case',
+    number: '02',
+    title: 'Decide What to Build',
+    description: '現場の事実から、作るべきものと順序を決める。',
+    href: '/decide-what-to-build',
+    action: 'View next case',
+    image: '/images/reposaku-report-hero.jpg',
+  },
+  '/decide-what-to-build': {
+    label: 'Next Case',
+    number: '03',
+    title: 'Prototype and Iterate',
+    description: '歯科医師と試作を重ね、紙より速い操作へ磨き込む。',
+    href: '/prototype-and-iterate',
+    action: 'View next case',
+    image: '/images/medical-ui/hero-interaction.gif',
+  },
+  '/prototype-and-iterate': {
+    label: 'Selected Cases',
+    title: 'How I Build',
+    description: '現場を理解し、作るべきものを決め、触れる形まで持っていく。',
+    href: '/',
+    action: 'Back to overview',
+  },
+};
+
+const footer = footerByPath[currentPath] ?? footerByPath['/prototype-and-iterate'];
+---
+
+<footer class="case-footer">
+  <a class="case-footer__feature" href={footer.href}>
+    {footer.image && <img class="case-footer__image" src={footer.image} alt="" aria-hidden="true" />}
+    <div class="case-footer__feature-inner">
+      <div class="case-footer__eyebrow">
+        <span>{footer.label}</span>
+        {footer.number && <span>{footer.number}</span>}
+      </div>
+      <div class="case-footer__title-row">
+        <h2>{footer.title}</h2>
+        <span class="case-footer__arrow" aria-hidden="true">→</span>
+      </div>
+      <p>{footer.description}</p>
+      <span class="case-footer__action">{footer.action} <span aria-hidden="true">↗</span></span>
+    </div>
+  </a>
+
+  <div class="case-footer__utility">
+    <p>Ayana Yamazaki — Product Builder</p>
+    <nav aria-label="Footer navigation">
+      <a href="/">Home</a>
+      <a href="https://x.com/ayana_yamazaki" target="_blank" rel="noreferrer">X / Twitter</a>
+      <a href="#top">Back to top ↑</a>
+    </nav>
+  </div>
+</footer>

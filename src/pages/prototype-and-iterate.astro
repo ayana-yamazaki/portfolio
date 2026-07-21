@@ -2,11 +2,11 @@
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 ---
 
-<CaseStudyLayout title="Prototype and Iterate" description="歯科医師と試作を重ね、紙より速い操作へ磨き込む。">
-  <section class="case-hero case-hero--split">
+<CaseStudyLayout title="Prototype and Iterate" description="歯科医師と試作を重ね、紙より速い操作を実現">
+  <section class="case-hero case-hero--split case-hero--wide-first">
     <div class="case-hero-copy">
       <p class="case-hero-title"><span>03</span><span>Prototype and Iterate</span></p>
-      <h1>歯科医師と試作を重ね、<br />紙より速い操作へ磨き込む。</h1>
+      <h1>歯科医師と試作を重ね、<br />紙より速い操作を実現</h1>
       <p>最大192項目を5分以内に入力する、歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、プロトタイプを作るたびに歯科医師と検証。実際に入力を担う歯科衛生士の評価も反映しながら、手と視線の移動を削り、紙と比べて検査速度を24％向上させた。</p>
     </div>
 
@@ -29,10 +29,11 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
   </section>
 
   <div class="case-content">
-    <section class="case-section">
+    <section class="case-section case-section--no-divider">
       <header class="case-section-header">
         <p class="section-title">01 Performance Requirement</p>
-        <h2>紙より速くなければ、<br />導入する理由がない。</h2>
+        <h2>紙より速くなければ、導入する理由がない。</h2>
+        <p><strong>見慣れた紙をデジタル化するだけでは足りない。<br />紙より速く、確実に入力できることをプロダクト要件とした。</strong></p>
       </header>
       <div class="case-two-column">
         <div class="case-prose">
@@ -44,18 +45,12 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
           <p>歯科医療では、検査に時間をかけても一件あたりの保険点数は変わらない。検査時間、すなわちチェアタイムの短縮が、そのまま生産性につながる。</p>
         </div>
       </div>
-      <div class="case-prose case-insight">
-        <div class="text-emphasis">
-          <p><strong>見慣れた紙をデジタル化するだけでは足りない。</strong></p>
-          <p><strong>紙より速く、確実に入力できることをプロダクト要件とした。</strong></p>
-        </div>
-      </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header">
         <p class="section-title">02 Iterate the Input</p>
-        <h2>「次へ」の0.5秒から、<br />一つずつ操作を削る。</h2>
+        <h2>0.5秒単位で操作を削る</h2>
       </header>
       <div class="case-prose case-prose--full">
         <p class="case-label">Validation Loop</p>
@@ -71,33 +66,23 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
         <article><p class="case-label">Version 5</p><h3>ボタンを96pxまで調整する</h3><p>人差し指から薬指を自然に置けるサイズを検討し、ボタンを96pxに調整した。指の移動量を抑えながら、押し間違いを防げる大きさを探った。</p><figure class="case-figure"><img src="/images/medical-ui/input-v5.png" alt="入力ボタンのサイズ比較" /></figure></article>
         <article><p class="case-label">Final</p><h3>使用頻度から、ボタンの強弱を決める</h3><p>使用頻度が低く、異常値でもある数値のボタンを小さくすることで、誤タップを抑えた。歯周病リスクとなる4mm以上には警戒色を使用し、入力時に識別できるようにした。</p><figure class="case-figure"><img src="/images/medical-ui/input-final.png" alt="使用頻度と異常値に応じて強弱を付けた最終入力UI" /></figure></article>
       </div>
-      <div class="case-prose case-insight">
-        <p><strong>プロトタイプを作って正解を確認したのではない。専門家との検証で不採用を重ね、必要な操作だけを残した。</strong></p>
-      </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header">
         <p class="section-title">03 Iterate the Feedback</p>
-        <h2>紙の形ではなく、<br />紙が担っていた一覧性を残す。</h2>
+        <h2>入力速度と操作の安心感を両立させる</h2>
       </header>
       <div class="case-prose case-prose--full">
         <p>入力速度を高めるだけでは、安心して検査を進められない。入力中の歯と入力済みの結果を、視線を大きく動かさずに確認できる表示を検討した。</p>
+        <p><strong>紙の検査表の高い一覧性を、デジタルに落とし込んだ。</strong></p>
       </div>
       <div class="prototype-feedback-list">
         <article><p class="case-label">Version 1</p><h3>紙の検査表を、そのまま再現する</h3><p>見慣れた紙の検査表を、そのままタブレット上に再現した。しかし、「見慣れてはいるが、この形である必要はない」というフィードバックを受け、タブレットに適した表示を探ることにした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v1.png" alt="紙の検査表を再現した初期表示案" /></figure></article>
         <article><p class="case-label">Version 2</p><h3>顎をイラストで表示する</h3><p>顎の形をそのままイラスト化した。見た目は直感的だったが、現在どの歯の、どの面を入力しているか判別しにくく、不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v2.png" alt="顎全体をイラストで表示した案" /></figure></article>
         <article><p class="case-label">Version 3</p><h3>入力中の歯面を表示する</h3><p>入力対象となる歯面を表示し、現在地を確認できるようにした。一方で、検査中は上顎と下顎を同時に確認する必要があることが分かった。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v3.png" alt="入力中の歯面を表示した案" /></figure></article>
         <article><p class="case-label">Version 4</p><h3>上下の歯を、横一列に並べる</h3><p>上下顎を同時に一覧できるよう、歯を横一列に配置した。情報を増やしすぎると視認性が下がるため、表示するフィードバックを絞り込んだ。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v4.png" alt="上下の歯を横一列に並べた表示案" /></figure></article>
-      </div>
-      <div class="case-prose case-prose--full">
-        <p class="case-label">Final</p>
-        <h3>現在地と異常値だけを強調する</h3>
-        <p>入力中の歯面を青く表示し、入力済みの数値は必要最小限に抑えた。歯周病リスクとなる4mm以上だけを強調し、「今どこを入力しているか」「どのように入力したか」を一目で確認できるようにした。</p>
-        <figure class="case-figure"><img src="/images/medical-ui/feedback-final.png" alt="現在地と異常値だけを強調した最終結果表示UI" /></figure>
-      </div>
-      <div class="case-prose case-insight">
-        <p><strong>継承したのは、紙のレイアウトではない。現在地と結果を一目で確認できる、紙の安心感だった。</strong></p>
+        <article><p class="case-label">Final</p><h3>現在地と異常値だけを強調する</h3><p>入力中の歯面を青く表示し、入力済みの数値は必要最小限に抑えた。歯周病リスクとなる4mm以上だけを強調し、「今どこを入力しているか」「どのように入力したか」を一目で確認できるようにした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-final.png" alt="現在地と異常値だけを強調した最終結果表示UI" /></figure></article>
       </div>
     </section>
 
@@ -105,29 +90,28 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
       <header class="case-section-header">
         <p class="section-title">04 From Prototype to Specification</p>
         <h2>検証した操作を、<br />実装できる仕様へ。</h2>
+        <p><strong>プロトタイプを検証で終わらせず、専門家と確かめた操作を、実装可能な仕様までつないだ。</strong></p>
       </header>
       <div class="case-two-column">
         <div class="case-prose">
           <p class="case-label">Interactive Prototype</p>
           <p>Figma上で実際の入力操作と画面遷移を再現した。歯科医師との検証だけでなく、エンジニアにも操作の手触りを共有し、データ構造やトランジションとの整合性を実装前に確認した。</p>
+          <p><strong>※ 現在このプロセスはClaude Codeのコードベースプロトで実施</strong></p>
           <figure class="case-figure"><img src="/images/medical-ui/interactive-prototype.png" alt="Figmaで作成した歯周病検査UIのインタラクティブプロトタイプ" /></figure>
         </div>
         <div class="case-prose">
           <p class="case-label">Design Specification</p>
           <p>入力値、選択状態、自動送り、フィードバック、エラーなど、操作中に発生する状態を整理した。Figma上で変数名とステートを定義し、視認性を検証した上でコンポーネント化。開発チームが設計意図を理解し、実装できる仕様書へ落とし込んだ。</p>
+          <p><strong>※ 現在このプロセスはStorybookに実装</strong></p>
           <figure class="case-figure"><img src="/images/medical-ui/design-specification.png" alt="操作遷移と状態を整理したデザイン仕様書" /></figure>
           <figure class="case-figure"><img src="/images/medical-ui/component-states.png" alt="入力値や状態ごとに整理した歯のUIコンポーネント" /></figure>
         </div>
-      </div>
-      <div class="case-prose case-insight">
-        <p><strong>プロトタイプを検証で終わらせず、専門家と確かめた操作を、実装可能な仕様までつないだ。</strong></p>
       </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header">
         <p class="section-title">05 Impact</p>
-        <h2>紙より24％速く、<br />紙より使いやすく。</h2>
       </header>
       <div class="case-two-column">
         <div class="case-prose">
@@ -137,7 +121,7 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
         </div>
         <div class="case-prose">
           <p class="case-label">Qualitative Impact</p>
-          <h3>専門家から「紙より使いやすい」と評価</h3>
+          <h3>「紙より使いやすい」と高評価</h3>
           <p>歯科医師・歯科衛生士から「紙より使いやすい」という評価を得た。手と視線の移動を抑え、連続入力のリズムを維持しながら、現在地と入力結果を確認できる体験を実現した。</p>
         </div>
       </div>
@@ -146,19 +130,36 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 </CaseStudyLayout>
 
 <style>
-  .prototype-iterations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--divider-color); border: 1px solid var(--divider-color); }
+  .prototype-iterations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
   .prototype-iterations article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 3vw, 36px); background: #fff; }
+  .prototype-iterations article:nth-child(odd) { border-right: 1px solid var(--divider-color); }
+  .prototype-iterations article:nth-child(n + 3) { border-top: 1px solid var(--divider-color); }
+  .prototype-iterations article:last-child { background: color-mix(in srgb, var(--accent-color) 9%, #fff); }
+  .prototype-iterations article:last-child .case-label { color: #fff; background: var(--accent-color); }
+  .prototype-iterations article:last-child h3 { color: var(--accent-color); }
   .prototype-iterations article > p:last-of-type { margin: 0; font-size: 15px; line-height: 1.7; }
   .prototype-iterations h3, .prototype-feedback-list h3 { font-size: clamp(21px, 2.4vw, 32px); line-height: 1.4; }
-  .prototype-iterations :global(.case-image) { min-height: 240px; margin: auto 0 0; }
-  .prototype-feedback-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--divider-color); border: 1px solid var(--divider-color); }
+  .prototype-iterations .case-figure { display: flex; width: 100%; justify-content: center; }
+  .prototype-iterations .case-figure img { display: block; width: auto; max-width: 100%; height: auto; max-height: 280px; }
+  .prototype-feedback-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
   .prototype-feedback-list article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 2.5vw, 32px); background: #fff; }
-  .prototype-feedback-list article > p:last-child { margin: 0; font-size: 14px; line-height: 1.7; }
+  .prototype-feedback-list article:nth-child(odd):not(:nth-child(5)) { border-right: 1px solid var(--divider-color); }
+  .prototype-feedback-list article:nth-child(n + 3) { border-top: 1px solid var(--divider-color); }
+  .prototype-feedback-list article > p:not(.case-label) { margin: 0; font-size: 14px; line-height: 1.7; }
+  .prototype-feedback-list article:nth-child(5) { grid-column: 1 / -1; background: color-mix(in srgb, var(--accent-color) 9%, #fff); }
+  .prototype-feedback-list article:nth-child(5) .case-label { color: #fff; background: var(--accent-color); }
+  .prototype-feedback-list article:nth-child(5) h3 { color: var(--accent-color); }
+  .prototype-feedback-list article:nth-child(5) .case-figure { width: 60%; max-width: 60%; margin-inline: auto; }
   .prototype-result { display: flex; flex-direction: column; gap: 16px; }
   .prototype-result strong { font-size: clamp(72px, 12vw, 180px); line-height: .9; letter-spacing: -.07em; }
   .prototype-result span { font-size: 16px; }
 
   @media (max-width: 720px) {
     .prototype-iterations, .prototype-feedback-list { grid-template-columns: 1fr; }
+    .prototype-iterations article:nth-child(odd),
+    .prototype-feedback-list article:nth-child(odd):not(:nth-child(5)) { border-right: 0; }
+    .prototype-iterations article + article,
+    .prototype-feedback-list article + article { border-top: 1px solid var(--divider-color); }
+    .prototype-feedback-list article:nth-child(5) .case-figure { width: 100%; max-width: none; }
   }
 </style>

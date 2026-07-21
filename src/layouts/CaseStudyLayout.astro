@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import '../styles/case-study.css';
+import CaseFooter from '../components/CaseFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import RevealObserver from '../components/RevealObserver.astro';
 
@@ -20,16 +21,14 @@ const { title, description } = Astro.props;
     <meta name="description" content={description} />
     <title>{title} — Ayana Yamazaki</title>
   </head>
-  <body>
+  <body id="top">
     <SiteHeader />
 
     <main class="case-page">
       <slot />
     </main>
 
-    <footer class="case-footer">
-      <a href="/">← Back to Home</a>
-    </footer>
+    <CaseFooter />
 
     <RevealObserver />
   </body>
