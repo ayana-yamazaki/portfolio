@@ -6,7 +6,7 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
   <section class="case-hero case-hero--split">
     <div class="case-hero-copy">
       <p class="section-title">02 — Decide What to Build</p>
-      <h1>現場の事実から、<br />作るべきものと順序を決める。</h1>
+      <h1>現場の事実から、<br />作るべきものと順序を<br />決める。</h1>
       <p>シードスタートアップの一人目プロダクトデザイナーとして、日報業務のリサーチから課題定義、UX・UI、開発ロードマップまでを担当した。16人の業務を観察し、GPSデータからシステムが下書きを作る体験を設計。100件以上の要望を、事業の成長順序に整理した。</p>
     </div>
 
@@ -19,10 +19,11 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
       </dl>
     </figure>
 
-    <div class="case-key-facts case-hero-wide" aria-label="調査と要件整理の主要数値">
+    <div class="case-key-facts case-key-facts--four case-hero-wide" aria-label="調査と事業成果の主要指標">
       <div><small>調査対象</small><strong>16</strong><span>人</span></div>
-      <div><small>日報完了まで</small><strong>2:08</strong><span>時間</span></div>
       <div><small>整理した要望</small><strong>100+</strong><span>件</span></div>
+      <div><small>導入効果</small><strong class="case-key-fact-text">日報提出率UP</strong></div>
+      <div><small>事業成果</small><strong class="case-key-fact-text">他業種へ展開</strong></div>
     </div>
   </section>
 
@@ -32,11 +33,16 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
         <p class="section-title">01 — Discovery</p>
         <h2>16人が帰宅するまで、<br />日報業務を観察する。</h2>
       </header>
-      <div class="case-two-column">
+      <div class="case-two-column case-two-column--wide-first">
         <div class="case-prose">
           <p class="case-label">Context</p>
           <p>農業から除雪、ごみ収集などへ事業を広げるため、車両を使う現場の日報を標準化する構想があった。社内には多くの機能要望があったが、何から作るべきかは決まっていなかった。</p>
           <p>要望を画面に並べる前に、農作業の終了から事務所への集合、日報の記入・提出、全員の帰宅までを観察した。</p>
+          <p class="case-label">Insight</p>
+          <div class="text-emphasis">
+            <p><strong>問題は紙ではない。</strong></p>
+            <p><strong>一日の終わりに、記憶から日報を作る業務そのものだった。</strong></p>
+          </div>
         </div>
         <div class="case-prose">
           <p class="case-label">Observed</p>
@@ -50,13 +56,6 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
           </ul>
         </div>
       </div>
-      <div class="case-prose case-insight">
-        <p class="case-label">Insight</p>
-        <div class="text-emphasis">
-          <p><strong>問題は紙ではない。</strong></p>
-          <p><strong>一日の終わりに、記憶から日報を作る業務そのものだった。</strong></p>
-        </div>
-      </div>
     </section>
 
     <section class="case-section">
@@ -64,66 +63,61 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
         <p class="section-title">02 — Product Decision</p>
         <h2>人が書くのではなく、<br />システムが事実を下書きする。</h2>
       </header>
-      <div class="case-two-column">
-        <div class="case-prose">
-          <p class="case-label">Before</p>
-          <p>手書きをスマートフォン入力に変えても、作業者は一日の行動を思い出し、時刻と内容を入力しなければならない。入力項目を増やせば、データは詳しくなっても提出の負担は増える。</p>
-        </div>
-        <div class="case-prose">
-          <p class="case-label">Decision</p>
-          <p>レポサクには、車両がいつ、どこを走ったかを示すGPSデータがある。そこで入力フォームを作るのではなく、GPSデータから日報の下書きを自動生成することにした。</p>
-        </div>
+      <div class="case-prose case-prose--full">
+        <p class="case-label">Decision</p>
+        <p>レポサクには、車両がいつ、どこを走ったかを示すGPSデータがある。そこで入力フォームを作るのではなく、GPSデータから日報の下書きを自動生成することにした。</p>
+        <p><strong>入力しやすい日報フォームではなく、入力そのものを減らす業務フローを設計した。</strong></p>
       </div>
 
       <div class="decision-comparison" aria-label="日報作成業務の変更前後">
-        <div><p class="case-label">Before</p><strong>記憶から一件ずつ入力する</strong><span>時刻と作業内容を思い出し、人ごとの基準で記録する</span></div>
-        <div><p class="case-label">After</p><strong>事実から作られた下書きを確認する</strong><span>GPSの位置と時間を基準に、必要な部分だけを分割・修正する</span></div>
+        <div><p class="case-label">Before</p><strong>記憶から一件ずつ入力</strong><span>手書きをスマートフォン入力に変えても、作業者は一日の行動を思い出し、時刻と内容を入力しなければならない。入力項目を増やせば、データは詳しくなっても提出の負担は増える。</span></div>
+        <div>
+          <p class="case-label">After</p>
+          <strong>システムが作った下書きを承認</strong>
+          <span>GPSの位置と時間を基準に、必要な部分だけを分割・修正する</span>
+          <figure class="case-figure">
+            <img src="/images/reposaku-report-product.webp" alt="GPSログから自動生成された日報のシーン一覧と編集画面" />
+          </figure>
+        </div>
       </div>
 
-      <div class="case-prose case-insight">
-        <p><strong>入力しやすい日報フォームではなく、入力そのものを減らす業務フローを設計した。</strong></p>
-        <p>GPSログのまとまりは、行動を振り返る単位として「シーン」と名付けた。</p>
-      </div>
     </section>
 
-    <figure class="case-figure">
-      <img src="/images/reposaku-report-product.webp" alt="GPSログから自動生成された日報のシーン一覧と編集画面" />
-    </figure>
-
-    <section class="case-section">
+    <section class="case-section case-section--no-divider case-section--compact-top">
       <header class="case-section-header">
         <p class="section-title">03 — Roadmap</p>
         <h2>100件以上の要望を、<br />事業の成長順序に変える。</h2>
       </header>
-      <div class="case-prose decision-intro-copy">
+      <div class="case-prose case-prose--full">
         <p>社内の機能要望と調査から得たアイデアを合わせると、改善候補は100件を超えた。すべてを同時に作るのではなく、現場がすぐ使える状態から、分析や他業種展開に耐えられるデータ基盤へ成長する順序を定義した。</p>
-      </div>
-      <div class="phase-list decision-phases">
-        <div class="phase-item"><h4>Phase 1 — まず提出できる</h4><p>GPSデータから、スマートフォンで日報を作成・提出できる。</p></div>
-        <div class="phase-item"><h4>Phase 1.1 — 継続して使える</h4><p>提出状態、代理提出、修正、ヘルプなど、実運用に必要な体験を整える。</p></div>
-        <div class="phase-item"><h4>Phase 2 — 事業に活かせる</h4><p>集計、CSV、請求、分析、他業種展開に耐えられるデータ品質へ広げる。</p></div>
-      </div>
-      <div class="case-prose case-insight">
         <p><strong>個別の機能要望を優先順位づけするのではなく、プロダクトと事業が成長する順序を設計した。</strong></p>
       </div>
+      <div class="phase-list decision-phases">
+        <div class="phase-item"><h4>Phase 1: まず提出できる</h4><p>GPSデータから、スマートフォンで日報を作成・提出できる。</p></div>
+        <div class="phase-item"><h4>Phase 1.1: 継続して使える</h4><p>提出状態、代理提出、修正、ヘルプなど、実運用に必要な体験を整える。</p></div>
+        <div class="phase-item"><h4>Phase 2: 事業に活かせる</h4><p>集計、CSV、請求、分析、他業種展開に耐えられるデータ品質へ広げる。</p></div>
+      </div>
     </section>
-
-    <figure class="case-figure">
-      <img src="/images/reposaku-report-roadmap.png" alt="100件以上の要望をフェーズ別に整理したNotionの要件一覧" />
-    </figure>
 
     <section class="case-section">
       <header class="case-section-header">
         <p class="section-title">04 — Product Structure</p>
         <h2>現場の例外を、<br />異なる業種でも破綻しない構造へ。</h2>
+        <p><strong>例外を機能として足すのではなく、異なる現場を受け止められる共通構造として設計した。</strong></p>
       </header>
       <div class="decision-exceptions">
-        <article><p class="case-label">Multiple Tasks</p><h3>一つの走行に、複数の作業が含まれる</h3><p>位置・速度・時刻を見ながら、一つのGPSログを複数の作業へ分割できるようにした。</p></article>
-        <article><p class="case-label">Multiple People</p><h3>一台の車両に、複数人が乗る</h3><p>ログを個人へ固定せず、会社全体のデータから自分の作業を選べる構造にした。</p></article>
-        <article><p class="case-label">Without GPS</p><h3>GPSデータがない日もある</h3><p>事務や整備の日も、GPSがある日と同じ導線で手動提出できるようにした。</p></article>
-      </div>
-      <div class="case-prose case-insight">
-        <p><strong>例外を機能として足すのではなく、異なる現場を受け止められる共通構造として設計した。</strong></p>
+        <article class="decision-exception-featured">
+          <p class="case-label">Multiple Tasks</p>
+          <h3>一つの走行に、複数の作業が含まれる</h3>
+          <p>位置・速度・時刻を見ながら、一つのGPSログを複数の作業へ分割できるようにした。</p>
+          <figure class="case-figure">
+            <img src="/images/reposaku-report-split.png" alt="GPSログを速度と位置情報を確認しながら二つの作業へ分割する画面" />
+          </figure>
+        </article>
+        <div class="decision-exception-stack">
+          <article><p class="case-label">Multiple People</p><h3>一台の車両に、複数人が乗る</h3><p>ログを個人へ固定せず、会社全体のデータから自分の作業を選べる構造にした。</p></article>
+          <article><p class="case-label">Without GPS</p><h3>GPSデータがない日もある</h3><p>事務や整備の日も、GPSがある日と同じ導線で手動提出できるようにした。</p></article>
+        </div>
       </div>
     </section>
 
@@ -134,19 +128,14 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
       </header>
       <div class="case-two-column">
         <div class="case-prose">
-          <p class="case-label">What Changed</p>
-          <ul class="outcome-list outcome-list--bulleted">
-            <li>GPSのタイムスタンプに基づく日報作成を実現</li>
-            <li>手入力から、確認・調整する業務へ転換</li>
-            <li>提出率と記録精度が向上</li>
-          </ul>
+          <p class="case-label">Operational Impact</p>
+          <h3>日報の正確性と提出率が向上</h3>
+          <p>GPSログのタイムスタンプを基準にすることで、手書きよりも時間情報の誤差を抑え、日報データの信頼性を高めた。日報作成の半自動化によって提出率も向上している。</p>
         </div>
         <div class="case-prose">
           <p class="case-label">Business Impact</p>
-          <ul class="outcome-list outcome-list--bulleted">
-            <li>日報データを請求・分析へ活用</li>
-            <li>ごみ収集、除雪など、農業以外の現場へ展開</li>
-          </ul>
+          <h3>分析への活用と、他業種への展開</h3>
+          <p>蓄積した日報データは、請求や業務分析への活用が進んでいる。さらに、日報業務の共通構造を捉えたことで、<span class="text-accent-inline">農業だけでなく、ごみ収集や除雪など、車両を使う他業種への採用にもつながった。</span></p>
         </div>
       </div>
     </section>
@@ -154,20 +143,29 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 </CaseStudyLayout>
 
 <style>
-  .decision-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
-  .decision-comparison > div { display: flex; flex-direction: column; gap: 16px; padding: clamp(24px, 4vw, 48px); }
+  .decision-comparison { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
+  .decision-comparison::after { content: '→'; position: absolute; top: 50%; left: 50%; z-index: 1; display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid var(--divider-color); border-radius: 50%; background: #fff; color: var(--accent-color); font-size: 24px; transform: translate(-50%, -50%); }
+  .decision-comparison > div { display: flex; flex-direction: column; gap: 16px; padding: clamp(24px, 4vw, 48px); background: #fff; }
   .decision-comparison > div + div { border-left: 1px solid var(--divider-color); }
+  .decision-comparison > div:last-child { background: color-mix(in srgb, var(--accent-color) 9%, #fff); }
+  .decision-comparison > div:last-child .case-label { color: #fff; background: var(--accent-color); }
+  .decision-comparison > div:last-child > strong { color: var(--accent-color); }
   .decision-comparison strong { font-size: clamp(22px, 2.8vw, 36px); line-height: 1.4; }
   .decision-comparison span { font-size: 15px; line-height: 1.6; }
-  .decision-intro-copy { max-width: 860px; margin: 0; }
   .decision-phases { margin: 0; }
-  .decision-exceptions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--divider-color); border: 1px solid var(--divider-color); }
+  .decision-exceptions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
   .decision-exceptions article { display: flex; flex-direction: column; gap: 20px; padding: clamp(24px, 3vw, 40px); background: #fff; }
+  .decision-exception-featured { border-right: 1px solid var(--divider-color); }
+  .decision-exception-featured .case-figure { margin-top: auto; }
+  .decision-exception-stack { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+  .decision-exception-stack article + article { border-top: 1px solid var(--divider-color); }
   .decision-exceptions h3 { font-size: clamp(20px, 2.2vw, 30px); line-height: 1.4; }
   .decision-exceptions article > p:last-child { margin: 0; font-size: 15px; line-height: 1.7; }
 
   @media (max-width: 720px) {
     .decision-comparison, .decision-exceptions { grid-template-columns: 1fr; }
+    .decision-comparison::after { content: '↓'; }
+    .decision-exception-featured { border-right: 0; border-bottom: 1px solid var(--divider-color); }
     .decision-comparison > div + div { border-left: 0; border-top: 1px solid var(--divider-color); }
   }
 </style>
