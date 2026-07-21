@@ -4,10 +4,9 @@ import { about } from '../data/site';
 
 <section id="about" class="about" aria-labelledby="about-title">
   <div class="rule"></div>
-  <p class="section-kicker">{about.label}</p>
   <h2 id="about-title">{about.label}</h2>
   <div class="about-intro">
-    <div class="about-copy">{about.description.map((line) => <p>{line}</p>)}</div>
+    <div class="case-prose case-prose--full">{about.description.map((line) => <p>{line}</p>)}</div>
     <img src={about.profileImage} alt="山崎文菜のプロフィール写真" loading="lazy" />
   </div>
   <div class="experience">

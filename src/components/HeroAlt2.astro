@@ -29,7 +29,7 @@ import { hero, pillars } from '../data/site';
         <img src={panel01Texture.src} alt="" />
       </div>
       {pillars.map((card, index) => (
-        <div class="stage-card" data-stage-card={index}>
+        <div class="stage-card" data-stage-card={index} data-stage-href={card.href}>
           {card.image
             ? <img src={card.image.src} alt={card.alt} />
             : <div class="stage-card-placeholder"><span>Prototype and Iterate</span><small>Image placeholder</small></div>}

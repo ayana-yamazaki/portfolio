@@ -122,6 +122,29 @@ if (scene) {
     }
   };
 
+  const scrollToStage = (stage: number) => {
+    const travel = Math.max(1, scene.offsetHeight - window.innerHeight);
+    const threshold = stageThresholds[stage - 1];
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    window.scrollTo({
+      top: scene.offsetTop + (threshold + .01) * travel,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  };
+
+  stageCards.forEach((card, index) => {
+    card.addEventListener('click', () => {
+      const currentStage = Number(scene.dataset.stage);
+
+      if (currentStage === 0) {
+        scrollToStage(index + 1);
+      } else if (currentStage === index + 1 && card.dataset.stageHref) {
+        window.location.assign(card.dataset.stageHref);
+      }
+    });
+  });
+
   window.addEventListener('scroll', requestRender, { passive: true });
   window.addEventListener('resize', requestRender);
   render();

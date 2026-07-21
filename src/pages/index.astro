@@ -1,7 +1,9 @@
 ---
 import '../styles/global.css';
 import '../styles/home.css';
+import '../styles/case-study.css';
 import About from '../components/About.astro';
+import CaseFooter from '../components/CaseFooter.astro';
 import HeroAlt2 from '../components/HeroAlt2.astro';
 ---
 
@@ -13,11 +15,12 @@ import HeroAlt2 from '../components/HeroAlt2.astro';
     <meta name="description" content="Ayana Yamazaki — Product Builder" />
     <title>Ayana Yamazaki — Product Builder</title>
   </head>
-  <body>
+  <body id="top">
     <main class="home-main">
       <HeroAlt2 />
       <About />
     </main>
+    <CaseFooter />
   </body>
 </html>
 

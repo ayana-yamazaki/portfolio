@@ -1,5 +1,6 @@
 ---
 import panel03 from '../../img/panel03.png';
+import panel01 from '../../img/panel01.png';
 
 const currentPath = Astro.url.pathname;
 
@@ -12,6 +13,15 @@ const footerByPath: Record<string, {
   action: string;
   image?: string;
 }> = {
+  '/': {
+    label: 'Selected Case',
+    number: '01',
+    title: 'Reframe the Problem',
+    description: '前提を疑い、現場から解くべき問題を定める。',
+    href: '/reframe-the-problem',
+    action: 'View case study',
+    image: panel01.src,
+  },
   '/reframe-the-problem': {
     label: 'Next Case',
     number: '02',
