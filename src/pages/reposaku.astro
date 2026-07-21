@@ -48,9 +48,9 @@ import reposakuKeyVisual from '../../img/reposaku/keyvisual.jpg';
         </figure>
       </section>
 
-      <div class="case-content reposaku-content">
-        <section class="case-section reposaku-section">
-          <header class="reposaku-section-header" data-reveal>
+      <div class="case-content">
+        <section class="case-section">
+          <header class="case-section-header" data-reveal>
             <p class="section-title">01 — Field Research</p>
             <h2>現場に入り、課題を定義し直す。</h2>
           </header>
@@ -93,8 +93,8 @@ import reposakuKeyVisual from '../../img/reposaku/keyvisual.jpg';
           </div>
         </section>
 
-        <section class="case-section reposaku-section">
-          <header class="reposaku-section-header" data-reveal>
+        <section class="case-section">
+          <header class="case-section-header" data-reveal>
             <p class="section-title">02 — Product Decisions</p>
             <h2>「シニアも使える」で終わらせない。<br />誇りを持って使える体験を。</h2>
           </header>
@@ -135,8 +135,8 @@ import reposakuKeyVisual from '../../img/reposaku/keyvisual.jpg';
           </div>
         </section>
 
-        <section class="case-section reposaku-section">
-          <header class="reposaku-section-header" data-reveal>
+        <section class="case-section">
+          <header class="case-section-header" data-reveal>
             <p class="section-title">03 — Impact</p>
             <h2>「俺らはIT無理だから」が、<br />「これ、かっこいいだろ」に。</h2>
           </header>
@@ -344,7 +344,7 @@ import reposakuKeyVisual from '../../img/reposaku/keyvisual.jpg';
     margin: 0;
   }
 
-  .reposaku-content :global(.case-section > .case-image) {
+  :global(.case-content .case-section > .case-image) {
     min-height: clamp(320px, 42vw, 640px);
     margin: clamp(70px, 9vw, 120px) 0;
   }

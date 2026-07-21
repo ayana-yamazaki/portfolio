@@ -1,0 +1,148 @@
+---
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+---
+
+<CaseStudyLayout title="Prototype and Iterate" description="試作と検証を重ね、0.1秒単位で操作を削り切る。">
+  <section class="case-hero prototype-hero">
+    <div>
+      <p class="section-title">03 — Prototype and Iterate</p>
+      <h1>試作と検証を重ね、<br />0.1秒単位で操作を削り切る。</h1>
+    </div>
+
+    <div class="case-hero-summary">
+      <p>最大192項目を5分以内に入力する歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、入力操作と結果表示のプロトタイプを繰り返し検証。手と視線の移動を削り、紙と比べて入力速度を24％向上させた。</p>
+      <dl class="case-meta-grid">
+        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
+        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Dentist / Dental Hygienist</dd></div>
+        <div><dt class="meta-label">Duration</dt><dd class="text-xs">2021.10–2022.04</dd></div>
+      </dl>
+    </div>
+
+    <div class="case-key-facts" aria-label="歯周病検査UIの主要数値">
+      <div><small>入力項目</small><strong>192</strong><span>点</span></div>
+      <div><small>検査時間</small><strong>5</strong><span>分以内</span></div>
+      <div><small>入力速度</small><strong>24%</strong><span>向上</span></div>
+    </div>
+  </section>
+
+  <ImagePlaceholder label="Dental examination tablet UI and rapid input interface" />
+
+  <div class="case-content">
+    <section class="case-section">
+      <header class="case-section-header">
+        <p class="section-title">01 — Performance Requirement</p>
+        <h2>紙より速くなければ、<br />導入する理由がない。</h2>
+      </header>
+      <div class="case-two-column">
+        <div class="case-prose">
+          <p class="case-label">Context</p>
+          <p>歯科衛生士は、歯周ポケットの深さを測り、紙へ記録し、その結果を電子カルテへ転記していた。最大192項目を5分以内に扱う必要があり、現場には時間の余裕がなかった。</p>
+        </div>
+        <div class="case-prose">
+          <p class="case-label">Business Requirement</p>
+          <p>歯科医療では、検査時間を短縮しても一件あたりの保険点数は変わらない。チェアタイムの短縮が、そのまま生産性につながる。</p>
+        </div>
+      </div>
+      <div class="case-prose case-insight">
+        <div class="text-emphasis">
+          <p><strong>見慣れた紙をデジタル化するだけでは足りない。</strong></p>
+          <p><strong>紙より速く、確実に入力できることをプロダクト要件とした。</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <header class="case-section-header">
+        <p class="section-title">02 — Iterate the Input</p>
+        <h2>「次へ」の0.5秒から、<br />一つずつ操作を削る。</h2>
+      </header>
+      <div class="prototype-iterations">
+        <article><p class="case-label">Version 1</p><h3>「次へ」を押す</h3><p>1項目ごとに0.5秒。192回で90秒以上を失うため不採用。</p><ImagePlaceholder label="Input prototype — Version 1" /></article>
+        <article><p class="case-label">Version 2</p><h3>3点をまとめて入力</h3><p>指の移動が増え、ボタンを探すため画面を見続ける必要があり不採用。</p><ImagePlaceholder label="Input prototype — Version 2" /></article>
+        <article><p class="case-label">Version 3</p><h3>入力後に自動で送る</h3><p>「次へ」をなくし、数値入力後に次の項目へ自動で移動。歯科衛生士から高く評価され採用。</p><ImagePlaceholder label="Input prototype — Version 3" /></article>
+        <article><p class="case-label">Version 4</p><h3>指を固定する</h3><p>テンキー配置により、指を同じ位置に置いたままリズミカルに連続入力できる形へ。</p><ImagePlaceholder label="Input prototype — Version 4" /></article>
+        <article><p class="case-label">Version 5</p><h3>96pxまで調整する</h3><p>人差し指から薬指を置きやすいサイズまでボタンを調整した。</p><ImagePlaceholder label="Input prototype — Version 5" /></article>
+        <article><p class="case-label">Final</p><h3>誤タップを防ぐ</h3><p>使用頻度が低い値は小さくし、歯周病リスクとなる4mm以上を警戒色で強調した。</p><ImagePlaceholder label="Input prototype — Final" /></article>
+      </div>
+      <div class="case-prose case-insight">
+        <p><strong>プロトタイプを作って正解を確認したのではない。不採用を重ね、必要な操作だけを残した。</strong></p>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <header class="case-section-header">
+        <p class="section-title">03 — Iterate the Feedback</p>
+        <h2>紙の形ではなく、<br />紙が担っていた一覧性を残す。</h2>
+      </header>
+      <div class="prototype-feedback-list">
+        <article><p class="case-label">Version 1</p><h3>紙をそのまま再現</h3><p>見慣れているが、タブレット上で同じ形にする必要はないと判断した。</p></article>
+        <article><p class="case-label">Version 2</p><h3>顎をイラストで表示</h3><p>どの歯面を入力しているか分かりにくく、不採用とした。</p></article>
+        <article><p class="case-label">Version 3</p><h3>入力中の歯面を表示</h3><p>現在地は分かるが、上下顎を同時に確認できないことが分かった。</p></article>
+        <article><p class="case-label">Version 4</p><h3>上下の歯を横一列に</h3><p>上下の歯を一覧し、入力中の歯面だけを青く強調する構成へ変更した。</p></article>
+      </div>
+      <ImagePlaceholder label="Four iterations of the dental examination preview UI" />
+      <div class="case-prose case-insight">
+        <p><strong>継承したのは紙のレイアウトではなく、現在地と結果を一目で確認できる安心感だった。</strong></p>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <header class="case-section-header">
+        <p class="section-title">04 — From Prototype to Specification</p>
+        <h2>触れる仮説を、<br />実装できる仕様へ。</h2>
+      </header>
+      <div class="case-two-column">
+        <div class="case-prose">
+          <p class="case-label">Interactive Prototype</p>
+          <p>Figmaで実際の操作感を再現し、エンジニアにも手触りを共有した。操作導線とデータ構造、トランジションの整合性を実装前に検証した。</p>
+        </div>
+        <div class="case-prose">
+          <p class="case-label">Design Specification</p>
+          <p>入力値とフィードバックの全状態を整理し、変数名、ステート、エラー条件を仕様化。コンポーネントとして実装可能な形へ落とし込んだ。</p>
+        </div>
+      </div>
+      <div class="case-prose case-insight">
+        <p><strong>プロトタイプを検証で終わらせず、開発チームが実装できる仕様までつないだ。</strong></p>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <header class="case-section-header">
+        <p class="section-title">05 — Impact</p>
+        <h2>紙より24％速く、<br />紙より使いやすく。</h2>
+      </header>
+      <div class="case-two-column">
+        <div class="prototype-result"><strong>24%</strong><span>検査結果の入力速度を向上</span></div>
+        <div class="case-prose">
+          <ul class="outcome-list outcome-list--bulleted">
+            <li>歯科医師・歯科衛生士から「紙より使いやすい」と評価</li>
+            <li>手と視線の移動を最小化</li>
+            <li>連続入力のリズムを維持</li>
+            <li>操作パターンと例外状態を実装可能な仕様へ整理</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</CaseStudyLayout>
+
+<style>
+  .prototype-hero { justify-content: flex-start; gap: clamp(32px, 5vw, 72px); min-height: calc(100svh - 65px); padding-top: clamp(48px, 7vw, 96px); }
+  .prototype-hero .section-title { margin-bottom: 32px; }
+  .prototype-iterations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--divider-color); border: 1px solid var(--divider-color); }
+  .prototype-iterations article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 3vw, 36px); background: #fff; }
+  .prototype-iterations article > p:last-of-type { margin: 0; font-size: 15px; line-height: 1.7; }
+  .prototype-iterations h3, .prototype-feedback-list h3 { font-size: clamp(21px, 2.4vw, 32px); line-height: 1.4; }
+  .prototype-iterations :global(.case-image) { min-height: 240px; margin: auto 0 0; }
+  .prototype-feedback-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--divider-color); border: 1px solid var(--divider-color); }
+  .prototype-feedback-list article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 2.5vw, 32px); background: #fff; }
+  .prototype-feedback-list article > p:last-child { margin: 0; font-size: 14px; line-height: 1.7; }
+  .prototype-result { display: flex; flex-direction: column; gap: 16px; }
+  .prototype-result strong { font-size: clamp(72px, 12vw, 180px); line-height: .9; letter-spacing: -.07em; }
+  .prototype-result span { font-size: 16px; }
+
+  @media (max-width: 720px) {
+    .prototype-iterations, .prototype-feedback-list { grid-template-columns: 1fr; }
+  }
+</style>
