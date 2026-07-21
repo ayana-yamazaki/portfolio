@@ -3,63 +3,36 @@ export const hero = {
   title: 'Product Builder',
 };
 
-export const buildIntro = {
-  description: [
-    'I build products by understanding reality,',
-    'deciding what matters,',
-    'and turning ideas into products with AI, design, and code.',
-  ],
-};
-
 export const pillars = [
   {
     number: '01',
     title: 'Reframe the Problem',
-    eyebrow: '前提を疑い、解くべき問題を定める',
-    text: '現場を理解し、プロダクトの前提を変える',
+    text: '前提を疑い、解くべき問題を定める。',
     action: 'View Case Study',
     href: '/reposaku',
-    image: 'Field research / soil / boots / farmers',
-    award: {
-      label: 'グッドデザイン賞2025 グッドデザイン金賞受賞',
-      name: 'GOOD DESIGN AWARD 2025',
-      prize: 'GOLD AWARD',
-      rank: '(TOP20)',
-    },
   },
   {
     number: '02',
     title: 'Decide What to Build',
-    eyebrow: '現場の事実から、作るべきものと順序を決める',
-    text: '調査と事業課題を、プロダクトとロードマップへ変える',
+    text: '調査と事業課題から、作るべきものと順序を決める。',
     action: 'View Case Study',
     href: '/decide-what-to-build',
-    image: 'Discovery / sticky notes / roadmap / FigJam',
   },
   {
     number: '03',
     title: 'Prototype and Iterate',
-    eyebrow: '試作と検証を重ね、0.1秒単位で操作を削り切る',
-    text: '不採用を重ね、要件を満たす操作へ磨き込む',
-    action: 'View Case Study',
-    href: '/prototype-and-iterate',
-    image: 'Dental UI / interactive prototype / iteration',
+    text: '試作と検証を重ね、0.1秒単位で操作を削り切る。',
+    action: 'Coming Soon',
+    href: '/#prototype-and-iterate',
   },
   {
     number: '04',
     title: 'Build AI-Native',
-    eyebrow: 'AIとコードで、仕様の曖昧さを実装前に潰す',
-    text: 'デザインと実装の境界を越え、触れる仕様をつくる',
-    action: 'Read Article',
-    href: 'https://caddi.tech/figmaless_design',
-    image: 'Claude Code / Storybook / code / design system',
+    text: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
+    action: 'View Projects',
+    href: '/#projects',
   },
 ];
-
-export const selectedProjects = {
-  label: 'Selected Projects',
-  projects: ['Reposaku', 'CADDi', 'Personal Experiments'],
-};
 
 export const about = {
   label: 'About',

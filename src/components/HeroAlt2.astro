@@ -3,45 +3,16 @@ import panel01 from '../../img/panel01.png';
 import panel01Texture from '../../img/panel01-texture.png';
 import panel02 from '../../img/panel02.png';
 import panel03 from '../../img/panel03.png';
+import { hero, pillars } from '../data/site';
 
-const cards = [
-  {
-    number: '01',
-    title: 'Reframe the Problem',
-    text: '前提を疑い、解くべき問題を定める。',
-    href: '/reposaku',
-    action: 'View Case Study',
-    image: panel01,
-    alt: 'Working with soil in the field',
-  },
-  {
-    number: '02',
-    title: 'Decide What to Build',
-    text: '調査と事業課題から、作るべきものと順序を決める。',
-    href: '/decide-what-to-build',
-    action: 'View Case Study',
-    image: panel02,
-    alt: 'Dental product interface prototypes',
-  },
-  {
-    number: '03',
-    title: 'Prototype and Iterate',
-    text: '試作と検証を重ね、0.1秒単位で操作を削り切る。',
-    href: '#prototype-and-iterate',
-    action: 'Coming Soon',
-    image: null,
-    alt: '',
-  },
-  {
-    number: '04',
-    title: 'Build AI-Native',
-    text: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
-    href: '#projects',
-    action: 'View Projects',
-    image: panel03,
-    alt: 'Building a product in the terminal',
-  },
+const cardMedia = [
+  { image: panel01, alt: 'Working with soil in the field' },
+  { image: panel02, alt: 'Dental product interface prototypes' },
+  { image: null, alt: '' },
+  { image: panel03, alt: 'Building a product in the terminal' },
 ];
+
+const cards = pillars.map((pillar, index) => ({ ...pillar, ...cardMedia[index] }));
 ---
 
 <section class="hero-alt2" data-scroll-scene data-stage="0" aria-label="How I build">
@@ -50,8 +21,8 @@ const cards = [
   <div class="hero-alt2-sticky">
     <div class="hero-alt2-copy">
       <header class="hero-alt2-intro" data-scene-intro>
-        <p>AYANA YAMAZAKI</p>
-        <h1>Product Builder</h1>
+        <p>{hero.name}</p>
+        <h1>{hero.title}</h1>
         <p>How I Build</p>
       </header>
 
