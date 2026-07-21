@@ -7,9 +7,8 @@ import panel03 from '../../img/panel03.png';
 const cards = [
   {
     number: '01',
-    title: 'Understand Reality',
-    eyebrow: 'From the Field to the Product',
-    text: '現場やユーザーの現実を理解する',
+    title: 'Reframe the Problem',
+    text: '前提を疑い、解くべき問題を定める。',
     href: '/reposaku',
     action: 'View Case Study',
     image: panel01,
@@ -18,8 +17,7 @@ const cards = [
   {
     number: '02',
     title: 'Decide What to Build',
-    eyebrow: 'From Discovery to the Roadmap',
-    text: '調査や事業課題から、何を作るべきか決める',
+    text: '調査と事業課題から、作るべきものと順序を決める。',
     href: '/decide-what-to-build',
     action: 'View Case Study',
     image: panel02,
@@ -27,9 +25,17 @@ const cards = [
   },
   {
     number: '03',
-    title: 'Build with AI',
-    eyebrow: 'From Prototype to Production',
-    text: 'AI・デザイン・コードを横断して、素早く形にする',
+    title: 'Prototype and Iterate',
+    text: '試作と検証を重ね、0.1秒単位で操作を削り切る。',
+    href: '#prototype-and-iterate',
+    action: 'Coming Soon',
+    image: null,
+    alt: '',
+  },
+  {
+    number: '04',
+    title: 'Build AI-Native',
+    text: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
     href: '#projects',
     action: 'View Projects',
     image: panel03,
@@ -39,6 +45,8 @@ const cards = [
 ---
 
 <section class="hero-alt2" data-scroll-scene data-stage="0" aria-label="How I build">
+  <span id="prototype-and-iterate" class="scene-anchor scene-anchor--03" aria-hidden="true"></span>
+  <span id="build-ai-native" class="scene-anchor scene-anchor--04" aria-hidden="true"></span>
   <div class="hero-alt2-sticky">
     <div class="hero-alt2-copy">
       <header class="hero-alt2-intro" data-scene-intro>
@@ -50,7 +58,6 @@ const cards = [
         <article class="detail-copy" data-detail-copy={index} aria-hidden="true">
           <p class="detail-number">{card.number}</p>
           <h2>{card.title}</h2>
-          <p class="detail-eyebrow">{card.eyebrow}</p>
           <p class="detail-description">{card.text}</p>
           <a href={card.href}>{card.action} <span aria-hidden="true">↗</span></a>
         </article>
@@ -63,7 +70,9 @@ const cards = [
       </div>
       {cards.map((card, index) => (
         <div class="stage-card" data-stage-card={index}>
-          <img src={card.image.src} alt={card.alt} />
+          {card.image
+            ? <img src={card.image.src} alt={card.alt} />
+            : <div class="stage-card-placeholder"><span>Prototype and Iterate</span><small>Image placeholder</small></div>}
         </div>
       ))}
     </div>
@@ -85,27 +94,37 @@ const cards = [
 
     const poses = [
       [
-        { x: -64, y: 0, rotate: 25, scale: .87, opacity: 1 },
-        { x: 0, y: 0, rotate: 25, scale: .84, opacity: 1 },
-        { x: 64, y: 0, rotate: 25, scale: .81, opacity: 1 },
+        { x: -72, y: 0, rotate: 25, scale: .9, opacity: 1 },
+        { x: -24, y: 0, rotate: 25, scale: .87, opacity: 1 },
+        { x: 24, y: 0, rotate: 25, scale: .84, opacity: 1 },
+        { x: 72, y: 0, rotate: 25, scale: .81, opacity: 1 },
       ],
       [
         { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
-        { x: 8, y: 100, rotate: 25, scale: .64, opacity: .46 },
-        { x: 14, y: 190, rotate: 25, scale: .6, opacity: .3 },
+        { x: 8, y: 76, rotate: 25, scale: .66, opacity: .52 },
+        { x: 13, y: 145, rotate: 25, scale: .62, opacity: .38 },
+        { x: 18, y: 208, rotate: 25, scale: .58, opacity: .24 },
       ],
       [
         { x: -30, y: -250, rotate: -16, scale: .7, opacity: .08 },
         { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
-        { x: 8, y: 110, rotate: 25, scale: .62, opacity: .42 },
+        { x: 8, y: 86, rotate: 25, scale: .64, opacity: .46 },
+        { x: 14, y: 164, rotate: 25, scale: .6, opacity: .3 },
       ],
       [
         { x: -36, y: -310, rotate: -18, scale: .66, opacity: 0 },
         { x: -30, y: -250, rotate: -16, scale: .7, opacity: .08 },
         { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
+        { x: 8, y: 96, rotate: 25, scale: .62, opacity: .42 },
+      ],
+      [
+        { x: -40, y: -340, rotate: -18, scale: .64, opacity: 0 },
+        { x: -36, y: -310, rotate: -18, scale: .66, opacity: 0 },
+        { x: -30, y: -250, rotate: -16, scale: .7, opacity: .08 },
+        { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 },
       ],
     ];
-    const stageThresholds = [.08, .38, .68];
+    const stageThresholds = [.06, .3, .54, .78];
     let renderedStage = -1;
     let ticking = false;
 
@@ -179,6 +198,10 @@ const cards = [
     background: #f6f3f1;
   }
 
+  .scene-anchor { position: absolute; left: 0; width: 1px; height: 1px; pointer-events: none; }
+  .scene-anchor--03 { top: 81svh; }
+  .scene-anchor--04 { top: 117svh; }
+
   .hero-alt2-sticky {
     position: sticky;
     top: 0;
@@ -217,8 +240,7 @@ const cards = [
   .detail-copy.is-active { opacity: 1; pointer-events: auto; transform: translateY(-50%); }
   .detail-number { margin-bottom: clamp(32px, 6vh, 68px); font-size: 11px; letter-spacing: .04em; }
   .detail-copy h2 { max-width: 9ch; margin: 0 0 26px; font-size: clamp(43px, 6vw, 88px); line-height: .9; font-weight: 500; letter-spacing: -.065em; }
-  .detail-eyebrow { max-width: 14ch; margin-bottom: 24px; font-size: clamp(22px, 2.7vw, 40px); line-height: 1; font-weight: 500; letter-spacing: -.05em; }
-  .detail-description { max-width: 32ch; margin-bottom: 32px; font-size: 14px; line-height: 1.6; }
+  .detail-description { max-width: 32ch; margin: 32px 0; font-size: 14px; line-height: 1.6; }
   .detail-copy a { color: inherit; font-size: 12px; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 4px; }
 
   .card-stage {
@@ -265,10 +287,27 @@ const cards = [
 
   .stage-card[data-stage-card="0"] { z-index: 3; border-radius: 40px; }
   .stage-card[data-stage-card="1"] { z-index: 2; border-radius: 20px; }
-  .stage-card[data-stage-card="2"] { z-index: 1; border-radius: 10px; }
+  .stage-card[data-stage-card="2"] { z-index: 1; border-radius: 14px; }
+  .stage-card[data-stage-card="3"] { z-index: 0; border-radius: 10px; }
   .hero-alt2[data-stage="0"] .stage-card[data-stage-card="0"] { z-index: 1; }
+  .hero-alt2[data-stage="0"] .stage-card[data-stage-card="1"] { z-index: 2; }
   .hero-alt2[data-stage="0"] .stage-card[data-stage-card="2"] { z-index: 3; }
+  .hero-alt2[data-stage="0"] .stage-card[data-stage-card="3"] { z-index: 4; }
   .stage-card img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: top; transition: height .42s cubic-bezier(.2, .75, .2, 1), opacity .32s ease; }
+
+  .stage-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px;
+    color: #66635d;
+    background: #d6d3ca;
+  }
+
+  .stage-card-placeholder span,
+  .stage-card-placeholder small { font-size: 11px; line-height: 1.4; letter-spacing: .04em; }
 
   .hero-alt2[data-stage="0"] .stage-card {
     background: rgba(255, 255, 255, .42);
@@ -283,6 +322,10 @@ const cards = [
   }
 
   .hero-alt2[data-stage="0"] .stage-card[data-stage-card="2"] {
+    box-shadow: -3px 2px 0 rgba(255, 255, 255, .82), inset 0 1px 0 rgba(255, 255, 255, .5), 0 10px 24px rgba(0, 0, 0, .06);
+  }
+
+  .hero-alt2[data-stage="0"] .stage-card[data-stage-card="3"] {
     background: rgba(255, 255, 255, .18);
     box-shadow: -2px 2px 0 #fff, inset 0 1px 0 rgba(255, 255, 255, .5), 0 10px 24px rgba(0, 0, 0, .06);
   }

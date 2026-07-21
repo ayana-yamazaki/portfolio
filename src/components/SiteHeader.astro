@@ -6,9 +6,10 @@ const currentPath = Astro.url.pathname;
   <div class="site-header__group">
     <a class="site-header__brand" href="/">Ayana Yamazaki</a>
     <nav class="site-header__sections" aria-label="Case studies">
-      <a class:list={{ selected: currentPath === '/reposaku' }} href="/reposaku" aria-current={currentPath === '/reposaku' ? 'page' : undefined}><span>01</span>Understand Reality</a>
+      <a class:list={{ selected: currentPath === '/reposaku' }} href="/reposaku" aria-current={currentPath === '/reposaku' ? 'page' : undefined}><span>01</span>Reframe the Problem</a>
       <a class:list={{ selected: currentPath === '/decide-what-to-build' }} href="/decide-what-to-build" aria-current={currentPath === '/decide-what-to-build' ? 'page' : undefined}><span>02</span>Decide What to Build</a>
-      <a class:list={{ selected: currentPath === '/alternate' }} href="/alternate#projects" aria-current={currentPath === '/alternate' ? 'page' : undefined}><span>03</span>Build with AI</a>
+      <a href="/alternate2#prototype-and-iterate"><span>03</span>Prototype and Iterate</a>
+      <a href="/alternate2#build-ai-native"><span>04</span>Build AI-Native</a>
     </nav>
   </div>
 
@@ -87,7 +88,7 @@ const currentPath = Astro.url.pathname;
     display: flex;
     height: 100%;
     align-items: center;
-    gap: clamp(20px, 2.5vw, 40px);
+    gap: clamp(12px, 1.6vw, 24px);
   }
 
   .site-header a {
@@ -114,6 +115,7 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     gap: 8px;
     padding: 0;
+    font-size: clamp(11px, 1vw, 14px);
     white-space: nowrap;
   }
 
