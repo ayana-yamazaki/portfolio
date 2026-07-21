@@ -1,5 +1,5 @@
 ---
-import { pillars } from '../data/site';
+import { caseStudies } from '../data/site';
 
 const currentPath = Astro.url.pathname;
 ---
@@ -8,11 +8,11 @@ const currentPath = Astro.url.pathname;
   <div class="site-header__group">
     <a class="site-header__brand" href="/">Ayana Yamazaki</a>
     <nav class="site-header__sections" aria-label="Case studies">
-      {pillars.map((pillar) => {
-        const selected = currentPath === pillar.href;
+      {caseStudies.map((caseStudy) => {
+        const selected = currentPath === caseStudy.href;
         return (
-          <a class:list={{ selected }} href={pillar.href} aria-current={selected ? 'page' : undefined}>
-            <span>{pillar.number}</span><span>{pillar.title}</span>
+          <a class:list={{ selected }} href={caseStudy.href} aria-current={selected ? 'page' : undefined}>
+            <span>{caseStudy.number}</span><span>{caseStudy.title}</span>
           </a>
         );
       })}

@@ -1,46 +1,88 @@
+import type { ImageMetadata } from 'astro';
+import panel01 from '../../img/panel01.png';
+import panel02 from '../../img/panel02.png';
+import panel03 from '../../img/panel03.png';
+
+export interface CaseStudy {
+  number: string;
+  title: string;
+  pageTitle: string;
+  metaDescription: string;
+  text: string;
+  action: string;
+  href: string;
+  image: ImageMetadata | null;
+  alt: string;
+  footerDescription: string;
+  footerImage?: string;
+}
+
 export const hero = {
   name: 'AYANA YAMAZAKI',
   title: 'Product Builder',
 };
 
-export const pillars = [
+export const caseStudies = [
   {
     number: '01',
     title: 'Reframe the Problem',
+    pageTitle: 'Reposaku',
+    metaDescription: 'レポサク — From the Field to the Product',
     text: '前提を疑い、解くべき問題を定める。',
     action: 'View Case Study',
     href: '/reframe-the-problem',
     image: panel01,
     alt: 'Working with soil in the field',
+    footerDescription: '前提を疑い、現場から解くべき問題を定める。',
+    footerImage: panel01.src,
   },
   {
     number: '02',
     title: 'Decide What to Build',
+    pageTitle: 'Decide What to Build',
+    metaDescription: '現場の事実から、作るべきものと順序を決める。',
     text: '調査と事業課題から、作るべきものと順序を決める。',
     action: 'View Case Study',
     href: '/decide-what-to-build',
     image: panel02,
     alt: 'Dental product interface prototypes',
+    footerDescription: '現場の事実から、作るべきものと順序を決める。',
+    footerImage: '/images/reposaku-report-hero.jpg',
   },
   {
     number: '03',
     title: 'Prototype and Iterate',
+    pageTitle: 'Prototype and Iterate',
+    metaDescription: '歯科医師と試作を重ね、紙より速い操作を実現',
     text: '試作と検証を重ね、0.1秒単位で操作を削り切る。',
     action: 'View Case Study',
     href: '/prototype-and-iterate',
     image: null,
     alt: '',
+    footerDescription: '歯科医師と試作を重ね、紙より速い操作へ磨き込む。',
+    footerImage: '/images/medical-ui/hero-interaction.gif',
   },
   {
     number: '04',
     title: 'Build AI-Native',
+    pageTitle: 'Build AI-Native',
+    metaDescription: 'Figmaでは見えない仕様の穴を、コードで潰す。',
     text: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
     action: 'View Case Study',
     href: '/build-ai-native',
     image: panel03,
     alt: 'Building a product in the terminal',
+    footerDescription: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
+    footerImage: panel03.src,
   },
-];
+] satisfies readonly CaseStudy[];
+
+export const getCaseStudy = (href: string) => {
+  const caseStudy = caseStudies.find((item) => item.href === href);
+
+  if (!caseStudy) throw new Error(`Case study is not registered: ${href}`);
+  return caseStudy;
+};
 
 export const about = {
   label: 'About',
@@ -60,6 +102,3 @@ export const about = {
     { period: '2014 - 2015', organization: 'トロント大学ラボ', description: '大学を1年休学し、多国籍チームでアプリを開発。' },
   ],
 };
-import panel01 from '../../img/panel01.png';
-import panel02 from '../../img/panel02.png';
-import panel03 from '../../img/panel03.png';

@@ -1,6 +1,6 @@
 ---
 import panel01Texture from '../../img/panel01-texture.png';
-import { hero, pillars } from '../data/site';
+import { caseStudies, hero } from '../data/site';
 ---
 
 <section class="hero-alt2" data-scroll-scene data-stage="0" aria-label="How I build">
@@ -14,7 +14,7 @@ import { hero, pillars } from '../data/site';
         <p>How I Build</p>
       </header>
 
-      {pillars.map((card, index) => (
+      {caseStudies.map((card, index) => (
         <article class="detail-copy" data-detail-copy={index} aria-hidden="true">
           <p class="detail-number">{card.number}</p>
           <h2>{card.title}</h2>
@@ -28,7 +28,7 @@ import { hero, pillars } from '../data/site';
       <div class="stage-card-edge" data-stage-edge>
         <img src={panel01Texture.src} alt="" />
       </div>
-      {pillars.map((card, index) => (
+      {caseStudies.map((card, index) => (
         <div class="stage-card" data-stage-card={index} data-stage-href={card.href}>
           {card.image
             ? <img src={card.image.src} alt={card.alt} />

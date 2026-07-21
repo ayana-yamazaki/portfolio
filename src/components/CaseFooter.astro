@@ -1,10 +1,15 @@
 ---
-import panel03 from '../../img/panel03.png';
-import panel01 from '../../img/panel01.png';
+import { caseStudies } from '../data/site';
 
 const currentPath = Astro.url.pathname;
+const currentCaseIndex = caseStudies.findIndex((caseStudy) => caseStudy.href === currentPath);
 
-const footerByPath: Record<string, {
+if (currentCaseIndex === -1) {
+  throw new Error(`Case study is not registered: ${currentPath}`);
+}
+
+const nextCase = caseStudies[currentCaseIndex + 1];
+const footer: {
   label: string;
   number?: string;
   title: string;
@@ -12,53 +17,23 @@ const footerByPath: Record<string, {
   href: string;
   action: string;
   image?: string;
-}> = {
-  '/': {
-    label: 'Selected Case',
-    number: '01',
-    title: 'Reframe the Problem',
-    description: '前提を疑い、現場から解くべき問題を定める。',
-    href: '/reframe-the-problem',
-    action: 'View case study',
-    image: panel01.src,
-  },
-  '/reframe-the-problem': {
+} = nextCase
+  ? {
     label: 'Next Case',
-    number: '02',
-    title: 'Decide What to Build',
-    description: '現場の事実から、作るべきものと順序を決める。',
-    href: '/decide-what-to-build',
+    number: nextCase.number,
+    title: nextCase.title,
+    description: nextCase.footerDescription,
+    href: nextCase.href,
     action: 'View next case',
-    image: '/images/reposaku-report-hero.jpg',
-  },
-  '/decide-what-to-build': {
-    label: 'Next Case',
-    number: '03',
-    title: 'Prototype and Iterate',
-    description: '歯科医師と試作を重ね、紙より速い操作へ磨き込む。',
-    href: '/prototype-and-iterate',
-    action: 'View next case',
-    image: '/images/medical-ui/hero-interaction.gif',
-  },
-  '/prototype-and-iterate': {
-    label: 'Next Case',
-    number: '04',
-    title: 'Build AI-Native',
-    description: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
-    href: '/build-ai-native',
-    action: 'View next case',
-    image: panel03.src,
-  },
-  '/build-ai-native': {
+    image: nextCase.footerImage,
+  }
+  : {
     label: 'Selected Cases',
     title: 'How I Build',
     description: '現場を理解し、作るべきものを決め、触れる形まで持っていく。',
     href: '/',
     action: 'Back to overview',
-  },
-};
-
-const footer = footerByPath[currentPath] ?? footerByPath['/prototype-and-iterate'];
+  };
 ---
 
 <footer class="case-footer">

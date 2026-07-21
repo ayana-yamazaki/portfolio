@@ -1,5 +1,6 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import { getCaseStudy } from '../data/site';
 import reposakuCover from '../../img/reposaku-cover.jpg';
 import reposakuAward01 from '../../img/reposaku-award01.png';
 import reposakuAward02 from '../../img/reposaku-award02.png';
@@ -12,13 +13,15 @@ import fieldResearch05 from '../../img/reposaku/Field Research05.jpg';
 import fieldResearchSenior from '../../img/reposaku/Field Research-senior.jpg';
 import reposakuDeviceOn from '../../img/reposaku/device-on.jpg';
 import reposakuKeyVisual from '../../img/reposaku/keyvisual.jpg';
+
+const caseStudy = getCaseStudy('/reframe-the-problem');
 ---
 
-<CaseStudyLayout title="Reposaku" description="レポサク — From the Field to the Product">
+<CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription}>
       <section class="case-hero reposaku-hero">
         <div class="reposaku-hero-heading">
           <div class="case-hero-copy">
-            <p class="case-hero-title"><span>01</span><span>Reframe the Problem</span></p>
+            <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
             <h1>現場を理解し、<br />プロダクトの前提を変える。</h1>
           </div>
           <div class="pillar-award reposaku-award">

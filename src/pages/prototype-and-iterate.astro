@@ -1,11 +1,14 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import { getCaseStudy } from '../data/site';
+
+const caseStudy = getCaseStudy('/prototype-and-iterate');
 ---
 
-<CaseStudyLayout title="Prototype and Iterate" description="歯科医師と試作を重ね、紙より速い操作を実現">
+<CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription}>
   <section class="case-hero case-hero--split case-hero--wide-first">
     <div class="case-hero-copy">
-      <p class="case-hero-title"><span>03</span><span>Prototype and Iterate</span></p>
+      <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
       <h1>歯科医師と試作を重ね、<br />紙より速い操作を実現</h1>
       <p>最大192項目を5分以内に入力する、歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、プロトタイプを作るたびに歯科医師と検証。実際に入力を担う歯科衛生士の評価も反映しながら、手と視線の移動を削り、紙と比べて検査速度を24％向上させた。</p>
       <dl class="case-meta-grid">

@@ -1,11 +1,14 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import { getCaseStudy } from '../data/site';
+
+const caseStudy = getCaseStudy('/build-ai-native');
 ---
 
-<CaseStudyLayout title="Build AI-Native" description="Figmaでは見えない仕様の穴を、コードで潰す。">
+<CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription}>
   <section class="case-hero case-hero--split case-hero--wide-first case-hero--ai-native">
     <div class="case-hero-copy">
-      <p class="case-hero-title"><span>04</span><span>Build AI-Native</span></p>
+      <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
       <h1>Figmaでは見えない仕様の穴を、<br />コードで潰す。</h1>
       <p class="ai-hero-lead">Claude Codeでプロトタイプを作り、Storybook上で画面と仕様を定義。PdM・エンジニアと触れるものを囲んで検証し、131件の仕様課題とUX改善を実装前に解決した。</p>
       <div class="ai-hero-article">
