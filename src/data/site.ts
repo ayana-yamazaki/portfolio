@@ -10,6 +10,8 @@ export const pillars = [
     text: '前提を疑い、解くべき問題を定める。',
     action: 'View Case Study',
     href: '/reposaku',
+    image: panel01,
+    alt: 'Working with soil in the field',
   },
   {
     number: '02',
@@ -17,13 +19,17 @@ export const pillars = [
     text: '調査と事業課題から、作るべきものと順序を決める。',
     action: 'View Case Study',
     href: '/decide-what-to-build',
+    image: panel02,
+    alt: 'Dental product interface prototypes',
   },
   {
     number: '03',
     title: 'Prototype and Iterate',
     text: '試作と検証を重ね、0.1秒単位で操作を削り切る。',
-    action: 'Coming Soon',
-    href: '/#prototype-and-iterate',
+    action: 'View Case Study',
+    href: '/prototype-and-iterate',
+    image: null,
+    alt: '',
   },
   {
     number: '04',
@@ -31,6 +37,8 @@ export const pillars = [
     text: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
     action: 'View Projects',
     href: '/#projects',
+    image: panel03,
+    alt: 'Building a product in the terminal',
   },
 ];
 
@@ -52,3 +60,6 @@ export const about = {
     { period: '2014 - 2015', organization: 'トロント大学ラボ', description: '大学を1年休学し、多国籍チームでアプリを開発。' },
   ],
 };
+import panel01 from '../../img/panel01.png';
+import panel02 from '../../img/panel02.png';
+import panel03 from '../../img/panel03.png';

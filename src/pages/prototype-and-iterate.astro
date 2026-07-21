@@ -1,17 +1,19 @@
 ---
-import ImagePlaceholder from '../components/ImagePlaceholder.astro';
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 ---
 
-<CaseStudyLayout title="Prototype and Iterate" description="試作と検証を重ね、0.1秒単位で操作を削り切る。">
-  <section class="case-hero prototype-hero">
-    <div>
-      <p class="section-title">03 — Prototype and Iterate</p>
-      <h1>試作と検証を重ね、<br />0.1秒単位で操作を削り切る。</h1>
+<CaseStudyLayout title="Prototype and Iterate" description="歯科医師と試作を重ね、紙より速い操作へ磨き込む。">
+  <section class="case-hero case-hero--split">
+    <div class="case-hero-copy">
+      <p class="case-hero-title"><span>03</span><span>Prototype and Iterate</span></p>
+      <h1>歯科医師と試作を重ね、<br />紙より速い操作へ磨き込む。</h1>
+      <p>最大192項目を5分以内に入力する、歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、プロトタイプを作るたびに歯科医師と検証。実際に入力を担う歯科衛生士の評価も反映しながら、手と視線の移動を削り、紙と比べて検査速度を24％向上させた。</p>
     </div>
 
-    <div class="case-hero-summary">
-      <p>最大192項目を5分以内に入力する歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、入力操作と結果表示のプロトタイプを繰り返し検証。手と視線の移動を削り、紙と比べて入力速度を24％向上させた。</p>
+    <div class="case-hero-media">
+      <figure class="case-figure">
+        <img src="/images/medical-ui/hero-interaction.gif" alt="歯周病検査の数値を連続入力するタブレットUI" />
+      </figure>
       <dl class="case-meta-grid">
         <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
         <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Dentist / Dental Hygienist</dd></div>
@@ -19,29 +21,27 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
       </dl>
     </div>
 
-    <div class="case-key-facts" aria-label="歯周病検査UIの主要数値">
-      <div><small>入力項目</small><strong>192</strong><span>点</span></div>
-      <div><small>検査時間</small><strong>5</strong><span>分以内</span></div>
-      <div><small>入力速度</small><strong>24%</strong><span>向上</span></div>
+    <div class="case-key-facts case-hero-wide" aria-label="歯周病検査UIの検証と成果">
+      <div><small>検証体制</small><strong class="case-key-fact-text">歯科医師と反復</strong></div>
+      <div><small>改善対象</small><strong class="case-key-fact-text">入力・結果表示</strong></div>
+      <div><small>検査速度</small><strong>24%</strong><span>向上</span></div>
     </div>
   </section>
-
-  <ImagePlaceholder label="Dental examination tablet UI and rapid input interface" />
 
   <div class="case-content">
     <section class="case-section">
       <header class="case-section-header">
-        <p class="section-title">01 — Performance Requirement</p>
+        <p class="section-title">01 Performance Requirement</p>
         <h2>紙より速くなければ、<br />導入する理由がない。</h2>
       </header>
       <div class="case-two-column">
         <div class="case-prose">
           <p class="case-label">Context</p>
-          <p>歯科衛生士は、歯周ポケットの深さを測り、紙へ記録し、その結果を電子カルテへ転記していた。最大192項目を5分以内に扱う必要があり、現場には時間の余裕がなかった。</p>
+          <p>歯周病検査では、歯周ポケットの深さなど最大192項目を記録する。従来は、検査結果を紙へ記入し、その後電子カルテへ転記していた。これらを5分以内に終える必要があり、現場にはほとんど時間の余裕がなかった。</p>
         </div>
         <div class="case-prose">
           <p class="case-label">Business Requirement</p>
-          <p>歯科医療では、検査時間を短縮しても一件あたりの保険点数は変わらない。チェアタイムの短縮が、そのまま生産性につながる。</p>
+          <p>歯科医療では、検査に時間をかけても一件あたりの保険点数は変わらない。検査時間、すなわちチェアタイムの短縮が、そのまま生産性につながる。</p>
         </div>
       </div>
       <div class="case-prose case-insight">
@@ -54,73 +54,91 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 
     <section class="case-section">
       <header class="case-section-header">
-        <p class="section-title">02 — Iterate the Input</p>
+        <p class="section-title">02 Iterate the Input</p>
         <h2>「次へ」の0.5秒から、<br />一つずつ操作を削る。</h2>
       </header>
+      <div class="case-prose case-prose--full">
+        <p class="case-label">Validation Loop</p>
+        <h3>作るたび、歯科医師に触ってもらう。</h3>
+        <p>入力方法と結果表示のプロトタイプを作るたび、歯科医師に操作してもらった。臨床上の正しさだけでなく、指と視線の動き、入力のリズム、現在地を迷わず認識できるかを確認。フィードバックを受けて作り直し、次の案を再び触ってもらうサイクルを繰り返した。</p>
+        <p>実際に入力を担う歯科衛生士の評価も反映し、机上の使いやすさではなく、現場で紙より速く使える操作を探った。</p>
+      </div>
       <div class="prototype-iterations">
-        <article><p class="case-label">Version 1</p><h3>「次へ」を押す</h3><p>1項目ごとに0.5秒。192回で90秒以上を失うため不採用。</p><ImagePlaceholder label="Input prototype — Version 1" /></article>
-        <article><p class="case-label">Version 2</p><h3>3点をまとめて入力</h3><p>指の移動が増え、ボタンを探すため画面を見続ける必要があり不採用。</p><ImagePlaceholder label="Input prototype — Version 2" /></article>
-        <article><p class="case-label">Version 3</p><h3>入力後に自動で送る</h3><p>「次へ」をなくし、数値入力後に次の項目へ自動で移動。歯科衛生士から高く評価され採用。</p><ImagePlaceholder label="Input prototype — Version 3" /></article>
-        <article><p class="case-label">Version 4</p><h3>指を固定する</h3><p>テンキー配置により、指を同じ位置に置いたままリズミカルに連続入力できる形へ。</p><ImagePlaceholder label="Input prototype — Version 4" /></article>
-        <article><p class="case-label">Version 5</p><h3>96pxまで調整する</h3><p>人差し指から薬指を置きやすいサイズまでボタンを調整した。</p><ImagePlaceholder label="Input prototype — Version 5" /></article>
-        <article><p class="case-label">Final</p><h3>誤タップを防ぐ</h3><p>使用頻度が低い値は小さくし、歯周病リスクとなる4mm以上を警戒色で強調した。</p><ImagePlaceholder label="Input prototype — Final" /></article>
+        <article><p class="case-label">Version 1</p><h3>「次へ」を押す</h3><p>数値を選択した後、「次へ」を押して入力を確定する案。1回の操作に約0.5秒かかり、192項目では90秒以上のロスになるため不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/input-v1.png" alt="数値選択後に次へボタンを押す入力UI" /></figure></article>
+        <article><p class="case-label">Version 2</p><h3>3点をまとめて入力する</h3><p>3点を入力してから、まとめて次へ進む案。指の移動が増え、目的のボタンを探すために画面を見続ける必要があることが分かり、不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/input-v2.png" alt="3点をまとめて入力するUI" /></figure></article>
+        <article><p class="case-label">Version 3</p><h3>入力後、自動で次へ送る</h3><p>数値を入力すると、自動で次の項目へ移動する方式へ変更した。「次へ」の操作がなくなり、歯科衛生士からも高く評価されたため採用した。</p><figure class="case-figure"><img src="/images/medical-ui/input-v3.png" alt="数値入力後に自動で次の項目へ移動するUI" /></figure></article>
+        <article><p class="case-label">Version 4</p><h3>指の位置を固定する</h3><p>数値ボタンをテンキーのように配置。指を同じ位置に置いたまま、リズムを止めずに連続入力できる形へ変更した。</p><figure class="case-figure"><img src="/images/medical-ui/input-v4.png" alt="指を固定したまま連続入力する操作イメージ" /></figure></article>
+        <article><p class="case-label">Version 5</p><h3>ボタンを96pxまで調整する</h3><p>人差し指から薬指を自然に置けるサイズを検討し、ボタンを96pxに調整した。指の移動量を抑えながら、押し間違いを防げる大きさを探った。</p><figure class="case-figure"><img src="/images/medical-ui/input-v5.png" alt="入力ボタンのサイズ比較" /></figure></article>
+        <article><p class="case-label">Final</p><h3>使用頻度から、ボタンの強弱を決める</h3><p>使用頻度が低く、異常値でもある数値のボタンを小さくすることで、誤タップを抑えた。歯周病リスクとなる4mm以上には警戒色を使用し、入力時に識別できるようにした。</p><figure class="case-figure"><img src="/images/medical-ui/input-final.png" alt="使用頻度と異常値に応じて強弱を付けた最終入力UI" /></figure></article>
       </div>
       <div class="case-prose case-insight">
-        <p><strong>プロトタイプを作って正解を確認したのではない。不採用を重ね、必要な操作だけを残した。</strong></p>
+        <p><strong>プロトタイプを作って正解を確認したのではない。専門家との検証で不採用を重ね、必要な操作だけを残した。</strong></p>
       </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header">
-        <p class="section-title">03 — Iterate the Feedback</p>
+        <p class="section-title">03 Iterate the Feedback</p>
         <h2>紙の形ではなく、<br />紙が担っていた一覧性を残す。</h2>
       </header>
-      <div class="prototype-feedback-list">
-        <article><p class="case-label">Version 1</p><h3>紙をそのまま再現</h3><p>見慣れているが、タブレット上で同じ形にする必要はないと判断した。</p></article>
-        <article><p class="case-label">Version 2</p><h3>顎をイラストで表示</h3><p>どの歯面を入力しているか分かりにくく、不採用とした。</p></article>
-        <article><p class="case-label">Version 3</p><h3>入力中の歯面を表示</h3><p>現在地は分かるが、上下顎を同時に確認できないことが分かった。</p></article>
-        <article><p class="case-label">Version 4</p><h3>上下の歯を横一列に</h3><p>上下の歯を一覧し、入力中の歯面だけを青く強調する構成へ変更した。</p></article>
+      <div class="case-prose case-prose--full">
+        <p>入力速度を高めるだけでは、安心して検査を進められない。入力中の歯と入力済みの結果を、視線を大きく動かさずに確認できる表示を検討した。</p>
       </div>
-      <ImagePlaceholder label="Four iterations of the dental examination preview UI" />
+      <div class="prototype-feedback-list">
+        <article><p class="case-label">Version 1</p><h3>紙の検査表を、そのまま再現する</h3><p>見慣れた紙の検査表を、そのままタブレット上に再現した。しかし、「見慣れてはいるが、この形である必要はない」というフィードバックを受け、タブレットに適した表示を探ることにした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v1.png" alt="紙の検査表を再現した初期表示案" /></figure></article>
+        <article><p class="case-label">Version 2</p><h3>顎をイラストで表示する</h3><p>顎の形をそのままイラスト化した。見た目は直感的だったが、現在どの歯の、どの面を入力しているか判別しにくく、不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v2.png" alt="顎全体をイラストで表示した案" /></figure></article>
+        <article><p class="case-label">Version 3</p><h3>入力中の歯面を表示する</h3><p>入力対象となる歯面を表示し、現在地を確認できるようにした。一方で、検査中は上顎と下顎を同時に確認する必要があることが分かった。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v3.png" alt="入力中の歯面を表示した案" /></figure></article>
+        <article><p class="case-label">Version 4</p><h3>上下の歯を、横一列に並べる</h3><p>上下顎を同時に一覧できるよう、歯を横一列に配置した。情報を増やしすぎると視認性が下がるため、表示するフィードバックを絞り込んだ。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v4.png" alt="上下の歯を横一列に並べた表示案" /></figure></article>
+      </div>
+      <div class="case-prose case-prose--full">
+        <p class="case-label">Final</p>
+        <h3>現在地と異常値だけを強調する</h3>
+        <p>入力中の歯面を青く表示し、入力済みの数値は必要最小限に抑えた。歯周病リスクとなる4mm以上だけを強調し、「今どこを入力しているか」「どのように入力したか」を一目で確認できるようにした。</p>
+        <figure class="case-figure"><img src="/images/medical-ui/feedback-final.png" alt="現在地と異常値だけを強調した最終結果表示UI" /></figure>
+      </div>
       <div class="case-prose case-insight">
-        <p><strong>継承したのは紙のレイアウトではなく、現在地と結果を一目で確認できる安心感だった。</strong></p>
+        <p><strong>継承したのは、紙のレイアウトではない。現在地と結果を一目で確認できる、紙の安心感だった。</strong></p>
       </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header">
-        <p class="section-title">04 — From Prototype to Specification</p>
-        <h2>触れる仮説を、<br />実装できる仕様へ。</h2>
+        <p class="section-title">04 From Prototype to Specification</p>
+        <h2>検証した操作を、<br />実装できる仕様へ。</h2>
       </header>
       <div class="case-two-column">
         <div class="case-prose">
           <p class="case-label">Interactive Prototype</p>
-          <p>Figmaで実際の操作感を再現し、エンジニアにも手触りを共有した。操作導線とデータ構造、トランジションの整合性を実装前に検証した。</p>
+          <p>Figma上で実際の入力操作と画面遷移を再現した。歯科医師との検証だけでなく、エンジニアにも操作の手触りを共有し、データ構造やトランジションとの整合性を実装前に確認した。</p>
+          <figure class="case-figure"><img src="/images/medical-ui/interactive-prototype.png" alt="Figmaで作成した歯周病検査UIのインタラクティブプロトタイプ" /></figure>
         </div>
         <div class="case-prose">
           <p class="case-label">Design Specification</p>
-          <p>入力値とフィードバックの全状態を整理し、変数名、ステート、エラー条件を仕様化。コンポーネントとして実装可能な形へ落とし込んだ。</p>
+          <p>入力値、選択状態、自動送り、フィードバック、エラーなど、操作中に発生する状態を整理した。Figma上で変数名とステートを定義し、視認性を検証した上でコンポーネント化。開発チームが設計意図を理解し、実装できる仕様書へ落とし込んだ。</p>
+          <figure class="case-figure"><img src="/images/medical-ui/design-specification.png" alt="操作遷移と状態を整理したデザイン仕様書" /></figure>
+          <figure class="case-figure"><img src="/images/medical-ui/component-states.png" alt="入力値や状態ごとに整理した歯のUIコンポーネント" /></figure>
         </div>
       </div>
       <div class="case-prose case-insight">
-        <p><strong>プロトタイプを検証で終わらせず、開発チームが実装できる仕様までつないだ。</strong></p>
+        <p><strong>プロトタイプを検証で終わらせず、専門家と確かめた操作を、実装可能な仕様までつないだ。</strong></p>
       </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header">
-        <p class="section-title">05 — Impact</p>
+        <p class="section-title">05 Impact</p>
         <h2>紙より24％速く、<br />紙より使いやすく。</h2>
       </header>
       <div class="case-two-column">
-        <div class="prototype-result"><strong>24%</strong><span>検査結果の入力速度を向上</span></div>
         <div class="case-prose">
-          <ul class="outcome-list outcome-list--bulleted">
-            <li>歯科医師・歯科衛生士から「紙より使いやすい」と評価</li>
-            <li>手と視線の移動を最小化</li>
-            <li>連続入力のリズムを維持</li>
-            <li>操作パターンと例外状態を実装可能な仕様へ整理</li>
-          </ul>
+          <p class="case-label">Quantitative Impact</p>
+          <h3>検査速度を24％向上</h3>
+          <p>手の位置を動かさない入力UIと、現在地を即座に確認できる結果表示によって、紙と比べて検査結果の入力速度を24％向上させた。</p>
+        </div>
+        <div class="case-prose">
+          <p class="case-label">Qualitative Impact</p>
+          <h3>専門家から「紙より使いやすい」と評価</h3>
+          <p>歯科医師・歯科衛生士から「紙より使いやすい」という評価を得た。手と視線の移動を抑え、連続入力のリズムを維持しながら、現在地と入力結果を確認できる体験を実現した。</p>
         </div>
       </div>
     </section>
@@ -128,8 +146,6 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 </CaseStudyLayout>
 
 <style>
-  .prototype-hero { justify-content: flex-start; gap: clamp(32px, 5vw, 72px); min-height: calc(100svh - 65px); padding-top: clamp(48px, 7vw, 96px); }
-  .prototype-hero .section-title { margin-bottom: 32px; }
   .prototype-iterations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--divider-color); border: 1px solid var(--divider-color); }
   .prototype-iterations article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 3vw, 36px); background: #fff; }
   .prototype-iterations article > p:last-of-type { margin: 0; font-size: 15px; line-height: 1.7; }

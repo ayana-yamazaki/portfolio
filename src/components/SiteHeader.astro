@@ -12,7 +12,7 @@ const currentPath = Astro.url.pathname;
         const selected = currentPath === pillar.href;
         return (
           <a class:list={{ selected }} href={pillar.href} aria-current={selected ? 'page' : undefined}>
-            <span>{pillar.number}</span>{pillar.title}
+            <span>{pillar.number}</span><span>{pillar.title}</span>
           </a>
         );
       })}
@@ -62,14 +62,16 @@ const currentPath = Astro.url.pathname;
     left: 0;
     z-index: 100;
     width: 100%;
-    height: 52px;
+    height: 56px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 32px;
     padding: 0 clamp(24px, 7vw, 112px);
-    border-bottom: 1px solid var(--divider-color);
-    background: #fff;
+    border-bottom: 1px solid color-mix(in srgb, var(--divider-color) 65%, transparent);
+    background: rgb(255 255 255 / 90%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
     transform: translateY(0);
     transition: transform .3s ease;
   }
@@ -79,7 +81,7 @@ const currentPath = Astro.url.pathname;
   }
 
   .site-header-spacer {
-    height: 52px;
+    height: 56px;
   }
 
   .site-header__group,
@@ -94,22 +96,24 @@ const currentPath = Astro.url.pathname;
     display: flex;
     height: 100%;
     align-items: center;
-    gap: clamp(12px, 1.6vw, 24px);
+    gap: clamp(18px, 2vw, 32px);
   }
 
   .site-header a {
-    color: inherit;
-    font-size: 16px;
+    color: var(--text-color-secondary);
+    font-size: 13px;
     text-decoration: none;
     transition: color .2s ease;
   }
 
   .site-header a:hover,
   .site-header a:focus-visible {
-    color: var(--accent-color);
+    color: #181818;
   }
 
   .site-header__brand {
+    color: #181818;
+    font-size: 14px;
     font-weight: 600;
     letter-spacing: -.02em;
   }
@@ -119,21 +123,44 @@ const currentPath = Astro.url.pathname;
     display: flex;
     height: 100%;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     padding: 0;
-    font-size: clamp(11px, 1vw, 14px);
+    font-size: clamp(11px, .9vw, 13px);
+    font-weight: 400;
     white-space: nowrap;
   }
 
   .site-header__sections a.selected {
-    color: var(--accent-color);
-    font-weight: 500;
+    color: #181818;
   }
 
-  .site-header__sections span {
+  .site-header__sections a.selected::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--accent-color);
+  }
+
+  .site-header__sections a > span:first-child {
+    display: inline-flex;
+    gap: 4px;
+    align-items: baseline;
     color: var(--accent-color);
     font-size: 11px;
     letter-spacing: .06em;
+  }
+
+  .site-header__sections a > span:first-child::after {
+    content: '/';
+    color: var(--text-color-secondary);
+    font-weight: 300;
+  }
+
+  .site-header__sections a > span:last-child {
+    color: inherit;
   }
 
   .site-header__x {
@@ -148,6 +175,16 @@ const currentPath = Astro.url.pathname;
     width: 19px;
     height: 19px;
     fill: currentColor;
+  }
+
+  @media (max-width: 960px) {
+    .site-header__sections {
+      gap: 16px;
+    }
+
+    .site-header__sections a > span:last-child {
+      display: none;
+    }
   }
 
   @media (max-width: 640px) {
@@ -171,7 +208,7 @@ const currentPath = Astro.url.pathname;
     }
 
     .site-header-spacer {
-      height: 52px;
+      height: 56px;
     }
   }
 </style>
