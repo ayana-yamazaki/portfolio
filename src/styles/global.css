@@ -7,4 +7,10 @@ html { scroll-behavior: smooth; }
 body { margin: 0; color: #181818; background: #ffffff; font-family: 'Inter', 'Noto Sans JP', sans-serif; }
 main { overflow: hidden; }
 section { padding: 0 clamp(24px, 7vw, 112px); }
+.external-article-button { display: inline-flex; align-items: center; gap: 18px; padding: 16px 20px; color: #fff; background: #111; border: 1px solid #111; font-size: 18px; font-weight: 600; line-height: 1.4; text-decoration: none; transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease; }
+.external-article-button:hover { background: var(--accent-color); border-color: var(--accent-color); }
+
+@media (prefers-reduced-motion: reduce) {
+  .external-article-button { transition: none; }
+}
 h1, h2, h3, p { margin-top: 0; }

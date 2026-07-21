@@ -1,0 +1,105 @@
+---
+import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+---
+
+<CaseStudyLayout title="Build AI-Native" description="Figmaでは見えない仕様の穴を、コードで潰す。">
+  <section class="case-hero case-hero--split case-hero--wide-first case-hero--ai-native">
+    <div class="case-hero-copy">
+      <p class="case-hero-title"><span>04</span><span>Build AI-Native</span></p>
+      <h1>Figmaでは見えない仕様の穴を、<br />コードで潰す。</h1>
+      <p class="ai-hero-lead">Claude Codeでプロトタイプを作り、Storybook上で画面と仕様を定義。PdM・エンジニアと触れるものを囲んで検証し、131件の仕様課題とUX改善を実装前に解決した。</p>
+      <div class="ai-hero-article">
+        <a class="external-article-button" href="https://caddi.tech/figmaless_design" target="_blank" rel="noreferrer">CADDi Tech Blogで全文を読む <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+
+    <div class="case-hero-media">
+      <a class="ai-hero-image-link" href="https://caddi.tech/figmaless_design" target="_blank" rel="noreferrer" aria-label="CADDi Tech Blogで全文を読む">
+        <figure class="case-figure">
+          <img src="/images/build-ai-native-hero.png" alt="Figmaを使わずClaude CodeとStorybookで131件の検討漏れを発見した取り組み" />
+        </figure>
+      </a>
+      <dl class="case-meta-grid ai-meta-grid">
+        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
+        <div><dt class="meta-label">Collaboration</dt><dd class="text-xs">PdM / Engineer</dd></div>
+        <div><dt class="meta-label">Method</dt><dd class="text-xs">Claude Code / Storybook</dd></div>
+      </dl>
+      <div class="case-key-facts" aria-label="AI-Nativeな設計プロセスの主要成果">
+        <div><small>ウォークスルー</small><strong>6</strong><span>回</span></div>
+        <div><small>作成したStory</small><strong>49</strong><span>件</span></div>
+        <div><small>実装前に解決</small><strong>131</strong><span>件</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <div class="case-content">
+    <section class="case-section case-section--no-divider">
+      <header class="case-section-header">
+        <p class="section-title">01 — Why Code</p>
+        <h2>Figmaは画面を完成させる。<br />コードは意思決定を完了させる。</h2>
+      </header>
+      <div class="case-two-column">
+        <div class="case-prose">
+          <p class="case-label">Problem</p>
+          <p>静的なデザインファイルでは、エラーを出すタイミング、Empty State、Loading、長い文字列が入った場合の表現などを決めなくても、画面を完成させられる。見た目が整っていても、UXの意思決定は終わっていなかった。</p>
+        </div>
+        <div class="case-prose">
+          <p class="case-label">Decision</p>
+          <p>画面仕様をコードで定義し、実際に操作できる状態で検証することにした。コードは未定義の状態を許さない。動かすために必要な判断を一つずつ表面化させ、実装前に決め切るプロセスへ変えた。</p>
+        </div>
+      </div>
+      <div class="case-prose case-insight">
+        <p><strong>手段をFigmaからコードへ変えたのではない。曖昧なまま残っていた意思決定を、デザインの責任として引き取った。</strong></p>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <header class="case-section-header">
+        <p class="section-title">02 — AI-Native Workflow</p>
+        <h2>触れる仕様を、<br />多職種で磨く。</h2>
+        <p>大枠は軽量なコードベースプロトタイプで素早く検証し、方向性が固まってから本番のデザインシステムを使ったStorybookへ移行した。</p>
+      </header>
+      <div class="phase-list ai-native-workflow">
+        <div class="phase-item"><h4>01 — Prototype</h4><p>Claude CodeでHTMLプロトタイプを作り、画面構成と情報の優先度をPdMと検証する。</p></div>
+        <div class="phase-item"><h4>02 — Move to Storybook</h4><p>Reactと社内デザインシステムを使い、実際に操作できる画面とコンポーネントへ移行する。</p></div>
+        <div class="phase-item"><h4>03 — Define Every State</h4><p>Default、Empty、Loading、エラー、長文など、画面に起こり得る状態と挙動をStoryと仕様書に定義する。</p></div>
+        <div class="phase-item"><h4>04 — Walk Through</h4><p>PdM・エンジニアと実務を再現しながら操作し、仕様の矛盾、UXの違和感、実装上の不整合を前工程で解決する。</p></div>
+      </div>
+      <div class="case-prose case-insight">
+        <p><strong>完成した画面をレビューするのではなく、触れる仕様を囲んで、1〜3日単位で改善を回した。</strong></p>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <header class="case-section-header">
+        <p class="section-title">03 — Impact</p>
+        <h2>131件を、<br />実装前に解決。</h2>
+        <p>約1.5か月で6回のウォークスルーを実施。実装後では修正コストが高くなる問題を、デザインの段階で発見し、すべて解決した。</p>
+      </header>
+      <div class="ai-impact-grid">
+        <article><p class="case-label">Specification</p><strong>60</strong><span>仕様の検討漏れ・矛盾</span></article>
+        <article><p class="case-label">UX Improvement</p><strong>45</strong><span>操作して見つけたUX改善</span></article>
+        <article><p class="case-label">Implementation</p><strong>26</strong><span>実装誤り・既存仕様との不整合</span></article>
+      </div>
+      <div class="case-prose case-insight">
+        <p><strong>問題を後工程で見つけるのではなく、デザインプロセスそのものに検証を組み込んだ。</strong></p>
+      </div>
+      <p><a class="external-article-button" href="https://caddi.tech/figmaless_design" target="_blank" rel="noreferrer">CADDi Tech Blogで全文を読む <span aria-hidden="true">↗</span></a></p>
+    </section>
+
+  </div> -->
+</CaseStudyLayout>
+
+<style>
+  .ai-native-workflow { margin-bottom: 0; }
+  .ai-impact-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
+  .ai-impact-grid article { display: flex; flex-direction: column; gap: 20px; min-height: 260px; padding: clamp(24px, 3vw, 40px); border-right: 1px solid var(--divider-color); }
+  .ai-impact-grid article:last-child { border-right: 0; }
+  .ai-impact-grid strong { margin-top: auto; font-size: clamp(64px, 9vw, 128px); font-weight: 500; line-height: .85; letter-spacing: -.07em; }
+  .ai-impact-grid span { font-size: clamp(14px, 1.2vw, 17px); line-height: 1.6; }
+  @media (max-width: 720px) {
+    .ai-impact-grid { grid-template-columns: 1fr; }
+    .ai-impact-grid article { min-height: 210px; border-right: 0; border-bottom: 1px solid var(--divider-color); }
+    .ai-impact-grid article:last-child { border-bottom: 0; }
+  }
+</style>

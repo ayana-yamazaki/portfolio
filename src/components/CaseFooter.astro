@@ -1,4 +1,6 @@
 ---
+import panel03 from '../../img/panel03.png';
+
 const currentPath = Astro.url.pathname;
 
 const footerByPath: Record<string, {
@@ -10,7 +12,7 @@ const footerByPath: Record<string, {
   action: string;
   image?: string;
 }> = {
-  '/reposaku': {
+  '/reframe-the-problem': {
     label: 'Next Case',
     number: '02',
     title: 'Decide What to Build',
@@ -29,6 +31,15 @@ const footerByPath: Record<string, {
     image: '/images/medical-ui/hero-interaction.gif',
   },
   '/prototype-and-iterate': {
+    label: 'Next Case',
+    number: '04',
+    title: 'Build AI-Native',
+    description: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
+    href: '/build-ai-native',
+    action: 'View next case',
+    image: panel03.src,
+  },
+  '/build-ai-native': {
     label: 'Selected Cases',
     title: 'How I Build',
     description: '現場を理解し、作るべきものを決め、触れる形まで持っていく。',

@@ -8,24 +8,24 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
       <p class="case-hero-title"><span>03</span><span>Prototype and Iterate</span></p>
       <h1>歯科医師と試作を重ね、<br />紙より速い操作を実現</h1>
       <p>最大192項目を5分以内に入力する、歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、プロトタイプを作るたびに歯科医師と検証。実際に入力を担う歯科衛生士の評価も反映しながら、手と視線の移動を削り、紙と比べて検査速度を24％向上させた。</p>
+      <dl class="case-meta-grid">
+        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
+        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Dentist / Dental Hygienist</dd></div>
+        <div><dt class="meta-label">Duration</dt><dd class="text-xs">2021.10–2022.04</dd></div>
+      </dl>
+      <div class="case-key-facts" aria-label="歯周病検査UIの検証と成果">
+        <div><small>検証体制</small><strong class="case-key-fact-text">歯科医師と反復</strong></div>
+        <div><small>改善対象</small><strong class="case-key-fact-text">入力・結果表示</strong></div>
+        <div><small>検査速度</small><strong>24%</strong><span>向上</span></div>
+      </div>
     </div>
 
     <div class="case-hero-media">
       <figure class="case-figure">
         <img src="/images/medical-ui/hero-interaction.gif" alt="歯周病検査の数値を連続入力するタブレットUI" />
       </figure>
-      <dl class="case-meta-grid">
-        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
-        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Dentist / Dental Hygienist</dd></div>
-        <div><dt class="meta-label">Duration</dt><dd class="text-xs">2021.10–2022.04</dd></div>
-      </dl>
     </div>
 
-    <div class="case-key-facts case-hero-wide" aria-label="歯周病検査UIの検証と成果">
-      <div><small>検証体制</small><strong class="case-key-fact-text">歯科医師と反復</strong></div>
-      <div><small>改善対象</small><strong class="case-key-fact-text">入力・結果表示</strong></div>
-      <div><small>検査速度</small><strong>24%</strong><span>向上</span></div>
-    </div>
   </section>
 
   <div class="case-content">
@@ -54,7 +54,7 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
       </header>
       <div class="case-prose case-prose--full">
         <p class="case-label">Validation Loop</p>
-        <h3>作るたび、歯科医師に触ってもらう。</h3>
+        <h3>プロトで高速に改善を回す。</h3>
         <p>入力方法と結果表示のプロトタイプを作るたび、歯科医師に操作してもらった。臨床上の正しさだけでなく、指と視線の動き、入力のリズム、現在地を迷わず認識できるかを確認。フィードバックを受けて作り直し、次の案を再び触ってもらうサイクルを繰り返した。</p>
         <p>実際に入力を担う歯科衛生士の評価も反映し、机上の使いやすさではなく、現場で紙より速く使える操作を探った。</p>
       </div>
@@ -89,20 +89,21 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
     <section class="case-section">
       <header class="case-section-header">
         <p class="section-title">04 From Prototype to Specification</p>
-        <h2>検証した操作を、<br />実装できる仕様へ。</h2>
-        <p><strong>プロトタイプを検証で終わらせず、専門家と確かめた操作を、実装可能な仕様までつないだ。</strong></p>
+        <h2>検証した操作を、実装できる仕様へ。</h2>
+        <div class="case-section-header-copy">
+          <p>プロトタイプを検証で終わらせず、専門家と確かめた操作を、実装可能な仕様までつないだ。</p>
+          <p><strong>このときFigmaで行っていた動作検証は、現在はClaude Codeによるコードベースプロトタイプへ、画面仕様書はStorybook上の実装へ発展させている。</strong></p>
+        </div>
       </header>
       <div class="case-two-column">
         <div class="case-prose">
           <p class="case-label">Interactive Prototype</p>
           <p>Figma上で実際の入力操作と画面遷移を再現した。歯科医師との検証だけでなく、エンジニアにも操作の手触りを共有し、データ構造やトランジションとの整合性を実装前に確認した。</p>
-          <p><strong>※ 現在このプロセスはClaude Codeのコードベースプロトで実施</strong></p>
           <figure class="case-figure"><img src="/images/medical-ui/interactive-prototype.png" alt="Figmaで作成した歯周病検査UIのインタラクティブプロトタイプ" /></figure>
         </div>
         <div class="case-prose">
           <p class="case-label">Design Specification</p>
           <p>入力値、選択状態、自動送り、フィードバック、エラーなど、操作中に発生する状態を整理した。Figma上で変数名とステートを定義し、視認性を検証した上でコンポーネント化。開発チームが設計意図を理解し、実装できる仕様書へ落とし込んだ。</p>
-          <p><strong>※ 現在このプロセスはStorybookに実装</strong></p>
           <figure class="case-figure"><img src="/images/medical-ui/design-specification.png" alt="操作遷移と状態を整理したデザイン仕様書" /></figure>
           <figure class="case-figure"><img src="/images/medical-ui/component-states.png" alt="入力値や状態ごとに整理した歯のUIコンポーネント" /></figure>
         </div>
@@ -112,6 +113,7 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
     <section class="case-section">
       <header class="case-section-header">
         <p class="section-title">05 Impact</p>
+        <h2>入力時間を24％短縮し、「紙より使いやすい」へ。</h2>
       </header>
       <div class="case-two-column">
         <div class="case-prose">
@@ -139,7 +141,7 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
   .prototype-iterations article:last-child h3 { color: var(--accent-color); }
   .prototype-iterations article > p:last-of-type { margin: 0; font-size: 15px; line-height: 1.7; }
   .prototype-iterations h3, .prototype-feedback-list h3 { font-size: clamp(21px, 2.4vw, 32px); line-height: 1.4; }
-  .prototype-iterations .case-figure { display: flex; width: 100%; justify-content: center; }
+  .prototype-iterations .case-figure { display: flex; width: 100%; justify-content: center; margin-top: auto; }
   .prototype-iterations .case-figure img { display: block; width: auto; max-width: 100%; height: auto; max-height: 280px; }
   .prototype-feedback-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
   .prototype-feedback-list article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 2.5vw, 32px); background: #fff; }
@@ -149,7 +151,7 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
   .prototype-feedback-list article:nth-child(5) { grid-column: 1 / -1; background: color-mix(in srgb, var(--accent-color) 9%, #fff); }
   .prototype-feedback-list article:nth-child(5) .case-label { color: #fff; background: var(--accent-color); }
   .prototype-feedback-list article:nth-child(5) h3 { color: var(--accent-color); }
-  .prototype-feedback-list article:nth-child(5) .case-figure { width: 60%; max-width: 60%; margin-inline: auto; }
+  .prototype-feedback-list article:nth-child(5) .case-figure { width: 60%; max-width: 60%; margin: auto auto 0; }
   .prototype-result { display: flex; flex-direction: column; gap: 16px; }
   .prototype-result strong { font-size: clamp(72px, 12vw, 180px); line-height: .9; letter-spacing: -.07em; }
   .prototype-result span { font-size: 16px; }
