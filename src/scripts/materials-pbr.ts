@@ -4,12 +4,13 @@ import { materialProfiles, sceneTuning, type MaterialKind } from './materials/co
 import {
   createBodyMaterials,
   createGlassMaterial,
+  createMilkResinFaceMaterial,
   createPaperFaceMaterial,
   createResinFaceMaterial,
   createSideMaterials,
   createStoneFaceMaterial,
 } from './materials/factories';
-import { makePanelGeometry, makeRoundedFaceGeometry } from './materials/geometry';
+import { makeIrregularStoneGeometry, makePanelGeometry, makeRoundedFaceGeometry } from './materials/geometry';
 import { createRenderHarness, type RenderHarness } from './materials/render-harness';
 import {
   makeCastGlassBumpTexture,
@@ -19,6 +20,7 @@ import {
   makeRoundedMaskTexture,
   makeShadowTexture,
   makeStoneSideTexture,
+  makeStoneSurfaceMaps,
 } from './materials/textures';
 
 type ManagedCanvas = HTMLCanvasElement & {
@@ -122,11 +124,14 @@ if (canvas && cases && hero) {
 
     scene.add(new THREE.HemisphereLight(0xfffcf5, 0x514d48, sceneTuning.hemisphereIntensity));
     const keyLight = new THREE.DirectionalLight(0xfff2da, sceneTuning.keyIntensity);
-    keyLight.position.set(-8, 9, 4.2);
+    keyLight.position.set(7.5, 10, 5.5);
     scene.add(keyLight);
     const fillLight = new THREE.DirectionalLight(0xc8dcff, sceneTuning.fillIntensity);
-    fillLight.position.set(6, -1, 3);
+    fillLight.position.set(-6, -1, 4);
     scene.add(fillLight);
+    const rimLight = new THREE.DirectionalLight(0xe8f2ff, sceneTuning.rimIntensity);
+    rimLight.position.set(6.5, 8, -4.5);
+    scene.add(rimLight);
 
     let textureReady = false;
     let isVisible = true;
@@ -136,6 +141,7 @@ if (canvas && cases && hero) {
     let lastPixelRatio = 0;
     let lastSignature = '';
     let lastDomSignature = '';
+    let lastGlassTitleSignature = '';
     let lastFloorY = 0;
     let renderFrame = () => {};
 
@@ -157,32 +163,37 @@ if (canvas && cases && hero) {
       markLayoutDirty();
     };
 
+    const paperBump = makeNoiseTexture('paper');
+    const stoneMaps = makeStoneSurfaceMaps();
     const textureLoader = new THREE.TextureLoader();
-    const stoneMap = textureLoader.load(
-      canvas.dataset.stoneSrc ?? '',
+    const stoneAlbedo = textureLoader.load(
+      canvas.dataset.stoneAlbedoSrc ?? '',
       markTextureReady,
       undefined,
       markTextureReady,
     );
-    stoneMap.colorSpace = THREE.SRGBColorSpace;
-    stoneMap.minFilter = THREE.LinearMipmapLinearFilter;
-    stoneMap.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-    const paperBump = makeNoiseTexture('paper');
-    const stoneBump = makeNoiseTexture('stone');
+    stoneAlbedo.colorSpace = THREE.SRGBColorSpace;
+    stoneAlbedo.minFilter = THREE.LinearMipmapLinearFilter;
+    stoneAlbedo.magFilter = THREE.LinearFilter;
+    stoneAlbedo.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     const castGlassBump = makeCastGlassBumpTexture();
     const castGlassCaustic = makeCastGlassCausticTexture();
     const paperAlbedo = makePaperAlbedoTexture();
     const stoneSideTexture = makeStoneSideTexture();
     const roundedMask = makeRoundedMaskTexture();
     const shadowMap = makeShadowTexture();
-    [stoneMap, paperBump, stoneBump, castGlassBump, castGlassCaustic, paperAlbedo, stoneSideTexture, roundedMask, shadowMap]
+    [stoneAlbedo, stoneMaps.height, stoneMaps.roughness, paperBump, castGlassBump, castGlassCaustic, paperAlbedo, stoneSideTexture, roundedMask, shadowMap]
       .forEach((texture) => trackedTextures.add(texture));
 
     const refractionSources = Array.from(
       document.querySelectorAll<HTMLElement>(
-        '[data-glass-refraction-source], [data-resin-refraction-source], [data-glass-title-refraction-source]',
+        '[data-glass-refraction-source], [data-resin-refraction-source]',
       ),
     );
+    const glassTitleSources = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-glass-title-refraction-source]'),
+    );
+    const textRefractionSources = [...refractionSources, ...glassTitleSources];
     const domRefractionCanvas = document.createElement('canvas');
     domRefractionCanvas.width = 2;
     domRefractionCanvas.height = 2;
@@ -197,13 +208,32 @@ if (canvas && cases && hero) {
     domRefractionTexture.wrapT = THREE.ClampToEdgeWrapping;
     trackedTextures.add(domRefractionTexture);
 
-    const glassMaterial = createGlassMaterial(domRefractionTexture);
+    const glassTitleCanvas = document.createElement('canvas');
+    glassTitleCanvas.width = 2;
+    glassTitleCanvas.height = 2;
+    const glassTitleContext = glassTitleCanvas.getContext('2d');
+    if (!glassTitleContext) throw new Error('Unable to create glass title texture');
+    const glassTitleTexture = new THREE.CanvasTexture(glassTitleCanvas);
+    glassTitleTexture.colorSpace = THREE.SRGBColorSpace;
+    glassTitleTexture.minFilter = THREE.LinearFilter;
+    glassTitleTexture.magFilter = THREE.LinearFilter;
+    glassTitleTexture.generateMipmaps = false;
+    glassTitleTexture.wrapS = THREE.ClampToEdgeWrapping;
+    glassTitleTexture.wrapT = THREE.ClampToEdgeWrapping;
+    trackedTextures.add(glassTitleTexture);
+
+    const glassMaterial = createGlassMaterial(domRefractionTexture, glassTitleTexture);
     const paperFaceMaterial = createPaperFaceMaterial(paperAlbedo, paperBump, roundedMask);
+    const milkResinFaceMaterial = createMilkResinFaceMaterial();
     const resinFaceMaterial = createResinFaceMaterial(castGlassBump, domRefractionTexture);
-    const bodyMaterials = createBodyMaterials(paperBump, stoneBump);
+    const bodyMaterials = createBodyMaterials(paperBump);
     const sideMaterials = createSideMaterials(stoneSideTexture);
-    const stoneFaceMaterial = createStoneFaceMaterial(stoneMap);
-    const glassHiddenFaceMaterial = new THREE.MeshBasicMaterial({
+    const stoneFaceMaterial = createStoneFaceMaterial(
+      stoneAlbedo,
+      stoneMaps.height,
+      stoneMaps.roughness,
+    );
+    const hiddenFaceMaterial = new THREE.MeshBasicMaterial({
       colorWrite: false,
       depthWrite: false,
     });
@@ -212,20 +242,23 @@ if (canvas && cases && hero) {
     cardElements.forEach((element) => {
       const kind = element.dataset.material as MaterialKind;
       const group = new THREE.Group();
+      const faceMaterial = kind === 'stone'
+        ? stoneFaceMaterial
+        : kind === 'glass' || kind === 'milk-resin'
+          ? hiddenFaceMaterial
+          : bodyMaterials[kind];
       const mesh = new THREE.Mesh(
         new THREE.BufferGeometry(),
-        kind === 'glass'
-          ? [glassHiddenFaceMaterial, sideMaterials.glass]
-          : [bodyMaterials[kind], sideMaterials[kind]],
+        [faceMaterial, sideMaterials[kind]],
       );
       group.add(mesh);
 
       let surface: THREE.Mesh | undefined;
-      if (kind === 'stone') {
-        surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), stoneFaceMaterial);
-        surface.renderOrder = 10;
-      } else if (kind === 'paper') {
+      if (kind === 'paper') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 32, 48), paperFaceMaterial);
+      } else if (kind === 'milk-resin') {
+        surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), milkResinFaceMaterial);
+        surface.renderOrder = 10;
       } else if (kind === 'resin') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), resinFaceMaterial);
       } else if (kind === 'glass') {
@@ -285,12 +318,17 @@ if (canvas && cases && hero) {
       return lines;
     };
 
-    const syncDomRefractionTexture = (
+    const syncTextTexture = (
+      sources: HTMLElement[],
+      targetCanvas: HTMLCanvasElement,
+      targetContext: CanvasRenderingContext2D,
+      targetTexture: THREE.CanvasTexture,
       canvasRect: DOMRect,
       pixelRatio: number,
+      previousSignature: string,
       force = false,
     ) => {
-      const sourceData = refractionSources.map((element) => {
+      const sourceData = sources.map((element) => {
         const rect = element.getBoundingClientRect();
         const style = getComputedStyle(element);
         return { rect, style, lines: readTextLines(element) };
@@ -316,28 +354,28 @@ if (canvas && cases && hero) {
           lines.map(({ text, fontWeight }) => `${text}:${fontWeight ?? style.fontWeight}`).join('\n'),
         ].join('|')).join('::'),
       ].join('::');
-      if (!force && signature === lastDomSignature) return;
-      lastDomSignature = signature;
+      if (!force && signature === previousSignature) return previousSignature;
 
       const textureWidth = Math.max(1, Math.round(canvasRect.width * pixelRatio));
       const textureHeight = Math.max(1, Math.round(canvasRect.height * pixelRatio));
-      if (domRefractionCanvas.width !== textureWidth || domRefractionCanvas.height !== textureHeight) {
-        domRefractionCanvas.width = textureWidth;
-        domRefractionCanvas.height = textureHeight;
+      if (targetCanvas.width !== textureWidth || targetCanvas.height !== textureHeight) {
+        targetCanvas.width = textureWidth;
+        targetCanvas.height = textureHeight;
       }
-      domRefractionContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      domRefractionContext.clearRect(0, 0, canvasRect.width, canvasRect.height);
+      targetContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      targetContext.clearRect(0, 0, canvasRect.width, canvasRect.height);
+      targetContext.filter = targetTexture === glassTitleTexture ? 'blur(10px)' : 'none';
 
       sourceData.forEach(({ rect, style, lines }) => {
         const fontSize = Number.parseFloat(style.fontSize) || 16;
         const parsedLineHeight = Number.parseFloat(style.lineHeight);
         const lineHeight = Number.isFinite(parsedLineHeight) ? parsedLineHeight : fontSize * 1.2;
-        domRefractionContext.fillStyle = style.color;
+        targetContext.fillStyle = style.color;
         const parsedOpacity = Number.parseFloat(style.opacity);
-        domRefractionContext.globalAlpha = Number.isFinite(parsedOpacity) ? parsedOpacity : 1;
-        domRefractionContext.textBaseline = 'top';
-        domRefractionContext.textAlign = style.textAlign as CanvasTextAlign;
-        const contextWithSpacing = domRefractionContext as CanvasRenderingContext2D & {
+        targetContext.globalAlpha = Number.isFinite(parsedOpacity) ? parsedOpacity : 1;
+        targetContext.textBaseline = 'top';
+        targetContext.textAlign = style.textAlign as CanvasTextAlign;
+        const contextWithSpacing = targetContext as CanvasRenderingContext2D & {
           letterSpacing?: string;
         };
         if ('letterSpacing' in contextWithSpacing) contextWithSpacing.letterSpacing = style.letterSpacing;
@@ -348,12 +386,41 @@ if (canvas && cases && hero) {
         const y = rect.top - canvasRect.top + (lineHeight - fontSize) / 2;
         lines.forEach(({ text, fontWeight: lineFontWeight }, lineIndex) => {
           const fontWeight = lineFontWeight ?? style.fontWeight;
-          domRefractionContext.font = `${style.fontStyle} ${fontWeight} ${style.fontSize} ${style.fontFamily}`;
-          domRefractionContext.fillText(text, x, y + lineIndex * lineHeight);
+          targetContext.font = `${style.fontStyle} ${fontWeight} ${style.fontSize} ${style.fontFamily}`;
+          targetContext.fillText(text, x, y + lineIndex * lineHeight);
         });
       });
-      domRefractionContext.globalAlpha = 1;
-      domRefractionTexture.needsUpdate = true;
+      targetContext.globalAlpha = 1;
+      targetContext.filter = 'none';
+      targetTexture.needsUpdate = true;
+      return signature;
+    };
+
+    const syncDomRefractionTextures = (
+      canvasRect: DOMRect,
+      pixelRatio: number,
+      force = false,
+    ) => {
+      lastDomSignature = syncTextTexture(
+        refractionSources,
+        domRefractionCanvas,
+        domRefractionContext,
+        domRefractionTexture,
+        canvasRect,
+        pixelRatio,
+        lastDomSignature,
+        force,
+      );
+      lastGlassTitleSignature = syncTextTexture(
+        glassTitleSources,
+        glassTitleCanvas,
+        glassTitleContext,
+        glassTitleTexture,
+        canvasRect,
+        pixelRatio,
+        lastGlassTitleSignature,
+        force,
+      );
     };
 
     const syncLayout = (force = false) => {
@@ -380,7 +447,7 @@ if (canvas && cases && hero) {
         lastPixelRatio = pixelRatio;
       }
 
-      syncDomRefractionTexture(canvasRect, pixelRatio, force || sizeChanged);
+      syncDomRefractionTextures(canvasRect, pixelRatio, force || sizeChanged);
 
       const rects = cardStates.map(({ element }) => (
         element.querySelector<HTMLElement>('.material-card')?.getBoundingClientRect()
@@ -425,7 +492,9 @@ if (canvas && cases && hero) {
         const radiusPx = profile.radiusPx;
         const radius = radiusPx * pxY;
         state.mesh.geometry.dispose();
-        state.mesh.geometry = makePanelGeometry(width, height, depth, radius);
+        state.mesh.geometry = state.kind === 'stone'
+          ? makeIrregularStoneGeometry(width, height, depth)
+          : makePanelGeometry(width, height, depth, radius);
         const centerX = (((rect.left + rect.width / 2) - canvasRect.left) / canvasRect.width * 2 - 1) * aspect;
         const centerY = 1 - (((rect.top + rect.height / 2) - canvasRect.top) / canvasRect.height * 2);
         state.group.position.set(centerX, centerY, state.group.position.z);
@@ -438,10 +507,15 @@ if (canvas && cases && hero) {
         state.group.position.z = 0.08;
         if (state.surface) {
           state.surface.geometry.dispose();
-          if (state.kind === 'stone') {
-            state.surface.geometry = makeRoundedFaceGeometry(width - radius * 0.2, height - radius * 0.2, radius * 0.9);
-          } else if (state.kind === 'paper') {
+          if (state.kind === 'paper') {
             state.surface.geometry = new THREE.PlaneGeometry(width - radius * 0.14, height - radius * 0.14, 32, 48);
+          } else if (state.kind === 'milk-resin') {
+            const bevelSize = radius * 0.16;
+            state.surface.geometry = makeRoundedFaceGeometry(
+              width + bevelSize * 2,
+              height + bevelSize * 2,
+              radius + bevelSize,
+            );
           } else if (state.kind === 'glass') {
             state.surface.geometry = makeRoundedFaceGeometry(
               width - radius * 0.2,
@@ -458,7 +532,7 @@ if (canvas && cases && hero) {
           state.surface.position.set(
             0,
             0,
-            state.kind === 'stone' || state.kind === 'resin' || state.kind === 'glass'
+            state.kind === 'milk-resin' || state.kind === 'resin' || state.kind === 'glass'
               ? depth / 2 + 0.001
               : depth / 2 + depth * 0.25 + 0.001,
           );
@@ -486,6 +560,8 @@ if (canvas && cases && hero) {
           glassMaterial.uniforms.uWorldCardSize.value.set(width, height);
           glassMaterial.uniforms.uCardSize.value.set(referenceRect.width, referenceRect.height);
           glassMaterial.uniforms.uRadius.value = radiusPx;
+        } else if (state.kind === 'milk-resin') {
+          milkResinFaceMaterial.uniforms.uCardSize.value.set(rect.width, rect.height);
         }
       });
       return true;
@@ -508,15 +584,10 @@ if (canvas && cases && hero) {
       const card = element.querySelector<HTMLElement>('.material-card');
       if (card) resizeObserver?.observe(card);
     });
-    refractionSources.forEach((source) => resizeObserver?.observe(source));
-    document.fonts?.ready.then(() => {
-      if (disposed) return;
-      lastDomSignature = '';
-      markLayoutDirty();
-    });
+    textRefractionSources.forEach((source) => resizeObserver?.observe(source));
 
     mutationObserver = new MutationObserver(markLayoutDirty);
-    refractionSources.forEach((source) => mutationObserver?.observe(source, {
+    textRefractionSources.forEach((source) => mutationObserver?.observe(source, {
       attributes: true,
       childList: true,
       characterData: true,
@@ -530,6 +601,7 @@ if (canvas && cases && hero) {
     document.fonts?.ready.then(() => {
       if (disposed) return;
       lastDomSignature = '';
+      lastGlassTitleSignature = '';
       markLayoutDirty();
     });
 

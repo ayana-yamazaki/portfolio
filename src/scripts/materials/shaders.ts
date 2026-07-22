@@ -14,6 +14,7 @@ export const glassVertexShader = `
 export const glassFragmentShader = `
   precision highp float;
   uniform sampler2D uDomRefraction;
+  uniform sampler2D uGlassTitle;
   uniform vec2 uCanvasSize;
   uniform vec2 uWorldCardSize;
   uniform vec2 uCardSize;
@@ -70,6 +71,22 @@ export const glassFragmentShader = `
     return color;
   }
 
+  vec4 sampleBlurredGlassTitle(vec2 uv){
+    vec2 texel=1.0/uCanvasSize;
+    vec2 nearOffset=texel*3.0;
+    vec2 farOffset=texel*6.0;
+    vec4 color=texture2D(uGlassTitle,uv)*.48;
+    color+=texture2D(uGlassTitle,clamp(uv+vec2(nearOffset.x,0.0),vec2(.002),vec2(.998)))*.1;
+    color+=texture2D(uGlassTitle,clamp(uv-vec2(nearOffset.x,0.0),vec2(.002),vec2(.998)))*.1;
+    color+=texture2D(uGlassTitle,clamp(uv+vec2(0.0,nearOffset.y),vec2(.002),vec2(.998)))*.1;
+    color+=texture2D(uGlassTitle,clamp(uv-vec2(0.0,nearOffset.y),vec2(.002),vec2(.998)))*.1;
+    color+=texture2D(uGlassTitle,clamp(uv+farOffset,vec2(.002),vec2(.998)))*.03;
+    color+=texture2D(uGlassTitle,clamp(uv-farOffset,vec2(.002),vec2(.998)))*.03;
+    color+=texture2D(uGlassTitle,clamp(uv+vec2(farOffset.x,-farOffset.y),vec2(.002),vec2(.998)))*.03;
+    color+=texture2D(uGlassTitle,clamp(uv+vec2(-farOffset.x,farOffset.y),vec2(.002),vec2(.998)))*.03;
+    return color;
+  }
+
   void main(){
     vec2 local=vLocalPosition/uWorldCardSize+.5;
     vec2 p=(local-.5)*uCardSize;
@@ -110,26 +127,33 @@ export const glassFragmentShader = `
     vec3 blurredBackdrop=mix(uWallColor,uFloorColor,floorMask);
     vec3 neutralFrost=mix(blurredBackdrop,vec3(.955,.958,.95),.55)+surfaceScatter;
     float prismBand=1.0-smoothstep(10.0,105.0,inside);
-    float tintStrength=.07+prismBand*.24+rim*.12;
+    float tintStrength=.035+prismBand*.12+rim*.06;
     vec3 color=mix(neutralFrost,spectralColor,tintStrength);
 
     float light=max(dot(rimNormal,normalize(vec2(.68,.74))),0.0);
     float shade=max(dot(rimNormal,normalize(vec2(-.68,-.74))),0.0);
-    color=mix(color,vec3(.99),pow(rim,2.0)*light*.34);
+    color=mix(color,vec3(.99),pow(rim,2.0)*light*.48);
     color*=1.0-pow(rim,1.55)*shade*.21;
 
+    float rearGlint=exp(-pow((local.x*.7+local.y*.3-.87)/.075,2.0));
+    rearGlint*=smoothstep(.36,.86,local.y);
+    color=mix(color,vec3(.995,1.0,1.0),rearGlint*.13);
+
     vec2 refractionOffset=rimNormal*(uRefraction/uCanvasSize)*pow(rim,1.32);
-    float embeddedTitleRegion=smoothstep(.58,.66,local.y)*smoothstep(.12,.24,local.x);
-    float titleEffectScale=mix(1.0,.5,embeddedTitleRegion);
-    vec2 titleRefractionOffset=refractionOffset*titleEffectScale;
-    vec2 refractedUv=clamp(vScreenUv-titleRefractionOffset,vec2(.002),vec2(.998));
-    vec2 internalUv=clamp(vScreenUv+titleRefractionOffset*.24,vec2(.002),vec2(.998));
-    vec4 refractedDom=sampleBlurredDom(refractedUv,titleEffectScale);
-    vec4 internalDom=sampleBlurredDom(internalUv,titleEffectScale);
+    vec2 refractedUv=clamp(vScreenUv-refractionOffset,vec2(.002),vec2(.998));
+    vec2 internalUv=clamp(vScreenUv+refractionOffset*.24,vec2(.002),vec2(.998));
+    vec4 refractedDom=sampleBlurredDom(refractedUv,1.0);
+    vec4 internalDom=sampleBlurredDom(internalUv,1.0);
     vec4 bentDom=mix(internalDom,refractedDom,.82);
-    float rimTextStrength=bentDom.a*smoothstep(.08,.72,rim);
-    float bentTextStrength=mix(rimTextStrength,bentDom.a*.78,embeddedTitleRegion);
+    float bentTextStrength=bentDom.a*smoothstep(.08,.72,rim);
     color=mix(color,bentDom.rgb,bentTextStrength*.92);
+
+    vec2 titleRefractionOffset=refractionOffset*.5;
+    vec4 refractedTitle=sampleBlurredGlassTitle(clamp(vScreenUv-titleRefractionOffset,vec2(.002),vec2(.998)));
+    vec4 internalTitle=sampleBlurredGlassTitle(clamp(vScreenUv+titleRefractionOffset*.24,vec2(.002),vec2(.998)));
+    vec4 embeddedTitle=mix(internalTitle,refractedTitle,.82);
+    float embeddedTitleStrength=smoothstep(.01,.56,embeddedTitle.a)*.28;
+    color=mix(color,vec3(1.0),embeddedTitleStrength);
 
     float side=max(max(vNormal.x,0.0),max(-vNormal.y,0.0));
     color*=1.0-side*.16;
@@ -148,6 +172,51 @@ export const resinVertexShader = `
     vec4 clip=projectionMatrix*modelViewMatrix*vec4(position,1.0);
     vScreenUv=clip.xy/clip.w*.5+.5;
     gl_Position=clip;
+  }
+`;
+
+export const milkResinFragmentShader = `
+  precision highp float;
+  uniform vec2 uCardSize;
+  varying vec2 vUv;
+
+  void main(){
+    vec2 cardPoint=vUv*uCardSize;
+    vec2 holeCenter=vec2(26.0,uCardSize.y-26.0);
+    float holeDistance=distance(cardPoint,holeCenter);
+    float holeAlpha=smoothstep(9.15,10.45,holeDistance);
+
+    vec3 resinOrange=vec3(1.0,.572549,0.0);
+    vec3 resinEdge=vec3(.88,.388775,0.0);
+    float verticalLight=mix(.965,1.0,smoothstep(0.0,1.0,vUv.y));
+    float edgeDistance=min(min(vUv.x,1.0-vUv.x),min(vUv.y,1.0-vUv.y));
+    float edgeBlend=smoothstep(0.0,.12,edgeDistance);
+    vec3 color=mix(resinEdge,resinOrange*verticalLight,mix(.72,1.0,edgeBlend));
+
+    float frontSpot=exp(-dot(vUv-vec2(.5,.88),vUv-vec2(.5,.88))/.085);
+    color=mix(color,vec3(1.0,.7,.34),frontSpot*.025);
+
+    float leftEdge=1.0-smoothstep(0.0,.018,vUv.x);
+    float topEdge=1.0-smoothstep(0.0,.012,1.0-vUv.y);
+    float rightEdge=1.0-smoothstep(0.0,.028,1.0-vUv.x);
+    float bottomEdge=1.0-smoothstep(0.0,.028,vUv.y);
+    color=mix(color,vec3(1.0,.62,.22),(leftEdge*.012+topEdge*.028));
+    color=mix(color,resinEdge,rightEdge*.045+bottomEdge*.07);
+
+    float cardTopLine=1.0-smoothstep(0.0,1.35/uCardSize.y,1.0-vUv.y);
+    color=mix(color,vec3(1.0,.82,.58),cardTopLine*.34);
+
+    float holeBevel=1.0-smoothstep(10.0,15.0,holeDistance);
+    vec2 holeNormal=normalize(cardPoint-holeCenter);
+    float holeHighlight=max(dot(holeNormal,normalize(vec2(.7,.7))),0.0);
+    float holeShadow=max(dot(holeNormal,normalize(vec2(-.7,-.7))),0.0);
+    color=mix(color,vec3(1.0,.65,.24),holeBevel*holeHighlight*.16);
+    color*=1.0-holeBevel*(.07+holeShadow*.14);
+    float holeLip=1.0-smoothstep(10.0,11.35,holeDistance);
+    float holeTopLight=smoothstep(.12,.88,holeNormal.y);
+    color=mix(color,vec3(1.0,.86,.66),holeLip*holeTopLight*.62);
+
+    gl_FragColor=vec4(color,holeAlpha);
   }
 `;
 
@@ -170,7 +239,7 @@ export const resinFragmentShader = `
     float centerHeight=texture2D(uBump,vUv).r;
     vec2 slope=vec2(rightHeight-leftHeight,upHeight-downHeight)*10.5;
     vec3 surfaceNormal=normalize(vec3(-slope.x,-slope.y,1.0));
-    vec3 lightDirection=normalize(vec3(-.62,.78,1.0));
+    vec3 lightDirection=normalize(vec3(.62,.78,1.0));
     vec3 halfVector=normalize(lightDirection+vec3(0.0,0.0,1.0));
     float facingLight=max(dot(surfaceNormal,lightDirection),0.0);
     float specularAlignment=max(dot(surfaceNormal,halfVector),0.0);
@@ -209,6 +278,10 @@ export const resinFragmentShader = `
       +glancingHighlight*.19
       +crest*.12
     )*(.32+facingLight*.68);
+    float diagonal=vUv.x*.72+vUv.y*.28;
+    float areaHighlight=exp(-pow((diagonal-.86)/.065,2.0));
+    areaHighlight*=smoothstep(.28,.86,vUv.y);
+    color+=vec3(1.0,.99,.96)*areaHighlight*.18;
     color+=vec3(1.0,.995,.97)*leftEdge*.48;
     color+=vec3(1.0,.998,.985)*topEdge*.96;
     color*=1.0-rightEdge*.12-bottomEdge*.2;

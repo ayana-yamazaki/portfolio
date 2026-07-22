@@ -7,15 +7,15 @@ import About from '../components/About.astro';
 import CaseFooter from '../components/CaseFooter.astro';
 import { caseStudies } from '../data/site';
 import { getImage } from 'astro:assets';
-import panel01 from '../../img/panel01-texture.png';
+import stoneLimestoneAlbedo from '../assets/stone-limestone-albedo.png';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
-const materials = ['stone', 'paper', 'resin', 'glass'] as const;
-const panel01Texture = await getImage({
-  src: panel01,
-  width: 512,
+const materials = ['stone', 'milk-resin', 'resin', 'glass'] as const;
+const stoneLimestoneTexture = await getImage({
+  src: stoneLimestoneAlbedo,
+  width: 1024,
   format: 'webp',
-  quality: 82,
+  quality: 88,
 });
 ---
 
@@ -101,19 +101,16 @@ const panel01Texture = await getImage({
             class="home-hero__materials-canvas"
             aria-hidden="true"
             data-materials-pbr
-            data-stone-src={panel01Texture.src}
+            data-stone-albedo-src={stoneLimestoneTexture.src}
           ></canvas>
           {caseStudies.map((caseStudy, index) => (
             <a class="home-hero__case" href={caseStudy.href} data-material={materials[index]}>
-              <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
+              <span class="home-hero__card-wrap">
+                <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
                 <span class="material-card__shadow"></span>
                 <span class="material-card__volume">
                   <span class="material-card__front">
-                    <span class="material-card__surface">
-                      {materials[index] === 'stone' && (
-                        <img class="material-card__image" src={panel01Texture.src} alt="" />
-                      )}
-                    </span>
+                    <span class="material-card__surface"></span>
                     <span class="material-card__sheen"></span>
                   </span>
                   <span class="material-card__side material-card__side--right"></span>
@@ -122,18 +119,21 @@ const panel01Texture = await getImage({
                 {/* {materials[index] === 'glass' && (
                   <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />
                 )} */}
-              </span>
-              <span class="home-hero__case-copy">
-                <span
-                  class="home-hero__case-title"
-                  data-resin-refraction-source={materials[index] === 'resin' ? '' : undefined}
-                  data-glass-title-refraction-source={materials[index] === 'glass' ? '' : undefined}
-                >
-                  {materials[index] === 'resin'
-                    ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />and<br /><span class="home-hero__embedded-title-strong">Iterate</span></>
-                    : materials[index] === 'glass'
-                      ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
-                      : caseStudy.title}
+                </span>
+                <span class="home-hero__case-copy">
+                  <span
+                    class="home-hero__case-title"
+                    data-resin-refraction-source={materials[index] === 'resin' ? '' : undefined}
+                    data-glass-title-refraction-source={materials[index] === 'glass' ? '' : undefined}
+                  >
+                    {materials[index] === 'milk-resin'
+                      ? <>Decide<br />What to<br /><span class="home-hero__embedded-title-strong">Build</span></>
+                      : materials[index] === 'resin'
+                        ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />and<br /><span class="home-hero__embedded-title-strong">Iterate</span></>
+                        : materials[index] === 'glass'
+                          ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
+                          : caseStudy.title}
+                  </span>
                 </span>
               </span>
               <span class="home-hero__case-text">{caseStudy.text.replace(/。$/, '')}</span>

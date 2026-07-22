@@ -282,11 +282,18 @@ body:has(.home-main) {
   --card-edge: #9b9a97;
   --card-edge-dark: #686765;
   --card-thickness: 35px;
+  --stone-outline: polygon(
+    .4% .2%, 17% .4%, 31% .1%, 49% .5%, 65% .2%, 83% .4%, 99.7% .2%,
+    99.5% 14%, 99.8% 28%, 99.2% 43%, 99.7% 57%, 99.3% 72%, 99.8% 87%, 99.5% 99.7%,
+    82% 99.5%, 67% 99.8%, 51% 99.4%, 34% 99.8%, 18% 99.3%, .2% 99.7%,
+    .5% 84%, .1% 69%, .6% 54%, .2% 39%, .5% 23%, .2% 10%
+  );
 }
 
 .material-card--stone .material-card__front,
 .material-card--stone .material-card__front::after {
   border-radius: 0;
+  clip-path: var(--stone-outline);
 }
 
 .material-card--stone .material-card__side--right {
@@ -298,22 +305,13 @@ body:has(.home-main) {
 }
 
 .material-card--stone .material-card__surface {
-  background: none;
+  background:
+    radial-gradient(ellipse at 21% 18%, rgba(76, 59, 39, .2) 0 1px, transparent 2.5px),
+    radial-gradient(ellipse at 73% 62%, rgba(86, 67, 43, .18) 0 1.4px, transparent 3px),
+    radial-gradient(ellipse at 42% 81%, rgba(248, 235, 208, .32) 0 1px, transparent 2.6px),
+    linear-gradient(145deg, #d9c9aa, #c8b696);
+  background-size: 17px 19px, 29px 31px, 23px 27px, auto;
   filter: none;
-}
-
-.material-card__image {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: saturate(.92) contrast(1.04);
-}
-
-.material-card--stone .material-card__image {
-  filter: saturate(1.5) contrast(1.02);
 }
 
 .material-card--stone .material-card__surface::before {
@@ -389,6 +387,70 @@ body:has(.home-main) {
 .material-card--paper .material-card__sheen {
   background: linear-gradient(122deg, rgba(255, 255, 255, .34), transparent 31% 72%, rgba(91, 75, 51, .05));
   opacity: .58;
+}
+
+/* Orange milk glass — smooth, softly translucent color with a warm highlight. */
+.material-card--milk-resin {
+  --card-edge: #ff9200;
+  --card-edge-dark: #b94f00;
+}
+
+.material-card--milk-resin .material-card__front,
+.material-card--milk-resin .material-card__front::after {
+  border-radius: 8px;
+}
+
+.material-card--milk-resin .material-card__front::after {
+  border-top-color: rgba(255, 225, 188, .72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 237, 214, .5),
+    inset -1px -1px 0 rgba(150, 48, 0, .16);
+}
+
+.material-card--milk-resin .material-card__side--right {
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(90deg, #ff9200, #b34d00 88%);
+  box-shadow: inset 1px 0 2px rgba(255, 211, 174, .5), 2px 0 7px rgba(79, 32, 16, .18);
+}
+
+.material-card--milk-resin .material-card__side--bottom {
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(180deg, #f17b00, #a54400 92%);
+  box-shadow: inset 0 1px 2px rgba(255, 203, 162, .42), 0 2px 7px rgba(68, 27, 15, .2);
+}
+
+.material-card--milk-resin .material-card__shadow {
+  background: radial-gradient(ellipse, rgba(54, 51, 47, .24), rgba(86, 82, 76, .06) 54%, transparent 76%);
+}
+
+.material-card--milk-resin .material-card__surface {
+  background: linear-gradient(180deg, #ffa126 0%, #ff9200 28% 72%, #f48600 100%);
+  box-shadow:
+    inset 4px 3px 12px rgba(255, 218, 172, .1),
+    inset -6px -8px 18px rgba(109, 43, 0, .1);
+  -webkit-mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
+  mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
+}
+
+.material-card--milk-resin .material-card__surface::before {
+  top: 16px;
+  left: 16px;
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow:
+    0 -1px 0 rgba(255, 239, 219, .72),
+    2px -2px 4px rgba(255, 194, 119, .28),
+    -2px 3px 5px rgba(123, 43, 0, .28);
+}
+
+.material-card--milk-resin .material-card__sheen {
+  background: radial-gradient(ellipse at 50% 10%, rgba(255, 222, 180, .1), transparent 44%);
+  mix-blend-mode: screen;
+  opacity: .22;
+  -webkit-mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
+  mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
 }
 
 /* Resin — glossy, softly translucent milk-white plastic. */
@@ -606,6 +668,11 @@ body:has(.home-main) {
   transition: transform 720ms cubic-bezier(.2, .75, .2, 1);
 }
 
+.home-hero__card-wrap {
+  position: relative;
+  display: block;
+}
+
 .home-hero__case-copy {
   position: absolute;
   z-index: 5;
@@ -626,20 +693,55 @@ body:has(.home-main) {
   letter-spacing: -.045em;
 }
 
+.home-hero__case[data-material='milk-resin'] .home-hero__case-title {
+  color: #fff;
+  background: linear-gradient(180deg, #fff 0%, #fff 68%, #fffdfb 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-weight: 600;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 -1px 2px rgba(255, 208, 151, .56),
+    0 1px 2px rgba(244, 102, 0, .72),
+    -1px 3px 5px rgba(177, 58, 0, .45),
+    -3px 6px 10px rgba(102, 34, 0, .2);
+}
+
 .home-hero__case[data-material='resin'] .home-hero__case-title,
 .home-hero__case[data-material='glass'] .home-hero__case-title {
   color: #fff;
-  font-size: clamp(39px, 3.9vw, 51px);
+  font-size: clamp(26px, 2.6vw, 31px);
   font-weight: 400;
-  text-align: right;
+  text-align: center;
+  text-shadow: 0 0 8px rgba(255, 255, 255, .34);
+}
+
+.home-hero__case[data-material='milk-resin'] .home-hero__case-title {
+  font-size: clamp(26px, 2.6vw, 31px);
+  font-weight: 400;
+  text-align: center;
+}
+
+.home-hero__case[data-material='milk-resin'] .home-hero__case-copy,
+.home-hero__case[data-material='resin'] .home-hero__case-copy,
+.home-hero__case[data-material='glass'] .home-hero__case-copy {
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .home-hero__embedded-title-strong {
   font-weight: 700;
 }
 
-.home-hero__cases.is-materials-pbr-ready .home-hero__case[data-material='resin'] .home-hero__case-title,
-.home-hero__cases.is-materials-pbr-ready .home-hero__case[data-material='glass'] .home-hero__case-title {
+.home-hero__case[data-material='glass'] .home-hero__embedded-title-strong {
+  font-weight: 600;
+}
+
+.home-hero__case[data-material='glass'] .home-hero__case-title {
+  opacity: .92;
+}
+
+.home-hero__cases.is-materials-pbr-ready .home-hero__case[data-material='resin'] .home-hero__case-title {
   visibility: hidden;
 }
 
@@ -675,9 +777,10 @@ body:has(.home-main) {
     font-size: 28px;
   }
 
+  .home-hero__case[data-material='milk-resin'] .home-hero__case-title,
   .home-hero__case[data-material='resin'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
-    font-size: 42px;
+    font-size: 31px;
   }
 }
 
@@ -701,9 +804,10 @@ body:has(.home-main) {
     font-size: 30px;
   }
 
+  .home-hero__case[data-material='milk-resin'] .home-hero__case-title,
   .home-hero__case[data-material='resin'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
-    font-size: 45px;
+    font-size: 31px;
   }
 
   .home-hero__case-text {

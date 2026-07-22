@@ -3,13 +3,18 @@ import { glassTuning } from './config';
 import {
   glassFragmentShader,
   glassVertexShader,
+  milkResinFragmentShader,
   resinFragmentShader,
   resinVertexShader,
 } from './shaders';
 
-export const createGlassMaterial = (domRefractionTexture: THREE.Texture) => new THREE.ShaderMaterial({
+export const createGlassMaterial = (
+  domRefractionTexture: THREE.Texture,
+  glassTitleTexture: THREE.Texture,
+) => new THREE.ShaderMaterial({
   uniforms: {
     uDomRefraction: { value: domRefractionTexture },
+    uGlassTitle: { value: glassTitleTexture },
     uCanvasSize: { value: new THREE.Vector2(1, 1) },
     uWorldCardSize: { value: new THREE.Vector2(1, 1) },
     uCardSize: { value: new THREE.Vector2(1, 1) },
@@ -66,17 +71,19 @@ export const createResinFaceMaterial = (
   toneMapped: false,
 });
 
-export const createBodyMaterials = (
-  paperBump: THREE.Texture,
-  stoneBump: THREE.Texture,
-) => ({
-  stone: new THREE.MeshPhysicalMaterial({
-    color: 0x77736b,
-    roughness: 0.86,
-    metalness: 0,
-    bumpMap: stoneBump,
-    bumpScale: 0.018,
-  }),
+export const createMilkResinFaceMaterial = () => new THREE.ShaderMaterial({
+  uniforms: {
+    uCardSize: { value: new THREE.Vector2(1, 1) },
+  },
+  vertexShader: resinVertexShader,
+  fragmentShader: milkResinFragmentShader,
+  transparent: true,
+  depthTest: false,
+  depthWrite: false,
+  toneMapped: false,
+});
+
+export const createBodyMaterials = (paperBump: THREE.Texture) => ({
   paper: new THREE.MeshPhysicalMaterial({
     color: 0xd8cfbd,
     roughness: 0.94,
@@ -85,6 +92,14 @@ export const createBodyMaterials = (
     bumpScale: 0.045,
     sheen: 0.08,
     sheenColor: new THREE.Color(0xfff8e8),
+  }),
+  'milk-resin': new THREE.MeshPhysicalMaterial({
+    color: 0xff9200,
+    roughness: 0.48,
+    metalness: 0,
+    clearcoat: 0.12,
+    clearcoatRoughness: 0.4,
+    envMapIntensity: 0.05,
   }),
   resin: new THREE.MeshPhysicalMaterial({
     color: 0xbcd2d5,
@@ -113,6 +128,14 @@ export const createSideMaterials = (stoneTexture: THREE.Texture) => ({
     roughness: 0.96,
     metalness: 0,
   }),
+  'milk-resin': new THREE.MeshPhysicalMaterial({
+    color: 0xe37000,
+    roughness: 0.5,
+    metalness: 0,
+    clearcoat: 0.1,
+    clearcoatRoughness: 0.42,
+    envMapIntensity: 0.05,
+  }),
   resin: new THREE.MeshPhysicalMaterial({
     color: 0x4d676c,
     roughness: 0.22,
@@ -135,21 +158,20 @@ export const createSideMaterials = (stoneTexture: THREE.Texture) => ({
   }),
 });
 
-export const createStoneFaceMaterial = (image: THREE.Texture) => {
+export const createStoneFaceMaterial = (
+  albedo: THREE.Texture,
+  height: THREE.Texture,
+  roughness: THREE.Texture,
+) => {
   const material = new THREE.MeshPhysicalMaterial({
-    map: image,
+    map: albedo,
     color: 0xffffff,
-    roughness: 0.88,
+    roughness: 0.97,
+    roughnessMap: roughness,
     metalness: 0,
-    envMapIntensity: 0.22,
-    emissive: new THREE.Color(0xffffff),
-    emissiveMap: image,
-    emissiveIntensity: 0.12,
-    side: THREE.DoubleSide,
-    depthTest: false,
-    depthWrite: false,
-    polygonOffset: true,
-    polygonOffsetFactor: -2,
+    bumpMap: height,
+    bumpScale: 0.022,
+    envMapIntensity: 0.18,
   });
   return material;
 };

@@ -1,4 +1,4 @@
-export type MaterialKind = 'stone' | 'paper' | 'resin' | 'glass';
+export type MaterialKind = 'stone' | 'paper' | 'milk-resin' | 'resin' | 'glass';
 
 export const materialProfiles: Record<MaterialKind, {
   radiusPx: number;
@@ -6,6 +6,7 @@ export const materialProfiles: Record<MaterialKind, {
 }> = {
   stone: { radiusPx: 4, thicknessPx: 35 },
   paper: { radiusPx: 4, thicknessPx: 35 },
+  'milk-resin': { radiusPx: 8, thicknessPx: 35 },
   resin: { radiusPx: 4, thicknessPx: 35 },
   glass: { radiusPx: 4, thicknessPx: 35 },
 };
@@ -17,9 +18,10 @@ export const sceneTuning = {
   maxDrawCalls: 20,
   maxTriangles: 50_000,
   exposure: 0.82,
-  hemisphereIntensity: 0.58,
-  keyIntensity: 2.25,
-  fillIntensity: 0.38,
+  hemisphereIntensity: 0.26,
+  keyIntensity: 4.2,
+  fillIntensity: 0.12,
+  rimIntensity: 2.1,
   baseTilt: 8,
   baseYaw: 0,
   baseRoll: 0,
