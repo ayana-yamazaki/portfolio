@@ -8,6 +8,8 @@ import CaseFooter from '../components/CaseFooter.astro';
 import { caseStudies } from '../data/site';
 import { getImage } from 'astro:assets';
 import panel01 from '../../img/panel01.png';
+import panel02 from '../../img/panel02.png';
+import codeXmlIcon from '../assets/code-xml.svg';
 
 const materials = ['stone', 'paper', 'resin', 'glass'] as const;
 const panel01Texture = await getImage({
@@ -36,23 +38,6 @@ const panel01Texture = await getImage({
 
         <svg class="material-filters" aria-hidden="true">
           <defs>
-            <filter id="material-stone-grain" x="-15%" y="-15%" width="130%" height="130%">
-              <feTurbulence type="fractalNoise" baseFrequency=".52" numOctaves="5" seed="19" result="noise" />
-              <feColorMatrix in="noise" type="saturate" values="0" result="mono-noise" />
-              <feComponentTransfer in="mono-noise" result="grain">
-                <feFuncR type="linear" slope="1.35" intercept="-.15" />
-                <feFuncG type="linear" slope="1.28" intercept="-.12" />
-                <feFuncB type="linear" slope="1.18" intercept="-.08" />
-                <feFuncA type="table" tableValues="0 .58" />
-              </feComponentTransfer>
-              <feBlend in="SourceGraphic" in2="grain" mode="soft-light" result="textured" />
-              <feDiffuseLighting in="noise" surfaceScale="2.4" diffuseConstant=".72" lighting-color="#fff" result="light">
-                <feDistantLight azimuth="225" elevation="48" />
-              </feDiffuseLighting>
-              <feComposite in="light" in2="SourceAlpha" operator="in" result="clipped-light" />
-              <feBlend in="textured" in2="clipped-light" mode="soft-light" />
-            </filter>
-
             <filter id="material-paper-grain" x="-10%" y="-10%" width="120%" height="120%">
               <feTurbulence type="fractalNoise" baseFrequency=".018 .62" numOctaves="4" seed="8" result="fibers" />
               <feColorMatrix in="fibers" values="
@@ -117,6 +102,7 @@ const panel01Texture = await getImage({
             aria-hidden="true"
             data-materials-pbr
             data-stone-src={panel01Texture.src}
+            data-resin-src={panel02.src}
           ></canvas>
           {caseStudies.map((caseStudy, index) => (
             <a class="home-hero__case" href={caseStudy.href} data-material={materials[index]}>
@@ -126,7 +112,10 @@ const panel01Texture = await getImage({
                   <span class="material-card__front">
                     <span class="material-card__surface">
                       {materials[index] === 'stone' && (
-                        <img class="material-card__stone-image" src={panel01Texture.src} alt="" />
+                        <img class="material-card__image" src={panel01Texture.src} alt="" />
+                      )}
+                      {materials[index] === 'resin' && (
+                        <img class="material-card__image" src={panel02.src} alt="" />
                       )}
                     </span>
                     <span class="material-card__sheen"></span>
@@ -134,6 +123,9 @@ const panel01Texture = await getImage({
                   <span class="material-card__side material-card__side--right"></span>
                   <span class="material-card__side material-card__side--bottom"></span>
                 </span>
+                {materials[index] === 'glass' && (
+                  <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />
+                )}
               </span>
               <span class="home-hero__case-title">{caseStudy.title}</span>
               <span class="home-hero__case-text">{caseStudy.text.replace(/。$/, '')}</span>

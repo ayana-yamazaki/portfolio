@@ -153,15 +153,11 @@ body:has(.home-main) {
   opacity: 0;
 }
 
-.home-hero__cases.is-materials-pbr-ready .material-card__volume,
-.home-hero__cases.is-materials-pbr-ready .home-hero__case:hover .material-card__volume,
-.home-hero__cases.is-materials-pbr-ready .home-hero__case:focus-visible .material-card__volume {
+.home-hero__cases.is-materials-pbr-ready .material-card__volume {
   transform: none;
 }
 
-.home-hero__cases.is-materials-pbr-ready .material-card--glass,
-.home-hero__cases.is-materials-pbr-ready .home-hero__case:hover .material-card--glass,
-.home-hero__cases.is-materials-pbr-ready .home-hero__case:focus-visible .material-card--glass {
+.home-hero__cases.is-materials-pbr-ready .material-card--glass {
   transform: none;
   transition: none;
 }
@@ -273,52 +269,32 @@ body:has(.home-main) {
   pointer-events: none;
 }
 
-.home-hero__case:hover .material-card__volume,
-.home-hero__case:focus-visible .material-card__volume {
-  transform: rotateX(1.8deg) rotateY(-1.4deg) translate3d(-1px, -6px, 9px);
-}
-
-.home-hero__case:hover .material-card__shadow,
-.home-hero__case:focus-visible .material-card__shadow {
-  opacity: .78;
-  transform: translate3d(2px, 5px, 0) rotate(-1.5deg) scaleX(1.03);
-}
-
-.home-hero__case:hover .material-card__sheen,
-.home-hero__case:focus-visible .material-card__sheen {
-  transform: translate3d(3%, -2%, 0);
-}
-
 /* Stone — compact mineral grain, matte highlights, and an irregular cut edge. */
 .material-card--stone {
-  --card-edge: #686761;
-  --card-edge-dark: #3e3e3a;
+  --card-edge: #9b9a97;
+  --card-edge-dark: #686765;
+  --card-thickness: 35px;
 }
 
 .material-card--stone .material-card__front,
 .material-card--stone .material-card__front::after {
-  border-radius: 32px;
+  border-radius: 0;
 }
 
 .material-card--stone .material-card__side--right {
-  border-radius: 0 16px 16px 0;
+  border-radius: 0;
 }
 
 .material-card--stone .material-card__side--bottom {
-  border-radius: 0 0 32px 32px;
+  border-radius: 0;
 }
 
 .material-card--stone .material-card__surface {
-  background:
-    radial-gradient(circle at 17% 19%, rgba(245, 242, 226, .45) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 73% 68%, rgba(31, 30, 28, .4) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 42% 81%, rgba(224, 215, 190, .32) 0 2px, transparent 2.8px),
-    linear-gradient(132deg, #8d8c85 0%, #686862 48%, #7d7b74 100%);
-  background-size: 23px 29px, 31px 37px, 47px 41px, auto;
-  filter: url('#material-stone-grain');
+  background: none;
+  filter: none;
 }
 
-.material-card--stone .material-card__stone-image {
+.material-card__image {
   position: absolute;
   inset: 0;
   display: block;
@@ -328,25 +304,27 @@ body:has(.home-main) {
   filter: saturate(.92) contrast(1.04);
 }
 
+.material-card--stone .material-card__image {
+  filter: saturate(1.5) contrast(1.02);
+}
+
 .material-card--stone .material-card__surface::before {
-  inset: 0;
-  background:
-    linear-gradient(106deg, transparent 12%, rgba(255, 255, 255, .16) 28%, transparent 43%),
-    linear-gradient(165deg, transparent 49%, rgba(31, 30, 27, .16) 50%, transparent 51%);
-  mix-blend-mode: soft-light;
+  display: none;
 }
 
 .material-card--stone .material-card__sheen {
-  background: linear-gradient(118deg, rgba(255, 255, 255, .2), transparent 34%, rgba(0, 0, 0, .06));
-  opacity: .72;
+  display: none;
 }
 
 .material-card--stone .material-card__side {
   background:
-    radial-gradient(circle at 30% 24%, rgba(230, 224, 205, .32) 0 1px, transparent 1.5px),
-    linear-gradient(90deg, #73716a, #3e3e3a 76%);
-  background-size: 13px 17px, auto;
-  clip-path: polygon(0 1px, 100% 0, 100% calc(100% - 1px), 0 100%);
+    radial-gradient(circle at 18% 24%, rgba(75, 69, 61, .5) 0 .7px, transparent 1.3px),
+    radial-gradient(circle at 72% 66%, rgba(93, 85, 74, .38) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 44% 84%, rgba(205, 205, 201, .3) 0 1px, transparent 2px),
+    linear-gradient(90deg, #9b9a97, #696866 76%);
+  background-size: 11px 13px, 19px 17px, 23px 21px, auto;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .28), inset -2px 0 3px rgba(35, 32, 29, .24);
+  clip-path: none;
 }
 
 /* Paper — warm cotton stock with directional fibres and layered thickness. */
@@ -482,7 +460,7 @@ body:has(.home-main) {
   position: absolute;
   z-index: 0;
   inset: 5px -5px -7px 7px;
-  border-radius: 4px;
+  border-radius: 0;
   box-shadow: 11px 14px 17px rgba(31, 35, 36, .17);
   opacity: .86;
   pointer-events: none;
@@ -494,7 +472,7 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__front {
-  border-radius: 4px;
+  border-radius: 0;
   background: rgba(248, 248, 246, var(--glass-veil-opacity));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(.98) brightness(1.03);
   backdrop-filter: blur(var(--glass-blur)) saturate(.98) brightness(1.03);
@@ -505,7 +483,7 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__side--right {
-  border-radius: 0 2px 2px 0;
+  border-radius: 0;
   border-right: 1px solid rgba(42, 79, 85, .54);
   background:
     linear-gradient(90deg, rgba(233, 252, 253, .86), rgba(64, 108, 115, .76)),
@@ -514,7 +492,7 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__side--bottom {
-  border-radius: 0 0 4px 4px;
+  border-radius: 0;
   border-bottom: 1px solid rgba(42, 79, 85, .6);
   background:
     linear-gradient(180deg, rgba(196, 231, 234, .76), rgba(48, 91, 98, .82)),
@@ -533,22 +511,16 @@ body:has(.home-main) {
     transform 420ms cubic-bezier(.2, .78, .2, 1);
 }
 
-.home-hero__case:hover .material-card--glass,
-.home-hero__case:focus-visible .material-card--glass,
 .glass-harness__card:hover {
   transform: translate3d(0, 1px, 0) scale(.996);
 }
 
-.home-hero__case:hover .material-card--glass::after,
-.home-hero__case:focus-visible .material-card--glass::after,
 .glass-harness__card:hover::after {
   box-shadow: 3px 4px 7px rgba(31, 35, 36, .13);
   opacity: .58;
   transform: translate3d(-3px, -3px, 0);
 }
 
-.home-hero__case:hover .material-card--glass .material-card__shadow,
-.home-hero__case:focus-visible .material-card--glass .material-card__shadow,
 .glass-harness__card:hover .material-card__shadow {
   filter: blur(7px);
   opacity: .64;
@@ -565,6 +537,22 @@ body:has(.home-main) {
     inset 10px 10px 24px rgba(255, 255, 255, .32),
     inset -12px -14px 22px rgba(67, 107, 111, .09),
     inset 0 0 0 3px rgba(221, 243, 242, .12);
+}
+
+.material-card__glass-icon {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: clamp(80px, 48%, 128px);
+  height: auto;
+  filter:
+    drop-shadow(0 0 8px rgba(255, 252, 232, .5))
+    drop-shadow(0 0 22px rgba(255, 248, 218, .26))
+    drop-shadow(0 1px 1px rgba(255, 255, 255, .24));
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .material-card__glass-canvas {
@@ -598,9 +586,7 @@ body:has(.home-main) {
   opacity: 0;
 }
 
-.material-card--glass.is-pbr-ready .material-card__volume,
-.home-hero__case:hover .material-card--glass.is-pbr-ready .material-card__volume,
-.home-hero__case:focus-visible .material-card--glass.is-pbr-ready .material-card__volume {
+.material-card--glass.is-pbr-ready .material-card__volume {
   transform: none;
 }
 

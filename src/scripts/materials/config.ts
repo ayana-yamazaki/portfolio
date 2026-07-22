@@ -4,10 +4,10 @@ export const materialProfiles: Record<MaterialKind, {
   radiusPx: number;
   thicknessPx: number;
 }> = {
-  stone: { radiusPx: 32, thicknessPx: 10 },
-  paper: { radiusPx: 20, thicknessPx: 10 },
-  resin: { radiusPx: 10, thicknessPx: 10 },
-  glass: { radiusPx: 4, thicknessPx: 10 },
+  stone: { radiusPx: 4, thicknessPx: 35 },
+  paper: { radiusPx: 4, thicknessPx: 35 },
+  resin: { radiusPx: 4, thicknessPx: 35 },
+  glass: { radiusPx: 4, thicknessPx: 35 },
 };
 
 export const sceneTuning = {
@@ -21,10 +21,8 @@ export const sceneTuning = {
   keyIntensity: 2.25,
   fillIntensity: 0.38,
   baseTilt: 0,
-  baseYaw: -2,
+  baseYaw: -15,
   baseRoll: 0,
-  hoverTilt: 0,
-  hoverYaw: -1,
 } as const;
 
 export const glassTuning = {

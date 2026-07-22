@@ -6,6 +6,7 @@ import {
   createGlassMaterial,
   createPaperFaceMaterial,
   createResinFaceMaterial,
+  createSideMaterials,
   createStoneFaceMaterial,
 } from './materials/factories';
 import { makePanelGeometry, makeRoundedFaceGeometry } from './materials/geometry';
@@ -15,6 +16,7 @@ import {
   makePaperAlbedoTexture,
   makeRoundedMaskTexture,
   makeShadowTexture,
+  makeStoneSideTexture,
 } from './materials/textures';
 
 type ManagedCanvas = HTMLCanvasElement & {
@@ -29,8 +31,6 @@ type CardState = {
   surface?: THREE.Mesh;
   shadow: THREE.Mesh;
   shadowBaseY: number;
-  hover: number;
-  hoverTarget: number;
 };
 
 const canvas = document.querySelector<ManagedCanvas>('[data-materials-pbr]');
@@ -107,8 +107,10 @@ if (canvas && cases && hero) {
     });
 
     scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
-    camera.position.set(0, 0, 6);
+    const cameraFov = 10;
+    const cameraDistance = 1 / Math.tan(THREE.MathUtils.degToRad(cameraFov / 2));
+    const camera = new THREE.PerspectiveCamera(cameraFov, 1, 0.1, 20);
+    camera.position.set(0, 0, cameraDistance);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     environmentTarget = pmrem.fromScene(new RoomEnvironment(), 0.04);
@@ -162,12 +164,17 @@ if (canvas && cases && hero) {
     stoneMap.colorSpace = THREE.SRGBColorSpace;
     stoneMap.minFilter = THREE.LinearMipmapLinearFilter;
     stoneMap.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    const resinMap = textureLoader.load(canvas.dataset.resinSrc ?? '', invalidate);
+    resinMap.colorSpace = THREE.SRGBColorSpace;
+    resinMap.minFilter = THREE.LinearMipmapLinearFilter;
+    resinMap.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     const paperBump = makeNoiseTexture('paper');
     const stoneBump = makeNoiseTexture('stone');
     const paperAlbedo = makePaperAlbedoTexture();
+    const stoneSideTexture = makeStoneSideTexture();
     const roundedMask = makeRoundedMaskTexture();
     const shadowMap = makeShadowTexture();
-    [stoneMap, paperBump, stoneBump, paperAlbedo, roundedMask, shadowMap]
+    [stoneMap, resinMap, paperBump, stoneBump, paperAlbedo, stoneSideTexture, roundedMask, shadowMap]
       .forEach((texture) => trackedTextures.add(texture));
 
     const refractionSources = Array.from(
@@ -189,9 +196,14 @@ if (canvas && cases && hero) {
 
     const glassMaterial = createGlassMaterial(domRefractionTexture);
     const paperFaceMaterial = createPaperFaceMaterial(paperAlbedo, paperBump, roundedMask);
-    const resinFaceMaterial = createResinFaceMaterial();
+    const resinFaceMaterial = createResinFaceMaterial(resinMap);
     const bodyMaterials = createBodyMaterials(paperBump, stoneBump);
-    const stoneFaceMaterial = createStoneFaceMaterial(stoneMap, stoneBump);
+    const sideMaterials = createSideMaterials(stoneSideTexture);
+    const stoneFaceMaterial = createStoneFaceMaterial(stoneMap);
+    const glassHiddenFaceMaterial = new THREE.MeshBasicMaterial({
+      colorWrite: false,
+      depthWrite: false,
+    });
 
     const cardElements = Array.from(cases.querySelectorAll<HTMLElement>('[data-material]'));
     cardElements.forEach((element) => {
@@ -199,7 +211,9 @@ if (canvas && cases && hero) {
       const group = new THREE.Group();
       const mesh = new THREE.Mesh(
         new THREE.BufferGeometry(),
-        kind === 'glass' ? glassMaterial : bodyMaterials[kind],
+        kind === 'glass'
+          ? [glassHiddenFaceMaterial, sideMaterials.glass]
+          : [bodyMaterials[kind], sideMaterials[kind]],
       );
       group.add(mesh);
 
@@ -210,6 +224,8 @@ if (canvas && cases && hero) {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 32, 48), paperFaceMaterial);
       } else if (kind === 'resin') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), resinFaceMaterial);
+      } else if (kind === 'glass') {
+        surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), glassMaterial);
       }
       if (surface) group.add(surface);
 
@@ -233,18 +249,7 @@ if (canvas && cases && hero) {
         surface,
         shadow,
         shadowBaseY: 0.1,
-        hover: 0,
-        hoverTarget: 0,
       };
-      const setHover = (hoverTarget: number) => {
-        state.hoverTarget = hoverTarget;
-        renderHarness?.resetAnimationBudget();
-        invalidate();
-      };
-      element.addEventListener('pointerenter', () => setHover(1), { signal: eventController.signal });
-      element.addEventListener('pointerleave', () => setHover(0), { signal: eventController.signal });
-      element.addEventListener('focusin', () => setHover(1), { signal: eventController.signal });
-      element.addEventListener('focusout', () => setHover(0), { signal: eventController.signal });
       cardStates.push(state);
     });
 
@@ -343,13 +348,9 @@ if (canvas && cases && hero) {
       if (sizeChanged) {
         renderHarness?.resize(canvasRect.width, canvasRect.height, window.devicePixelRatio || 1);
         const aspect = canvasRect.width / canvasRect.height;
-        camera.left = -aspect;
-        camera.right = aspect;
-        camera.top = 1;
-        camera.bottom = -1;
+        camera.aspect = aspect;
         camera.updateProjectionMatrix();
         glassMaterial.uniforms.uCanvasSize.value.set(canvasRect.width, canvasRect.height);
-        resinFaceMaterial.uniforms.uCanvasSize.value.set(canvasRect.width, canvasRect.height);
         lastWidth = canvasRect.width;
         lastHeight = canvasRect.height;
         lastPixelRatio = pixelRatio;
@@ -379,12 +380,17 @@ if (canvas && cases && hero) {
       const aspect = canvasRect.width / canvasRect.height;
       const pxY = 2 / canvasRect.height;
       const pxX = aspect * 2 / canvasRect.width;
+      const stoneIndex = cardStates.findIndex(({ kind }) => kind === 'stone');
+      const referenceRect = rects[stoneIndex] ?? rects[0];
+      if (!referenceRect) return false;
+      const referenceWidth = referenceRect.width * pxX;
+      const referenceHeight = referenceRect.height * pxY;
 
       cardStates.forEach((state, index) => {
         const rect = rects[index];
         if (!rect) return;
-        const width = rect.width * pxX;
-        const height = rect.height * pxY;
+        const width = referenceWidth;
+        const height = referenceHeight;
         const profile = materialProfiles[state.kind];
         const depth = profile.thicknessPx * pxY;
         const radiusPx = profile.radiusPx;
@@ -399,21 +405,39 @@ if (canvas && cases && hero) {
           THREE.MathUtils.degToRad(sceneTuning.baseYaw),
           THREE.MathUtils.degToRad(sceneTuning.baseRoll),
         );
+        state.group.scale.setScalar(1.006);
+        state.group.position.z = 0.08;
         if (state.surface) {
           state.surface.geometry.dispose();
           if (state.kind === 'stone') {
             state.surface.geometry = makeRoundedFaceGeometry(width - radius * 0.2, height - radius * 0.2, radius * 0.9);
           } else if (state.kind === 'paper') {
             state.surface.geometry = new THREE.PlaneGeometry(width - radius * 0.14, height - radius * 0.14, 32, 48);
+          } else if (state.kind === 'glass') {
+            state.surface.geometry = makeRoundedFaceGeometry(
+              width - radius * 0.2,
+              height - radius * 0.2,
+              radius * 0.9,
+            );
           } else {
-            state.surface.geometry = new THREE.PlaneGeometry(width - radius * 0.14, height - radius * 0.14);
+            state.surface.geometry = makeRoundedFaceGeometry(
+              width - radius * 0.2,
+              height - radius * 0.2,
+              radius * 0.9,
+            );
           }
-          state.surface.position.set(0, 0, depth / 2 + depth * 0.25 + 0.001);
+          state.surface.position.set(
+            0,
+            0,
+            state.kind === 'stone' || state.kind === 'glass'
+              ? depth / 2 + 0.001
+              : depth / 2 + depth * 0.25 + 0.001,
+          );
         }
         state.shadowBaseY = Math.max(depth * 7, 0.16);
         state.shadow.scale.set(
           width * 1.25,
-          state.shadowBaseY * THREE.MathUtils.lerp(1.08, 0.82, state.hover),
+          state.shadowBaseY * 1.08,
           1,
         );
         state.shadow.position.set(
@@ -422,13 +446,8 @@ if (canvas && cases && hero) {
           -0.65,
         );
         if (state.kind === 'glass') {
-          glassMaterial.uniforms.uBounds.value.set(
-            (rect.left - canvasRect.left) / canvasRect.width,
-            1 - ((rect.bottom - canvasRect.top) / canvasRect.height),
-            (rect.right - canvasRect.left) / canvasRect.width,
-            1 - ((rect.top - canvasRect.top) / canvasRect.height),
-          );
-          glassMaterial.uniforms.uCardSize.value.set(rect.width, rect.height);
+          glassMaterial.uniforms.uWorldCardSize.value.set(width, height);
+          glassMaterial.uniforms.uCardSize.value.set(referenceRect.width, referenceRect.height);
           glassMaterial.uniforms.uRadius.value = radiusPx;
         }
       });
@@ -439,43 +458,10 @@ if (canvas && cases && hero) {
       if (disposed || !textureReady || !isVisible || !renderer || !scene) return;
       if (layoutDirty) layoutDirty = !syncLayout();
 
-      let animationActive = false;
-      cardStates.forEach((state) => {
-        const hoverDelta = state.hoverTarget - state.hover;
-        if (Math.abs(hoverDelta) < 0.001) state.hover = state.hoverTarget;
-        else {
-          state.hover += hoverDelta * 0.09;
-          animationActive = true;
-        }
-        state.group.rotation.x = THREE.MathUtils.degToRad(THREE.MathUtils.lerp(
-          sceneTuning.baseTilt,
-          sceneTuning.hoverTilt,
-          state.hover,
-        ));
-        state.group.rotation.y = THREE.MathUtils.degToRad(THREE.MathUtils.lerp(
-          sceneTuning.baseYaw,
-          sceneTuning.hoverYaw,
-          state.hover,
-        ));
-        state.group.rotation.z = THREE.MathUtils.degToRad(sceneTuning.baseRoll);
-        state.group.scale.setScalar(THREE.MathUtils.lerp(1.006, 0.994, state.hover));
-        state.group.position.z = THREE.MathUtils.lerp(0.08, 0.015, state.hover);
-        const shadowMaterial = state.shadow.material as THREE.MeshBasicMaterial;
-        shadowMaterial.opacity = THREE.MathUtils.lerp(0.38, 0.5, state.hover);
-        const targetShadowScale = state.shadowBaseY * THREE.MathUtils.lerp(1.08, 0.82, state.hover);
-        const shadowDelta = targetShadowScale - state.shadow.scale.y;
-        if (Math.abs(shadowDelta) < 0.0001) state.shadow.scale.y = targetShadowScale;
-        else {
-          state.shadow.scale.y += shadowDelta * 0.09;
-          animationActive = true;
-        }
-      });
-
       renderer.setRenderTarget(null);
       renderer.setClearColor(0x000000, 0);
       renderer.clear();
       renderer.render(scene, camera);
-      if (animationActive && renderHarness?.allowNextAnimationFrame()) invalidate();
     };
 
     resizeObserver = new ResizeObserver(markLayoutDirty);

@@ -79,6 +79,52 @@ export const makePaperAlbedoTexture = () => {
   return texture;
 };
 
+export const makeStoneSideTexture = () => {
+  const size = 384;
+  const source = document.createElement('canvas');
+  source.width = size;
+  source.height = size;
+  const context = source.getContext('2d');
+  if (!context) throw new Error('Unable to create stone side texture');
+
+  context.fillStyle = '#9b9a97';
+  context.fillRect(0, 0, size, size);
+
+  let seed = 1979;
+  const random = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+
+  for (let index = 0; index < 1050; index += 1) {
+    const x = random() * size;
+    const y = random() * size;
+    const radius = .55 + random() * (random() > .88 ? 4.2 : 1.8);
+    const depth = .13 + random() * .34;
+    context.fillStyle = `rgba(28, 28, 27, ${depth})`;
+    context.beginPath();
+    context.ellipse(x, y, radius, radius * (.65 + random() * .65), random() * Math.PI, 0, Math.PI * 2);
+    context.fill();
+
+    if (radius > 1.25) {
+      context.strokeStyle = `rgba(205, 205, 201, ${.14 + random() * .2})`;
+      context.lineWidth = .45;
+      context.stroke();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(source);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(2.2, 1);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  texture.anisotropy = 1;
+  return texture;
+};
+
 export const makeRoundedMaskTexture = () => {
   const source = document.createElement('canvas');
   source.width = 512;

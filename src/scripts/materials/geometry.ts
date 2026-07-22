@@ -22,13 +22,33 @@ export const makePanelGeometry = (width: number, height: number, depth: number, 
     depth,
     steps: 1,
     curveSegments: 14,
-    bevelEnabled: true,
+    bevelEnabled: radius > 0,
     bevelSegments: 5,
     bevelSize: Math.min(depth * 0.3, radius * 0.16),
     bevelThickness: depth * 0.24,
   });
   geometry.translate(0, 0, -depth / 2);
   geometry.computeVertexNormals();
+
+  if (radius === 0) {
+    const positions = geometry.getAttribute('position');
+    const normals = geometry.getAttribute('normal');
+    const uvs = geometry.getAttribute('uv');
+    geometry.groups
+      .filter(({ materialIndex }) => materialIndex === 1)
+      .forEach(({ start, count }) => {
+        for (let index = start; index < start + count; index += 1) {
+          const isVerticalSide = Math.abs(normals.getX(index)) > Math.abs(normals.getY(index));
+          const alongEdge = isVerticalSide
+            ? positions.getY(index) / height + .5
+            : positions.getX(index) / width + .5;
+          const acrossDepth = positions.getZ(index) / depth + .5;
+          uvs.setXY(index, alongEdge, acrossDepth);
+        }
+      });
+    uvs.needsUpdate = true;
+  }
+
   return geometry;
 };
 

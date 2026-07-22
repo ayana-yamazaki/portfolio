@@ -1,9 +1,11 @@
 export const glassVertexShader = `
   varying vec2 vScreenUv;
+  varying vec2 vLocalPosition;
   varying vec3 vNormal;
   void main(){
     vec4 clip=projectionMatrix*modelViewMatrix*vec4(position,1.0);
     vScreenUv=clip.xy/clip.w*.5+.5;
+    vLocalPosition=position.xy;
     vNormal=normalize(normalMatrix*normal);
     gl_Position=clip;
   }
@@ -13,12 +15,13 @@ export const glassFragmentShader = `
   precision highp float;
   uniform sampler2D uDomRefraction;
   uniform vec2 uCanvasSize;
-  uniform vec4 uBounds;
+  uniform vec2 uWorldCardSize;
   uniform vec2 uCardSize;
   uniform float uRadius;
   uniform float uRim;
   uniform float uRefraction;
   varying vec2 vScreenUv;
+  varying vec2 vLocalPosition;
   varying vec3 vNormal;
 
   float sdRoundBox(vec2 p,vec2 b,float r){
@@ -49,7 +52,7 @@ export const glassFragmentShader = `
   }
 
   void main(){
-    vec2 local=(vScreenUv-uBounds.xy)/(uBounds.zw-uBounds.xy);
+    vec2 local=vLocalPosition/uWorldCardSize+.5;
     vec2 p=(local-.5)*uCardSize;
     vec2 halfSize=uCardSize*.5;
     float d=sdRoundBox(p,halfSize,uRadius);
@@ -102,7 +105,7 @@ export const glassFragmentShader = `
     float side=max(max(vNormal.x,0.0),max(-vNormal.y,0.0));
     color*=1.0-side*.16;
     color=mix(color,spectralColor,side*.11);
-    float alpha=.54+edgeAura*.16+rim*.14;
+    float alpha=.3+edgeAura*.12+rim*.4;
     alpha=max(alpha,bentTextStrength*.94);
     gl_FragColor=vec4(color,alpha);
   }
