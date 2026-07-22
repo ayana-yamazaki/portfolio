@@ -1,7 +1,7 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 import { getCaseStudy } from '../data/site';
-import reposakuCover from '../../img/reposaku-cover.jpg';
+import reposakuCover from '../../img/reposaku/reposaku-cover.jpg';
 import reposakuAward01 from '../../img/reposaku-award01.png';
 import reposakuAward02 from '../../img/reposaku-award02.png';
 import reposakuAward03 from '../../img/reposaku-award03.png';
@@ -19,44 +19,48 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
 
 <CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription}>
       <section class="case-hero reposaku-hero">
+        <figure class="reposaku-cover">
+          <img src={reposakuCover.src} alt="複数の農業車両と走行軌跡を可視化するレポサク" />
+        </figure>
+
         <div class="reposaku-hero-heading">
           <div class="case-hero-copy">
             <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
-            <h1>現場を理解し、<br />プロダクトの前提を変える。</h1>
-          </div>
-          <div class="pillar-award reposaku-award">
-            <p class="pillar-award-label">グッドデザイン賞2025 グッドデザイン金賞受賞</p>
-            <p class="pillar-award-name">GOOD DESIGN AWARD 2025</p>
-            <p class="pillar-award-prize">GOLD AWARD <small>(TOP20)</small></p>
+            <h1>現場を理解し、<br />プロダクトの前提を変える</h1>
           </div>
         </div>
 
         <div class="reposaku-hero-summary">
           <p>シードスタートアップの一人目プロダクトデザイナーとして、現場調査からUX・UIまでを担当。車両のUSBに端末を挿すだけで、全員のデータが集まる体験を設計した。</p>
           <dl class="case-meta-grid">
-            <div><dt class="meta-label">Role</dt><dd class="text-xs">Lead Product Designer</dd></div>
-            <div><dt class="meta-label">Contribution</dt><dd class="text-xs">Research / UX/UI / Onboarding</dd></div>
+            <div><dt class="meta-label">Role</dt><dd class="text-xs">1st Designer / Lead Product Designer</dd></div>
+            <div><dt class="meta-label">Team</dt><dd class="text-xs">CEO / CTO / Engineers — 9-person seed startup</dd></div>
+            <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Research / Product Definition / UX・UI</dd></div>
             <div><dt class="meta-label">Duration</dt><dd class="text-xs">2022–2025</dd></div>
           </dl>
         </div>
 
-        <figure class="reposaku-cover">
-          <img src={reposakuCover.src} alt="複数の農業車両と走行軌跡を可視化するレポサク" />
-        </figure>
-
-        <div class="case-key-facts case-key-facts--four" aria-label="レポサクの主な成果">
-          <div><small>無線連絡</small><strong>84%</strong><span>削減</span></div>
-          <div><small>作業効率</small><strong>18%</strong><span>向上</span></div>
-          <div><small>導入</small><strong>200</strong><span>社規模</span></div>
-          <div><small>受賞</small><strong class="case-key-fact-text">グッドデザイン金賞</strong></div>
+        <div class="reposaku-evidence">
+          <div class="case-key-facts case-key-facts--four" aria-label="レポサクの主な成果">
+            <div><small>無線連絡</small><strong>84%</strong><span>削減</span></div>
+            <div><small>作業効率</small><strong>18%</strong><span>向上</span></div>
+            <div><small>導入</small><strong>200</strong><span>社規模</span></div>
+            <div>
+              <div class="reposaku-award-fact" aria-label="GOOD DESIGN AWARD 2025 グッドデザイン金賞">
+                <span class="reposaku-award-fact-en">GOOD DESIGN AWARD 2025</span>
+                <span class="reposaku-award-fact-ja">グッドデザイン金賞</span>
+              </div>
+            </div>
+          </div>
+          <p class="case-evidence-note">※位置確認連絡と作業効率は、導入法人を対象とした第三者機関による導入効果検証</p>
         </div>
       </section>
 
       <div class="case-content">
-        <section class="case-section case-section--no-divider">
+        <section class="case-section">
           <header class="case-section-header" data-reveal>
             <p class="section-title">01 Field Research</p>
-            <h2>現場に入り、課題を定義し直す。</h2>
+            <h2>現場に入り、課題を定義し直す</h2>
           </header>
           <div class="field-research-layout" data-reveal>
             <div class="field-research-gallery" aria-label="農業現場とシニアスマホ教室でのフィールドリサーチ">
@@ -100,7 +104,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
         <section class="case-section">
           <header class="case-section-header" data-reveal>
             <p class="section-title">02 Product Decisions</p>
-            <h2>「シニアも使える」で終わらせない。<br />誇りを持って使える体験を。</h2>
+            <h2>「シニアも使える」で終わらせない<br />誇りを持って使える体験を</h2>
           </header>
           <div class="reposaku-decision-row" data-reveal>
             <div class="reposaku-decision-copy case-block">
@@ -142,7 +146,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
         <section class="case-section">
           <header class="case-section-header" data-reveal>
             <p class="section-title">03 Impact</p>
-            <h2>「俺らはIT無理だから」が、<br />「これ、かっこいいだろ」に。</h2>
+            <h2>「俺らはIT無理だから」が、<br />「これ、かっこいいだろ」に</h2>
           </header>
           <div class="reposaku-impact-layout" data-reveal>
             <div class="case-prose">
@@ -215,30 +219,50 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
     min-height: calc(100svh - 65px);
     justify-content: flex-start;
     gap: clamp(26px, 3vw, 44px);
-    padding-top: clamp(48px, 7vw, 96px);
+    margin-top: -56px;
+    padding-top: 0;
     padding-bottom: clamp(28px, 4vw, 56px);
   }
 
   .reposaku-hero-heading {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr);
-    gap: clamp(32px, 6vw, 96px);
-    align-items: start;
+    width: 100%;
+    margin-top: 52px;
   }
 
-  .reposaku-award {
-    justify-self: end;
-    margin-top: 0;
-    text-align: right;
+  .reposaku-award-fact {
+    grid-column: 1 / -1;
+    align-self: center;
+    width: 100%;
+    color: #231f20;
   }
 
-  .reposaku-award .pillar-award-name {
-    margin-top: 10px;
+  .reposaku-award-fact-en,
+  .reposaku-award-fact-ja {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .case-key-facts .reposaku-award-fact-en {
+    font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
+    font-size: clamp(16px, 1.4vw, 22px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: .045em;
+  }
+
+  .case-key-facts .reposaku-award-fact-ja {
+    margin-top: .22em;
+    color: #ed3939;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: clamp(22px, 2.1vw, 32px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -.075em;
   }
 
   .reposaku-hero-summary {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(420px, .85fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(32px, 6vw, 96px);
     align-items: end;
   }
@@ -252,7 +276,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
 
   .reposaku-cover {
     position: relative;
-    margin: 0;
+    margin: 0 calc(0px - clamp(24px, 7vw, 112px)) calc(0px - clamp(26px, 3vw, 44px));
     overflow: hidden;
   }
 
@@ -260,6 +284,16 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  .reposaku-evidence {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .reposaku-evidence .case-evidence-note {
+    margin: 0;
   }
 
   .reposaku-impact {
@@ -522,14 +556,9 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
       grid-template-columns: 1fr;
     }
 
-    .reposaku-cover {
-      margin: 0 -24px;
-    }
-
     .reposaku-cover > img {
-      width: 150%;
-      max-width: none;
-      transform: translateX(-18%);
+      width: 100%;
+      transform: none;
     }
 
     .reposaku-impact {

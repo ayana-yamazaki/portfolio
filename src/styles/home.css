@@ -48,16 +48,18 @@
 .scroll-cue { position: absolute; z-index: 8; left: clamp(24px, 7vw, 112px); bottom: 30px; margin: 0; font-size: 11px; letter-spacing: .04em; transition: opacity .15s linear; }
 
 .rule { height: 1px; width: 100%; background: #181818; }
-.about { padding-top: clamp(100px, 15vw, 220px); padding-bottom: clamp(100px, 15vw, 220px); color: #181818; background: #fff; }
-.about h2 { margin-bottom: 42px; font-size: clamp(46px, 8vw, 120px); font-weight: 500; line-height: .93; letter-spacing: -.065em; }
-.about-intro { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(240px, .6fr); gap: clamp(40px, 8vw, 120px); align-items: start; }
+.about { padding-top: clamp(80px, 10vw, 150px); padding-bottom: clamp(80px, 10vw, 150px); color: #181818; background: #fff; }
+.about .rule { margin-bottom: 32px; }
+.about h2 { margin-bottom: clamp(48px, 4vw, 56px); font-size: clamp(46px, 7vw, 96px); font-weight: 500; line-height: .93; letter-spacing: -.06em; }
+.about-intro { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(240px, .6fr); gap: clamp(40px, 7vw, 100px); align-items: start; }
+.about-intro .case-prose > p:first-child { font-size: clamp(20px, 1.8vw, 24px); line-height: 1.5; }
 .about-intro img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
-.experience { margin-top: clamp(90px, 13vw, 180px); }
-.experience h3 { margin-bottom: clamp(40px, 6vw, 80px); font-size: clamp(34px, 5vw, 72px); }
-.experience-item { display: grid; grid-template-columns: minmax(120px, 22%) 1fr; gap: 24px; padding: 28px 0; border-top: 1px solid #181818; }
-.experience-item:last-child { border-bottom: 1px solid #181818; }
+.experience { margin-top: clamp(56px, 6vw, 80px); }
+.experience h3 { margin-bottom: clamp(32px, 4vw, 48px); font-size: clamp(34px, 4vw, 56px); }
+.experience-item { display: grid; grid-template-columns: minmax(150px, 180px) 1fr; gap: 32px; padding: clamp(20px, 2vw, 24px) 0; border-top: 1px solid var(--divider-color); }
+.experience-item:last-child { border-bottom: 1px solid var(--divider-color); }
 .experience-item p { margin-bottom: 0; font-size: 14px; line-height: 1.6; }
-.experience-item h4 { margin: 0 0 8px; font-size: clamp(18px, 2vw, 26px); font-weight: 500; letter-spacing: -.03em; }
+.experience-item h4 { margin: 0 0 8px; font-size: clamp(18px, 1.8vw, 24px); font-weight: 500; letter-spacing: -.03em; }
 
 @media (max-width: 720px) {
   .hero-alt2 { height: 270svh; }

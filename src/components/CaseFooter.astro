@@ -2,13 +2,14 @@
 import { caseStudies } from '../data/site';
 
 const currentPath = Astro.url.pathname;
+const isHome = currentPath === '/';
 const currentCaseIndex = caseStudies.findIndex((caseStudy) => caseStudy.href === currentPath);
 
-if (currentCaseIndex === -1) {
+if (currentCaseIndex === -1 && !isHome) {
   throw new Error(`Case study is not registered: ${currentPath}`);
 }
 
-const nextCase = caseStudies[currentCaseIndex + 1];
+const nextCase = isHome ? caseStudies[0] : caseStudies[currentCaseIndex + 1];
 const footer: {
   label: string;
   number?: string;
@@ -19,7 +20,7 @@ const footer: {
   image?: string;
 } = nextCase
   ? {
-    label: 'Next Case',
+    label: isHome ? 'Selected Case' : 'Next Case',
     number: nextCase.number,
     title: nextCase.title,
     description: nextCase.footerDescription,
