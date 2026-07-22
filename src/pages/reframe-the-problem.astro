@@ -550,11 +550,23 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
     margin: 0;
   }
 
+  @media (min-width: 761px) and (max-width: 1024px) {
+    .reposaku-hero { min-height: 0; gap: 28px; padding-bottom: 36px; }
+    .reposaku-hero-heading { margin-top: 40px; }
+    .reposaku-hero-summary { gap: 40px; }
+    .reposaku-recognition { margin-top: 28px; }
+  }
+
   @media (max-width: 760px) {
+    .reposaku-hero { gap: 22px; padding-bottom: 32px; }
+    .reposaku-hero-heading { margin-top: 32px; }
     .reposaku-hero-heading,
     .reposaku-hero-summary {
       grid-template-columns: 1fr;
     }
+
+    .reposaku-hero-summary { gap: 22px; }
+    .reposaku-hero-summary > p { font-size: 14px; }
 
     .reposaku-cover > img {
       width: 100%;
@@ -603,5 +615,8 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
     .reposaku-recognition-layout {
       grid-template-columns: 1fr;
     }
+
+    .reposaku-recognition { margin-top: 22px; }
+    .reposaku-recognition h3 { font-size: 22px; line-height: 1.35; }
   }
 </style>

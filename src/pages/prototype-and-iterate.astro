@@ -161,12 +161,62 @@ const caseStudy = getCaseStudy('/prototype-and-iterate');
   .prototype-result strong { font-size: clamp(72px, 12vw, 180px); line-height: .9; letter-spacing: -.07em; }
   .prototype-result span { font-size: 16px; }
 
-  @media (max-width: 720px) {
-    .prototype-iterations, .prototype-feedback-list { grid-template-columns: 1fr; }
+  @media (min-width: 721px) and (max-width: 1024px) {
+    .prototype-iterations, .prototype-feedback-list {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: min(42vw, 400px);
+      gap: 16px;
+      padding-bottom: 10px;
+      overflow-x: auto;
+      border: 0;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .prototype-iterations article,
+    .prototype-feedback-list article,
     .prototype-iterations article:nth-child(odd),
-    .prototype-feedback-list article:nth-child(odd):not(:nth-child(5)) { border-right: 0; }
+    .prototype-feedback-list article:nth-child(odd):not(:nth-child(5)),
     .prototype-iterations article + article,
-    .prototype-feedback-list article + article { border-top: 1px solid var(--divider-color); }
+    .prototype-feedback-list article + article {
+      padding: 20px;
+      border: 1px solid var(--divider-color);
+      scroll-snap-align: start;
+    }
+    .prototype-feedback-list article:nth-child(5) { grid-column: auto; }
+    .prototype-feedback-list article:nth-child(5) .case-figure { width: 100%; max-width: none; }
+  }
+
+  @media (max-width: 720px) {
+    .prototype-iterations, .prototype-feedback-list {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: min(82vw, 320px);
+      gap: 12px;
+      padding-bottom: 8px;
+      overflow-x: auto;
+      border: 0;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .prototype-iterations article,
+    .prototype-feedback-list article,
+    .prototype-iterations article:nth-child(odd),
+    .prototype-feedback-list article:nth-child(odd):not(:nth-child(5)),
+    .prototype-iterations article + article,
+    .prototype-feedback-list article + article {
+      padding: 16px;
+      border: 1px solid var(--divider-color);
+      scroll-snap-align: start;
+    }
+    .prototype-iterations h3, .prototype-feedback-list h3 { font-size: 20px; }
+    .prototype-iterations article > p:last-of-type,
+    .prototype-feedback-list article > p:not(.case-label) { font-size: 14px; }
+    .prototype-iterations .case-figure img,
+    .prototype-feedback-list .case-figure img { max-height: 220px; }
+    .prototype-feedback-list article:nth-child(5) { grid-column: auto; }
     .prototype-feedback-list article:nth-child(5) .case-figure { width: 100%; max-width: none; }
   }
 </style>

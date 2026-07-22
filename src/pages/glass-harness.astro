@@ -1,0 +1,324 @@
+---
+import '../styles/global.css';
+import '../styles/home-hero.css';
+import heroAbstract from '../assets/hero-abstract.svg';
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <title>Glass rendering harness</title>
+  </head>
+  <body>
+    <main class="glass-harness" data-glass-harness-root>
+      <header class="glass-harness__header">
+        <p>Visual regression harness</p>
+        <h1>Glass rendering</h1>
+        <p>本番と同じ描画コードを、工程別に確認するための検証画面です。</p>
+      </header>
+
+      <div class="glass-harness__workspace">
+        <section class="glass-harness__stage" aria-label="Glass preview">
+          <img
+            class="glass-harness__backdrop"
+            src={heroAbstract.src}
+            alt=""
+            aria-hidden="true"
+            data-hero-backdrop
+          />
+          <div
+            class="home-hero__card material-card material-card--glass glass-harness__card"
+            data-glass-card
+          >
+            <span class="material-card__shadow"></span>
+            <span class="material-card__volume">
+              <span class="material-card__front">
+                <span class="material-card__surface"></span>
+                <span class="material-card__sheen"></span>
+              </span>
+              <span class="material-card__side material-card__side--right"></span>
+              <span class="material-card__side material-card__side--bottom"></span>
+              <canvas
+                class="material-card__glass-canvas"
+                aria-label="Rendered glass preview"
+                data-glass-pbr
+                data-glass-harness
+                data-texture-src={heroAbstract.src}
+                data-blur-step="18"
+                data-rim-width="30"
+                data-rim-displacement="50"
+                data-scatter-strength="3.2"
+                data-frost-amount="0.8"
+                data-veil-opacity="0.16"
+                data-corner-radius="38"
+                data-light-x="-0.68"
+                data-light-y="0.74"
+                data-base-tilt="-7"
+                data-base-yaw="-2.2"
+                data-hover-tilt="-3"
+                data-hover-yaw="0.2"
+                data-debug-mode="final"
+              ></canvas>
+            </span>
+          </div>
+        </section>
+
+        <aside class="glass-harness__panel">
+          <div class="glass-harness__status" aria-live="polite">
+            <span>Renderer <strong data-glass-readiness>loading</strong></span>
+            <span>Background coverage <strong data-glass-coverage>—</strong></span>
+            <p class="glass-harness__warning" data-glass-warning hidden></p>
+          </div>
+
+          <form data-glass-controls>
+            <label>
+              <span>View</span>
+              <select data-glass-control="debugMode">
+                <option value="final">Final composite</option>
+                <option value="source">1. Source alignment</option>
+                <option value="blur">2. Frost blur</option>
+                <option value="rim">3. Rim mask</option>
+                <option value="scatter">4. Surface scatter</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Blur <output data-glass-value="blurStep">18</output></span>
+              <input type="range" min="0" max="32" step="0.1" value="18" data-glass-control="blurStep" />
+            </label>
+
+            <label>
+              <span>Rim width <output data-glass-value="rimWidth">30</output></span>
+              <input type="range" min="4" max="90" step="1" value="30" data-glass-control="rimWidth" />
+            </label>
+
+            <label>
+              <span>Rim refraction <output data-glass-value="rimDisplacement">50</output></span>
+              <input type="range" min="0" max="80" step="1" value="50" data-glass-control="rimDisplacement" />
+            </label>
+
+            <label>
+              <span>Surface scatter <output data-glass-value="scatterStrength">3.2</output></span>
+              <input type="range" min="0" max="10" step="0.1" value="3.2" data-glass-control="scatterStrength" />
+            </label>
+
+            <label>
+              <span>Frost amount <output data-glass-value="frostAmount">0.8</output></span>
+              <input type="range" min="0" max="1" step="0.01" value="0.8" data-glass-control="frostAmount" />
+            </label>
+
+            <label>
+              <span>White veil <output data-glass-value="veilOpacity">0.16</output></span>
+              <input type="range" min="0" max="0.45" step="0.01" value="0.16" data-glass-control="veilOpacity" />
+            </label>
+
+            <label>
+              <span>Thickness <output data-glass-value="thickness">80</output>px</span>
+              <input type="range" min="8" max="140" step="1" value="80" data-glass-control="thickness" />
+            </label>
+
+            <label>
+              <span>Corner radius <output data-glass-value="cornerRadius">38</output>px</span>
+              <input type="range" min="4" max="64" step="1" value="38" data-glass-control="cornerRadius" />
+            </label>
+
+            <label>
+              <span>Light X <output data-glass-value="lightX">-0.68</output></span>
+              <input type="range" min="-1" max="1" step="0.01" value="-0.68" data-glass-control="lightX" />
+            </label>
+
+            <label>
+              <span>Light Y <output data-glass-value="lightY">0.74</output></span>
+              <input type="range" min="-1" max="1" step="0.01" value="0.74" data-glass-control="lightY" />
+            </label>
+
+            <label>
+              <span>Base tilt <output data-glass-value="baseTilt">-7</output>°</span>
+              <input type="range" min="-20" max="0" step="0.5" value="-7" data-glass-control="baseTilt" />
+            </label>
+
+            <label>
+              <span>Base yaw <output data-glass-value="baseYaw">-2.2</output>°</span>
+              <input type="range" min="-16" max="16" step="0.1" value="-2.2" data-glass-control="baseYaw" />
+            </label>
+
+            <label>
+              <span>Hover tilt <output data-glass-value="hoverTilt">-3</output>°</span>
+              <input type="range" min="-24" max="0" step="0.5" value="-3" data-glass-control="hoverTilt" />
+            </label>
+
+            <label>
+              <span>Hover yaw <output data-glass-value="hoverYaw">0.2</output>°</span>
+              <input type="range" min="-16" max="16" step="0.1" value="0.2" data-glass-control="hoverYaw" />
+            </label>
+
+            <button type="reset">Reset defaults</button>
+          </form>
+        </aside>
+      </div>
+    </main>
+
+    <script>
+      import '../scripts/glass-pbr';
+      import '../scripts/glass-harness';
+    </script>
+  </body>
+</html>
+
+<style>
+  .glass-harness {
+    min-height: 100svh;
+    padding: 28px;
+    overflow: visible;
+    color: #e8e6e1;
+    background: #17191c;
+  }
+
+  .glass-harness__header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 4px 32px;
+    max-width: 1280px;
+    margin: 0 auto 24px;
+  }
+
+  .glass-harness__header h1 {
+    margin: 0;
+    font-size: clamp(34px, 4vw, 64px);
+    font-weight: 500;
+    letter-spacing: -.05em;
+  }
+
+  .glass-harness__header p {
+    margin: 0;
+    color: #a9aaad;
+    font-size: 13px;
+  }
+
+  .glass-harness__header p:last-child {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  .glass-harness__workspace {
+    display: grid;
+    grid-template-columns: minmax(640px, 1fr) 300px;
+    gap: 24px;
+    max-width: 1280px;
+    margin: auto;
+  }
+
+  .glass-harness__stage {
+    position: relative;
+    min-height: 680px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #3a3c40;
+    border-radius: 16px;
+    background: #ede9e4;
+    isolation: isolate;
+  }
+
+  .glass-harness__backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .glass-harness__card {
+    --card-thickness: 80px;
+    position: absolute;
+    top: 108px;
+    right: 116px;
+    width: 310px;
+  }
+
+  .glass-harness__panel {
+    align-self: start;
+    padding: 20px;
+    border: 1px solid #34363a;
+    border-radius: 16px;
+    background: #202226;
+  }
+
+  .glass-harness__status {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #383a3e;
+    color: #a9aaad;
+    font-size: 12px;
+  }
+
+  .glass-harness__status span {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .glass-harness__status strong {
+    color: #f0eee9;
+    font-weight: 500;
+  }
+
+  .glass-harness__warning {
+    margin: 8px 0 0;
+    padding: 10px;
+    border-radius: 8px;
+    color: #ffd6bf;
+    background: #5b2c24;
+    line-height: 1.5;
+  }
+
+  .glass-harness__panel form,
+  .glass-harness__panel label {
+    display: grid;
+  }
+
+  .glass-harness__panel form {
+    gap: 18px;
+  }
+
+  .glass-harness__panel label {
+    gap: 8px;
+    color: #c8c7c4;
+    font-size: 12px;
+  }
+
+  .glass-harness__panel label > span {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .glass-harness__panel output {
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .glass-harness__panel select,
+  .glass-harness__panel button {
+    min-height: 38px;
+    border: 1px solid #4b4d52;
+    border-radius: 8px;
+    color: #eee;
+    background: #292b30;
+  }
+
+  .glass-harness__panel input[type='range'] {
+    width: 100%;
+    accent-color: #d9af70;
+  }
+
+  .glass-harness__panel button {
+    cursor: pointer;
+  }
+</style>

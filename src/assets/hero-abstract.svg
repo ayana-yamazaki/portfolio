@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="720" viewBox="0 0 1600 720" fill="none">
+  <defs>
+    <linearGradient id="studio" x1="120" y1="0" x2="1480" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F6F3"/>
+      <stop offset=".52" stop-color="#EEEAE5"/>
+      <stop offset="1" stop-color="#F4F1ED"/>
+    </linearGradient>
+    <radialGradient id="peach" cx="0" cy="0" r="1" gradientTransform="translate(520 294) rotate(42) scale(330)">
+      <stop stop-color="#E87378"/>
+      <stop offset=".72" stop-color="#D75567"/>
+      <stop offset="1" stop-color="#BF4158"/>
+    </radialGradient>
+    <radialGradient id="slate" cx="0" cy="0" r="1" gradientTransform="translate(182 466) rotate(-38) scale(390 330)">
+      <stop stop-color="#71818C"/>
+      <stop offset=".7" stop-color="#4D5D68"/>
+      <stop offset="1" stop-color="#384752"/>
+    </radialGradient>
+    <radialGradient id="ink" cx="0" cy="0" r="1" gradientTransform="translate(1110 178) rotate(56) scale(370 330)">
+      <stop stop-color="#384956"/>
+      <stop offset=".68" stop-color="#243541"/>
+      <stop offset="1" stop-color="#192A35"/>
+    </radialGradient>
+    <radialGradient id="cream" cx="0" cy="0" r="1" gradientTransform="translate(816 668) rotate(-70) scale(260)">
+      <stop stop-color="#FFF4D5"/>
+      <stop offset=".72" stop-color="#EEDDB9"/>
+      <stop offset="1" stop-color="#D8C29C"/>
+    </radialGradient>
+    <radialGradient id="gold" cx="0" cy="0" r="1" gradientTransform="translate(1504 450) rotate(86) scale(260 150)">
+      <stop stop-color="#D4B071"/>
+      <stop offset="1" stop-color="#9B7644"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="720" fill="url(#studio)"/>
+  <circle cx="92" cy="74" r="196" fill="#DCC79E"/>
+  <ellipse cx="174" cy="486" rx="358" ry="288" fill="url(#slate)"/>
+  <circle cx="526" cy="306" r="288" fill="url(#peach)"/>
+  <ellipse cx="1092" cy="184" rx="348" ry="322" fill="url(#ink)"/>
+  <ellipse cx="1494" cy="442" rx="132" ry="250" fill="url(#gold)"/>
+  <circle cx="816" cy="720" r="244" fill="url(#cream)"/>
+</svg>

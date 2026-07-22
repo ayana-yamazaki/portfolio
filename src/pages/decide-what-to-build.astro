@@ -166,9 +166,19 @@ const caseStudy = getCaseStudy('/decide-what-to-build');
   .decision-exceptions h3 { font-size: clamp(20px, 2.2vw, 30px); line-height: 1.4; }
   .decision-exceptions article > p:last-child { margin: 0; font-size: 15px; line-height: 1.7; }
 
+  @media (min-width: 721px) and (max-width: 1024px) {
+    .decision-comparison > div, .decision-exceptions article { padding: 24px; }
+    .decision-comparison strong { font-size: 26px; }
+    .decision-phases .phase-item { padding-block: 20px; }
+  }
+
   @media (max-width: 720px) {
     .decision-comparison, .decision-exceptions { grid-template-columns: 1fr; }
     .decision-comparison::after { content: '↓'; }
+    .decision-comparison > div, .decision-exceptions article { gap: 12px; padding: 18px; }
+    .decision-comparison strong { font-size: 21px; }
+    .decision-comparison span, .decision-exceptions article > p:last-child { font-size: 14px; }
+    .decision-phases .phase-item { padding-block: 16px; }
     .decision-exception-featured { border-right: 0; border-bottom: 1px solid var(--divider-color); }
     .decision-comparison > div + div { border-left: 0; border-top: 1px solid var(--divider-color); }
   }
