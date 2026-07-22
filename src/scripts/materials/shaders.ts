@@ -385,9 +385,26 @@ export const resinFragmentShader = `
     vec3 refractedBackdrop=mix(uWallColor,uFloorColor,floorMask);
     vec2 textRefractionOffset=
       slope*vec2(.00105,.000675)*uTextWaveStrength;
-    vec4 refractedDom=texture2D(
+    vec2 refractedUv=clamp(
+      vScreenUv-textRefractionOffset,
+      vec2(.002),
+      vec2(.998)
+    );
+    vec2 chromaticOffset=vec2(.00065+abs(slope.x)*.00012,0.0);
+    vec4 refractedRed=texture2D(
       uDomRefraction,
-      clamp(vScreenUv-textRefractionOffset,vec2(.002),vec2(.998))
+      clamp(refractedUv+chromaticOffset,vec2(.002),vec2(.998))
+    );
+    vec4 refractedGreen=texture2D(uDomRefraction,refractedUv);
+    vec4 refractedBlue=texture2D(
+      uDomRefraction,
+      clamp(refractedUv-chromaticOffset,vec2(.002),vec2(.998))
+    );
+    vec4 refractedDom=vec4(
+      refractedRed.r,
+      refractedGreen.g,
+      refractedBlue.b,
+      max(refractedRed.a,max(refractedGreen.a,refractedBlue.a))
     );
     vec4 originalDom=texture2D(
       uDomRefraction,

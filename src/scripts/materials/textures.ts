@@ -49,17 +49,12 @@ export const makeCastGlassBumpTexture = () => {
       const index = (y * width + x) * 4;
       const u = x / width;
       const v = y / height;
-      const warpX = Math.sin(v * 17 + Math.sin(v * 5) * 2.3) * 0.042
-        + Math.sin(v * 43 + u * 7) * 0.014;
-      const warpY = Math.sin(u * 15 + Math.cos(u * 4) * 2.7) * 0.036
-        + Math.cos(u * 37 - v * 8) * 0.013;
-      const vertical = Math.sin((u + warpX) * 49 + Math.sin(v * 25) * 2.2);
-      const horizontal = Math.sin((v + warpY) * 64 + Math.cos(u * 21) * 2.5);
-      const brokenRidges = Math.sin((u * 33 + v * 10) + Math.sin(v * 51) * 3.4)
-        * Math.sin((v * 39 - u * 6) + Math.cos(u * 43) * 2.6);
-      const broad = Math.sin(u * 11 + v * 8) + Math.cos(v * 13 - u * 7);
-      const heightValue = vertical * 0.31 + horizontal * 0.27 + brokenRidges * 0.29 + broad * 0.13;
-      const value = Math.max(0, Math.min(255, 128 + heightValue * 77));
+      const ribPhase = u * 28 * Math.PI * 2;
+      const cylindricalRib = Math.cos(ribPhase) * 0.86
+        + Math.cos(ribPhase * 2) * 0.14;
+      const manufacturingVariation = Math.sin(v * Math.PI * 2 + u * 3.2) * 0.012;
+      const heightValue = cylindricalRib + manufacturingVariation;
+      const value = Math.max(0, Math.min(255, 128 + heightValue * 48));
       image.data[index] = value;
       image.data[index + 1] = value;
       image.data[index + 2] = value;
