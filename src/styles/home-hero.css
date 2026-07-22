@@ -13,10 +13,7 @@ body:has(.home-main) {
   min-height: 100svh;
   padding: clamp(32px, 5vw, 72px) clamp(24px, 7vw, 112px);
   overflow: hidden;
-  background:
-    radial-gradient(circle at 86% 56%, rgba(138, 174, 192, .2), transparent 18%),
-    radial-gradient(circle at 65% 48%, rgba(229, 171, 124, .16), transparent 22%),
-    linear-gradient(154deg, #f8f6f3 0%, #eeeae5 52%, #f4f1ed 100%);
+  background: #f1f0f0;
 }
 
 .home-hero::before {
@@ -41,45 +38,75 @@ body:has(.home-main) {
   z-index: 1;
 }
 
-.home-hero__backdrop {
-  position: absolute;
-  z-index: 0;
-  top: 18%;
-  left: 0;
-  width: 102%;
-  height: auto;
-  object-position: center;
-  pointer-events: none;
-}
-
 .home-hero__heading p {
   margin: 0;
-  font-size: clamp(12px, 1vw, 15px);
+  font-size: clamp(24px, 2vw, 30px);
   line-height: 1.4;
 }
 
 .home-hero__heading h1 {
-  margin: 4px 0 8px;
+  margin: 4px 0 0;
   font-size: clamp(56px, 9vw, 140px);
   font-weight: 500;
   line-height: .88;
   letter-spacing: -.075em;
+  text-align: right;
 }
 
 .home-hero__cases {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(12px, 2vw, 32px);
-  align-items: center;
+  align-items: start;
   flex: 1;
-  padding: clamp(48px, 7vh, 88px) 0;
+  margin-top: clamp(-64px, -4.5vw, -46px);
+  padding: 0 0 clamp(48px, 7vh, 88px);
+}
+
+.home-hero__materials-canvas {
+  position: absolute;
+  z-index: 3;
+  inset: -80px;
+  display: block;
+  width: calc(100% + 160px);
+  height: calc(100% + 160px);
+  max-width: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+
+.home-hero__cases.is-materials-pbr-ready .home-hero__materials-canvas {
+  opacity: 1;
 }
 
 .home-hero__case {
+  position: relative;
+  z-index: 4;
   min-width: 0;
   color: inherit;
   text-decoration: none;
   perspective: 1200px;
+}
+
+.home-hero__cases.is-materials-pbr-ready .material-card__front,
+.home-hero__cases.is-materials-pbr-ready .material-card__side,
+.home-hero__cases.is-materials-pbr-ready .material-card__shadow {
+  opacity: 0;
+}
+
+.home-hero__cases.is-materials-pbr-ready .material-card__volume,
+.home-hero__cases.is-materials-pbr-ready .home-hero__case:hover .material-card__volume,
+.home-hero__cases.is-materials-pbr-ready .home-hero__case:focus-visible .material-card__volume {
+  transform: none;
+}
+
+.home-hero__cases.is-materials-pbr-ready .material-card--glass,
+.home-hero__cases.is-materials-pbr-ready .home-hero__case:hover .material-card--glass,
+.home-hero__cases.is-materials-pbr-ready .home-hero__case:focus-visible .material-card--glass {
+  transform: none;
+  transition: none;
 }
 
 .home-hero__card {
@@ -211,6 +238,19 @@ body:has(.home-main) {
   --card-edge-dark: #3e3e3a;
 }
 
+.material-card--stone .material-card__front,
+.material-card--stone .material-card__front::after {
+  border-radius: 32px;
+}
+
+.material-card--stone .material-card__side--right {
+  border-radius: 0 16px 16px 0;
+}
+
+.material-card--stone .material-card__side--bottom {
+  border-radius: 0 0 32px 32px;
+}
+
 .material-card--stone .material-card__surface {
   background:
     radial-gradient(circle at 17% 19%, rgba(245, 242, 226, .45) 0 1px, transparent 1.6px),
@@ -219,6 +259,16 @@ body:has(.home-main) {
     linear-gradient(132deg, #8d8c85 0%, #686862 48%, #7d7b74 100%);
   background-size: 23px 29px, 31px 37px, 47px 41px, auto;
   filter: url('#material-stone-grain');
+}
+
+.material-card--stone .material-card__stone-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(.92) contrast(1.04);
 }
 
 .material-card--stone .material-card__surface::before {
@@ -246,6 +296,19 @@ body:has(.home-main) {
 .material-card--paper {
   --card-edge: #c4bcab;
   --card-edge-dark: #8f8778;
+}
+
+.material-card--paper .material-card__front,
+.material-card--paper .material-card__front::after {
+  border-radius: 20px;
+}
+
+.material-card--paper .material-card__side--right {
+  border-radius: 0 10px 10px 0;
+}
+
+.material-card--paper .material-card__side--bottom {
+  border-radius: 0 0 20px 20px;
 }
 
 .material-card--paper .material-card__side--right {
@@ -285,37 +348,42 @@ body:has(.home-main) {
   opacity: .58;
 }
 
-/* Resin — translucent amber body, suspended clouds, bubbles, and a dense edge. */
+/* Resin — glossy, softly translucent milk-white plastic. */
 .material-card--resin {
-  --card-edge: rgba(132, 72, 41, .88);
-  --card-edge-dark: rgba(73, 42, 27, .96);
+  --card-edge: rgba(224, 222, 216, .94);
+  --card-edge-dark: rgba(156, 153, 146, .92);
+}
+
+.material-card--resin .material-card__front,
+.material-card--resin .material-card__front::after {
+  border-radius: 10px;
 }
 
 .material-card--resin .material-card__side--right {
+  border-radius: 0 5px 5px 0;
   background:
-    linear-gradient(90deg, rgba(255, 193, 132, .86), rgba(92, 43, 25, .97)),
-    #9d5939;
-  box-shadow: inset 1px 0 2px rgba(255, 237, 214, .5), 2px 0 7px rgba(118, 57, 30, .22);
+    linear-gradient(90deg, rgba(247, 246, 242, .94), rgba(151, 148, 141, .94)),
+    #d8d5ce;
+  box-shadow: inset 1px 0 2px rgba(255, 255, 255, .72), 2px 0 7px rgba(79, 76, 71, .16);
 }
 
 .material-card--resin .material-card__side--bottom {
+  border-radius: 0 0 10px 10px;
   background:
-    linear-gradient(180deg, rgba(202, 111, 64, .92), rgba(72, 32, 19, .98)),
-    #7c432c;
-  box-shadow: inset 0 1px 2px rgba(255, 219, 183, .34), 0 2px 7px rgba(105, 49, 27, .2);
+    linear-gradient(180deg, rgba(224, 222, 216, .96), rgba(139, 136, 130, .96)),
+    #c7c4bd;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .58), 0 2px 7px rgba(75, 72, 68, .16);
 }
 
 .material-card--resin .material-card__shadow {
-  background: radial-gradient(ellipse, rgba(100, 49, 27, .34), rgba(150, 79, 40, .1) 52%, transparent 76%);
+  background: radial-gradient(ellipse, rgba(54, 51, 47, .28), rgba(86, 82, 76, .08) 52%, transparent 76%);
 }
 
 .material-card--resin .material-card__surface {
   background:
-    radial-gradient(circle at 68% 17%, rgba(255, 246, 224, .58) 0 2px, transparent 2.8px),
-    radial-gradient(circle at 29% 72%, rgba(255, 238, 210, .4) 0 1.5px, transparent 2.4px),
-    radial-gradient(ellipse at 38% 36%, rgba(255, 214, 168, .34), transparent 28%),
-    radial-gradient(ellipse at 78% 76%, rgba(100, 39, 18, .22), transparent 34%),
-    linear-gradient(138deg, rgba(244, 155, 87, .76), rgba(174, 84, 44, .56) 48%, rgba(104, 48, 29, .72));
+    radial-gradient(ellipse at 38% 30%, rgba(255, 255, 255, .72), transparent 31%),
+    radial-gradient(ellipse at 78% 76%, rgba(169, 165, 157, .12), transparent 34%),
+    linear-gradient(138deg, rgba(250, 249, 245, .96), rgba(226, 224, 218, .92) 52%, rgba(206, 203, 197, .94));
   background-size: 71px 83px, 53px 61px, auto, auto, auto;
   box-shadow:
     inset 10px 8px 22px rgba(255, 226, 186, .3),
@@ -335,8 +403,8 @@ body:has(.home-main) {
 
 .material-card--resin .material-card__sheen {
   background:
-    linear-gradient(112deg, rgba(255, 255, 255, .74) 0%, rgba(255, 255, 255, .13) 16%, transparent 36%),
-    radial-gradient(ellipse at 78% 84%, rgba(255, 191, 130, .22), transparent 38%);
+    linear-gradient(112deg, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, .2) 16%, transparent 36%),
+    radial-gradient(ellipse at 78% 84%, rgba(255, 255, 255, .24), transparent 38%);
   mix-blend-mode: screen;
   opacity: .72;
   transition: transform 700ms cubic-bezier(.2, .75, .2, 1);
@@ -357,7 +425,7 @@ body:has(.home-main) {
   position: absolute;
   z-index: 0;
   inset: 5px -5px -7px 7px;
-  border-radius: 38px;
+  border-radius: 4px;
   box-shadow: 11px 14px 17px rgba(31, 35, 36, .17);
   opacity: .86;
   pointer-events: none;
@@ -369,7 +437,7 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__front {
-  border-radius: 38px;
+  border-radius: 4px;
   background: rgba(248, 248, 246, var(--glass-veil-opacity));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(.98) brightness(1.03);
   backdrop-filter: blur(var(--glass-blur)) saturate(.98) brightness(1.03);
@@ -380,7 +448,7 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__side--right {
-  border-radius: 0 19px 19px 0;
+  border-radius: 0 2px 2px 0;
   border-right: 1px solid rgba(42, 79, 85, .54);
   background:
     linear-gradient(90deg, rgba(233, 252, 253, .86), rgba(64, 108, 115, .76)),
@@ -389,7 +457,7 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__side--bottom {
-  border-radius: 0 0 38px 38px;
+  border-radius: 0 0 4px 4px;
   border-bottom: 1px solid rgba(42, 79, 85, .6);
   background:
     linear-gradient(180deg, rgba(196, 231, 234, .76), rgba(48, 91, 98, .82)),
@@ -558,7 +626,7 @@ body:has(.home-main) {
   }
 
   .home-hero__cases {
-    padding-top: 28px;
+    padding-top: 0;
     padding-bottom: 20px;
   }
 

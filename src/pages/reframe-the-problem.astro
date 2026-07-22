@@ -19,18 +19,18 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
 
 <CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription}>
       <section class="case-hero reposaku-hero">
-        <figure class="reposaku-cover">
+        <figure class="reposaku-cover" data-reveal>
           <img src={reposakuCover.src} alt="複数の農業車両と走行軌跡を可視化するレポサク" />
         </figure>
 
-        <div class="reposaku-hero-heading">
+        <div class="reposaku-hero-heading" data-reveal style="--reveal-delay: 80ms;">
           <div class="case-hero-copy">
             <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
             <h1>現場を理解し、<br />プロダクトの前提を変える</h1>
           </div>
         </div>
 
-        <div class="reposaku-hero-summary">
+        <div class="reposaku-hero-summary" data-reveal style="--reveal-delay: 160ms;">
           <p>シードスタートアップの一人目プロダクトデザイナーとして、現場調査からUX・UIまでを担当。車両のUSBに端末を挿すだけで、全員のデータが集まる体験を設計した。</p>
           <dl class="case-meta-grid">
             <div><dt class="meta-label">Role</dt><dd class="text-xs">1st Designer / Lead Product Designer</dd></div>
@@ -40,7 +40,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
           </dl>
         </div>
 
-        <div class="reposaku-evidence">
+        <div class="reposaku-evidence" data-reveal style="--reveal-delay: 240ms;">
           <div class="case-key-facts case-key-facts--four" aria-label="レポサクの主な成果">
             <div><small>無線連絡</small><strong>84%</strong><span>削減</span></div>
             <div><small>作業効率</small><strong>18%</strong><span>向上</span></div>

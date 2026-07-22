@@ -6,9 +6,16 @@ import '../styles/case-study.css';
 import About from '../components/About.astro';
 import CaseFooter from '../components/CaseFooter.astro';
 import { caseStudies } from '../data/site';
-import heroAbstract from '../assets/hero-abstract.svg';
+import { getImage } from 'astro:assets';
+import panel01 from '../../img/panel01.png';
 
 const materials = ['stone', 'paper', 'resin', 'glass'] as const;
+const panel01Texture = await getImage({
+  src: panel01,
+  width: 512,
+  format: 'webp',
+  quality: 82,
+});
 ---
 
 <!doctype html>
@@ -93,46 +100,31 @@ const materials = ['stone', 'paper', 'resin', 'glass'] as const;
 
         <header class="home-hero__heading">
           <p>Ayana Yamazaki</p>
-          <h1 id="home-title">Product Builder</h1>
-          <p>UI/UX Designer</p>
+          <h1 id="home-title" data-glass-refraction-source>Product<br />Builder</h1>
         </header>
 
-        <img class="home-hero__backdrop" src={heroAbstract.src} alt="" aria-hidden="true" data-hero-backdrop />
-
         <div class="home-hero__cases" aria-label="Case studies">
+          <canvas
+            class="home-hero__materials-canvas"
+            aria-hidden="true"
+            data-materials-pbr
+            data-stone-src={panel01Texture.src}
+          ></canvas>
           {caseStudies.map((caseStudy, index) => (
-            <a class="home-hero__case" href={caseStudy.href}>
+            <a class="home-hero__case" href={caseStudy.href} data-material={materials[index]}>
               <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
                 <span class="material-card__shadow"></span>
                 <span class="material-card__volume">
                   <span class="material-card__front">
-                    <span class="material-card__surface"></span>
+                    <span class="material-card__surface">
+                      {materials[index] === 'stone' && (
+                        <img class="material-card__stone-image" src={panel01Texture.src} alt="" />
+                      )}
+                    </span>
                     <span class="material-card__sheen"></span>
                   </span>
                   <span class="material-card__side material-card__side--right"></span>
                   <span class="material-card__side material-card__side--bottom"></span>
-                  {materials[index] === 'glass' && (
-                    <canvas
-                      class="material-card__glass-canvas"
-                      aria-hidden="true"
-                      data-glass-pbr
-                      data-texture-src={heroAbstract.src}
-                      data-blur-step="18"
-                      data-rim-width="30"
-                      data-rim-displacement="50"
-                      data-scatter-strength="3.2"
-                      data-frost-amount="0.8"
-                      data-veil-opacity="0.16"
-                      data-corner-radius="38"
-                      data-light-x="-0.68"
-                      data-light-y="0.74"
-                      data-base-tilt="-7"
-                      data-base-yaw="-2.2"
-                      data-hover-tilt="-3"
-                      data-hover-yaw="0.2"
-                      data-debug-mode="final"
-                    ></canvas>
-                  )}
                 </span>
               </span>
               <span class="home-hero__case-title">{caseStudy.title}</span>
@@ -146,7 +138,7 @@ const materials = ['stone', 'paper', 'resin', 'glass'] as const;
     <CaseFooter />
 
     <script>
-      import '../scripts/glass-pbr';
+      import '../scripts/materials-pbr';
     </script>
   </body>
 </html>
