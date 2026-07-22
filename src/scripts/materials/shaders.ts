@@ -1,3 +1,123 @@
+export const stoneVertexShader = `
+  varying vec2 vUv;
+  varying vec2 vScreenUv;
+  varying vec3 vNormal;
+  varying vec3 vViewDirection;
+
+  void main(){
+    vUv=uv;
+    vec4 viewPosition=modelViewMatrix*vec4(position,1.0);
+    vec4 clip=projectionMatrix*viewPosition;
+    vScreenUv=clip.xy/clip.w*.5+.5;
+    vNormal=normalize(normalMatrix*normal);
+    vViewDirection=normalize(-viewPosition.xyz);
+    gl_Position=clip;
+  }
+`;
+
+export const stoneFragmentShader = `
+  precision highp float;
+  uniform sampler2D uAlbedo;
+  uniform sampler2D uMicrodetail;
+  uniform vec2 uMicrodetailTexel;
+  uniform sampler2D uWetMask;
+  uniform vec2 uCanvasSize;
+  uniform vec3 uTint;
+  varying vec2 vUv;
+  varying vec2 vScreenUv;
+  varying vec3 vNormal;
+  varying vec3 vViewDirection;
+
+  float hash(vec2 point){
+    point=fract(point*vec2(123.34,456.21));
+    point+=dot(point,point+45.32);
+    return fract(point.x*point.y);
+  }
+
+  float smoothNoise(vec2 point){
+    vec2 cell=floor(point);
+    vec2 fraction=fract(point);
+    fraction=fraction*fraction*(3.0-2.0*fraction);
+    return mix(
+      mix(hash(cell),hash(cell+vec2(1.0,0.0)),fraction.x),
+      mix(hash(cell+vec2(0.0,1.0)),hash(cell+vec2(1.0,1.0)),fraction.x),
+      fraction.y
+    );
+  }
+
+  vec3 softLight(vec3 base,vec3 blend){
+    vec3 dark=base-(1.0-2.0*blend)*base*(1.0-base);
+    vec3 light=base+(2.0*blend-1.0)*(sqrt(max(base,vec3(0.0)))-base);
+    return mix(dark,light,step(vec3(.5),blend));
+  }
+
+  void main(){
+    vec4 stone=texture2D(uAlbedo,vUv);
+    vec3 microdetail=texture2D(uMicrodetail,vUv).rgb;
+    stone.rgb=mix(stone.rgb,softLight(stone.rgb,microdetail),.07);
+
+    float detailLeft=texture2D(uMicrodetail,vUv-vec2(uMicrodetailTexel.x,0.0)).r;
+    float detailRight=texture2D(uMicrodetail,vUv+vec2(uMicrodetailTexel.x,0.0)).r;
+    float detailDown=texture2D(uMicrodetail,vUv-vec2(0.0,uMicrodetailTexel.y)).r;
+    float detailUp=texture2D(uMicrodetail,vUv+vec2(0.0,uMicrodetailTexel.y)).r;
+    vec2 detailSlope=vec2(detailRight-detailLeft,detailUp-detailDown);
+    vec2 texel=1.0/uCanvasSize;
+    float core=texture2D(uWetMask,vScreenUv).a;
+    vec2 noisePoint=vScreenUv*uCanvasSize/18.0;
+    float broadNoise=smoothNoise(noisePoint);
+    float mediumNoise=smoothNoise(noisePoint*2.7+vec2(8.4,3.1));
+    vec2 flow=vec2(
+      smoothNoise(noisePoint+vec2(4.3,1.7))-.5,
+      smoothNoise(noisePoint+vec2(1.1,6.8))-.5
+    );
+    flow/=max(length(flow),.001);
+    vec2 perpendicular=vec2(-flow.y,flow.x);
+    float reach=1.4+broadNoise*5.2;
+    float warped=texture2D(
+      uWetMask,
+      clamp(vScreenUv+flow*texel*reach,vec2(.001),vec2(.999))
+    ).a;
+    float lateral=texture2D(
+      uWetMask,
+      clamp(vScreenUv+perpendicular*texel*(1.0+mediumNoise*3.2),vec2(.001),vec2(.999))
+    ).a;
+    float downward=texture2D(
+      uWetMask,
+      clamp(
+        vScreenUv+vec2((mediumNoise-.5)*2.2*texel.x,(2.0+broadNoise*6.5)*texel.y),
+        vec2(.001),
+        vec2(.999)
+      )
+    ).a;
+    float patchGate=smoothstep(.57,.77,broadNoise*.66+mediumNoise*.34);
+    float dripNoise=smoothNoise(noisePoint*1.8+vec2(13.7,5.2));
+    float dripGate=smoothstep(.72,.89,dripNoise);
+    float bleed=max(warped,lateral*.72)*patchGate;
+    bleed=max(bleed,downward*dripGate);
+    float wet=smoothstep(.035,.42,max(core,bleed*.8));
+    float wetEdge=smoothstep(.04,.34,max(bleed-core*.82,0.0));
+
+    vec3 color=stone.rgb*uTint;
+    color*=mix(1.0,.7,wet);
+
+    vec3 normal=normalize(vNormal+vec3(-detailSlope.x,-detailSlope.y,0.0)*.52);
+    vec3 lightDirection=normalize(vec3(-.32,.44,1.0));
+    float microShade=clamp(dot(detailSlope,vec2(-.42,.58)),-.045,.045);
+    color*=1.0+microShade*.24;
+    vec3 halfVector=normalize(lightDirection+normalize(vViewDirection));
+    float alignment=max(dot(normal,halfVector),0.0);
+    float roughness=mix(.92,.18,wet);
+    float specularPower=mix(18.0,118.0,1.0-roughness);
+    float wetHighlight=pow(alignment,specularPower)*wet;
+    float broadHighlight=pow(alignment,16.0)*wet*.055;
+    vec3 wetLight=vec3(.76,.87,1.0);
+    color+=wetLight*(wetHighlight*(.18+wetEdge*.14)+broadHighlight);
+
+    gl_FragColor=vec4(color,stone.a);
+    #include <colorspace_fragment>
+  }
+`;
+
 export const glassVertexShader = `
   varying vec2 vScreenUv;
   varying vec2 vLocalPosition;
@@ -55,22 +175,6 @@ export const glassFragmentShader = `
     return exp(-distanceFromCenter*distanceFromCenter);
   }
 
-  vec4 sampleBlurredDom(vec2 uv,float blurScale){
-    vec2 texel=1.0/uCanvasSize;
-    vec2 nearOffset=texel*12.0*blurScale;
-    vec2 farOffset=texel*24.0*blurScale;
-    vec4 color=texture2D(uDomRefraction,uv)*.2;
-    color+=texture2D(uDomRefraction,clamp(uv+vec2(nearOffset.x,0.0),vec2(.002),vec2(.998)))*.12;
-    color+=texture2D(uDomRefraction,clamp(uv-vec2(nearOffset.x,0.0),vec2(.002),vec2(.998)))*.12;
-    color+=texture2D(uDomRefraction,clamp(uv+vec2(0.0,nearOffset.y),vec2(.002),vec2(.998)))*.12;
-    color+=texture2D(uDomRefraction,clamp(uv-vec2(0.0,nearOffset.y),vec2(.002),vec2(.998)))*.12;
-    color+=texture2D(uDomRefraction,clamp(uv+farOffset,vec2(.002),vec2(.998)))*.08;
-    color+=texture2D(uDomRefraction,clamp(uv-farOffset,vec2(.002),vec2(.998)))*.08;
-    color+=texture2D(uDomRefraction,clamp(uv+vec2(farOffset.x,-farOffset.y),vec2(.002),vec2(.998)))*.08;
-    color+=texture2D(uDomRefraction,clamp(uv+vec2(-farOffset.x,farOffset.y),vec2(.002),vec2(.998)))*.08;
-    return color;
-  }
-
   vec4 sampleBlurredGlassTitle(vec2 uv){
     vec2 texel=1.0/uCanvasSize;
     vec2 nearOffset=texel*3.0;
@@ -116,7 +220,13 @@ export const glassFragmentShader = `
       +vec3(.9,.42,.48)*redWeight
     )/max(totalWeight,.0001);
 
-    float lowFrequencyNoise=smoothNoise(vScreenUv*uCanvasSize/68.0);
+    vec2 noisePoint=vScreenUv*uCanvasSize/68.0;
+    float lowFrequencyNoise=smoothNoise(noisePoint);
+    float noiseStep=.12;
+    vec2 surfaceWave=vec2(
+      smoothNoise(noisePoint+vec2(noiseStep,0.0))-smoothNoise(noisePoint-vec2(noiseStep,0.0)),
+      smoothNoise(noisePoint+vec2(0.0,noiseStep))-smoothNoise(noisePoint-vec2(0.0,noiseStep))
+    );
     float surfaceScatter=(lowFrequencyNoise-.5)*.009;
     float boundaryBlur=32.0/uCanvasSize.y;
     float floorMask=1.0-smoothstep(
@@ -139,16 +249,29 @@ export const glassFragmentShader = `
     rearGlint*=smoothstep(.36,.86,local.y);
     color=mix(color,vec3(.995,1.0,1.0),rearGlint*.13);
 
-    vec2 refractionOffset=rimNormal*(uRefraction/uCanvasSize)*pow(rim,1.32);
-    vec2 refractedUv=clamp(vScreenUv-refractionOffset,vec2(.002),vec2(.998));
-    vec2 internalUv=clamp(vScreenUv+refractionOffset*.24,vec2(.002),vec2(.998));
-    vec4 refractedDom=sampleBlurredDom(refractedUv,1.0);
-    vec4 internalDom=sampleBlurredDom(internalUv,1.0);
-    vec4 bentDom=mix(internalDom,refractedDom,.82);
-    float bentTextStrength=bentDom.a*smoothstep(.08,.72,rim);
-    color=mix(color,bentDom.rgb,bentTextStrength*.92);
+    vec2 wavePixels=
+      clamp(surfaceWave*18.0,vec2(-4.0),vec2(4.0))
+      +vec2(
+        sin(local.y*34.0+lowFrequencyNoise*6.0),
+        cos(local.x*29.0-lowFrequencyNoise*5.0)
+      )*1.25;
+    vec2 waveRefractionOffset=wavePixels/uCanvasSize;
+    vec2 edgeRefractionOffset=
+      rimNormal*(uRefraction/uCanvasSize)*pow(rim,1.32)
+      +waveRefractionOffset;
+    vec2 textRefractionOffset=
+      rimNormal*(10.0/uCanvasSize)*pow(rim,1.5)
+      +waveRefractionOffset*.55;
+    vec2 refractedUv=clamp(vScreenUv-textRefractionOffset,vec2(.002),vec2(.998));
+    vec2 internalUv=clamp(vScreenUv+textRefractionOffset*.2,vec2(.002),vec2(.998));
+    vec4 refractedDom=texture2D(uDomRefraction,refractedUv);
+    vec4 internalDom=texture2D(uDomRefraction,internalUv);
+    vec4 bentDom=mix(internalDom,refractedDom,.74);
+    float bentTextStrength=bentDom.a*(.7+smoothstep(.08,.72,rim)*.08);
+    vec3 frostedDom=mix(bentDom.rgb,neutralFrost,.42);
+    color=mix(color,frostedDom,bentTextStrength*.74);
 
-    vec2 titleRefractionOffset=refractionOffset*.5;
+    vec2 titleRefractionOffset=edgeRefractionOffset*.22;
     vec4 refractedTitle=sampleBlurredGlassTitle(clamp(vScreenUv-titleRefractionOffset,vec2(.002),vec2(.998)));
     vec4 internalTitle=sampleBlurredGlassTitle(clamp(vScreenUv+titleRefractionOffset*.24,vec2(.002),vec2(.998)));
     vec4 embeddedTitle=mix(internalTitle,refractedTitle,.82);
@@ -225,6 +348,7 @@ export const resinFragmentShader = `
   uniform sampler2D uBump;
   uniform sampler2D uDomRefraction;
   uniform vec2 uTexel;
+  uniform float uTextWaveStrength;
   uniform float uFloorY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
@@ -259,7 +383,8 @@ export const resinFragmentShader = `
       vScreenUv.y
     );
     vec3 refractedBackdrop=mix(uWallColor,uFloorColor,floorMask);
-    vec2 textRefractionOffset=slope*vec2(.00105,.000675);
+    vec2 textRefractionOffset=
+      slope*vec2(.00105,.000675)*uTextWaveStrength;
     vec4 refractedDom=texture2D(
       uDomRefraction,
       clamp(vScreenUv-textRefractionOffset,vec2(.002),vec2(.998))

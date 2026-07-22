@@ -1,11 +1,13 @@
 import * as THREE from 'three';
-import { glassTuning } from './config';
+import { glassTuning, resinTuning } from './config';
 import {
   glassFragmentShader,
   glassVertexShader,
   milkResinFragmentShader,
   resinFragmentShader,
   resinVertexShader,
+  stoneFragmentShader,
+  stoneVertexShader,
 } from './shaders';
 
 export const createGlassMaterial = (
@@ -60,6 +62,7 @@ export const createResinFaceMaterial = (
     uBump: { value: castGlassBump },
     uDomRefraction: { value: domRefractionTexture },
     uTexel: { value: new THREE.Vector2(1 / 384, 1 / 576) },
+    uTextWaveStrength: { value: resinTuning.textWaveStrength },
     uFloorY: { value: 0.1 },
     uWallColor: { value: new THREE.Vector3(31 / 255, 93 / 255, 205 / 255) },
     uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
@@ -160,18 +163,23 @@ export const createSideMaterials = (stoneTexture: THREE.Texture) => ({
 
 export const createStoneFaceMaterial = (
   albedo: THREE.Texture,
-  height: THREE.Texture,
-  roughness: THREE.Texture,
+  microdetail: THREE.Texture,
+  wetMask: THREE.Texture,
 ) => {
-  const material = new THREE.MeshPhysicalMaterial({
-    map: albedo,
-    color: 0xffffff,
-    roughness: 0.97,
-    roughnessMap: roughness,
-    metalness: 0,
-    bumpMap: height,
-    bumpScale: 0.022,
-    envMapIntensity: 0.18,
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      uAlbedo: { value: albedo },
+      uMicrodetail: { value: microdetail },
+      uMicrodetailTexel: { value: new THREE.Vector2(1 / 1024, 1 / 1730) },
+      uWetMask: { value: wetMask },
+      uCanvasSize: { value: new THREE.Vector2(1, 1) },
+      uTint: { value: new THREE.Color(0xcbe5ff) },
+    },
+    vertexShader: stoneVertexShader,
+    fragmentShader: stoneFragmentShader,
+    transparent: false,
+    depthWrite: true,
+    toneMapped: false,
   });
   return material;
 };

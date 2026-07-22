@@ -19,8 +19,8 @@ import {
   makePaperAlbedoTexture,
   makeRoundedMaskTexture,
   makeShadowTexture,
+  makeStoneCastShadowTexture,
   makeStoneSideTexture,
-  makeStoneSurfaceMaps,
 } from './materials/textures';
 
 type ManagedCanvas = HTMLCanvasElement & {
@@ -34,6 +34,7 @@ type CardState = {
   mesh: THREE.Mesh;
   surface?: THREE.Mesh;
   shadow: THREE.Mesh;
+  castShadow?: THREE.Mesh;
   caustic?: THREE.Mesh;
   shadowBaseY: number;
 };
@@ -142,6 +143,7 @@ if (canvas && cases && hero) {
     let lastSignature = '';
     let lastDomSignature = '';
     let lastGlassTitleSignature = '';
+    let lastStoneWetSignature = '';
     let lastFloorY = 0;
     let renderFrame = () => {};
 
@@ -164,7 +166,6 @@ if (canvas && cases && hero) {
     };
 
     const paperBump = makeNoiseTexture('paper');
-    const stoneMaps = makeStoneSurfaceMaps();
     const textureLoader = new THREE.TextureLoader();
     const stoneAlbedo = textureLoader.load(
       canvas.dataset.stoneAlbedoSrc ?? '',
@@ -176,13 +177,27 @@ if (canvas && cases && hero) {
     stoneAlbedo.minFilter = THREE.LinearMipmapLinearFilter;
     stoneAlbedo.magFilter = THREE.LinearFilter;
     stoneAlbedo.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    stoneAlbedo.offset.set(0, 0);
+    stoneAlbedo.repeat.set(1, 1);
+    const stoneMicrodetail = textureLoader.load(
+      canvas.dataset.stoneDetailSrc ?? '',
+      markLayoutDirty,
+      undefined,
+      markLayoutDirty,
+    );
+    stoneMicrodetail.minFilter = THREE.LinearMipmapLinearFilter;
+    stoneMicrodetail.magFilter = THREE.LinearFilter;
+    stoneMicrodetail.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    stoneMicrodetail.wrapS = THREE.ClampToEdgeWrapping;
+    stoneMicrodetail.wrapT = THREE.ClampToEdgeWrapping;
     const castGlassBump = makeCastGlassBumpTexture();
     const castGlassCaustic = makeCastGlassCausticTexture();
     const paperAlbedo = makePaperAlbedoTexture();
     const stoneSideTexture = makeStoneSideTexture();
     const roundedMask = makeRoundedMaskTexture();
     const shadowMap = makeShadowTexture();
-    [stoneAlbedo, stoneMaps.height, stoneMaps.roughness, paperBump, castGlassBump, castGlassCaustic, paperAlbedo, stoneSideTexture, roundedMask, shadowMap]
+    const stoneCastShadowMap = makeStoneCastShadowTexture();
+    [stoneAlbedo, stoneMicrodetail, paperBump, castGlassBump, castGlassCaustic, paperAlbedo, stoneSideTexture, roundedMask, shadowMap, stoneCastShadowMap]
       .forEach((texture) => trackedTextures.add(texture));
 
     const refractionSources = Array.from(
@@ -193,7 +208,10 @@ if (canvas && cases && hero) {
     const glassTitleSources = Array.from(
       document.querySelectorAll<HTMLElement>('[data-glass-title-refraction-source]'),
     );
-    const textRefractionSources = [...refractionSources, ...glassTitleSources];
+    const stoneWetSources = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-stone-wet-source]'),
+    );
+    const observedTextSources = [...refractionSources, ...glassTitleSources, ...stoneWetSources];
     const domRefractionCanvas = document.createElement('canvas');
     domRefractionCanvas.width = 2;
     domRefractionCanvas.height = 2;
@@ -207,6 +225,20 @@ if (canvas && cases && hero) {
     domRefractionTexture.wrapS = THREE.ClampToEdgeWrapping;
     domRefractionTexture.wrapT = THREE.ClampToEdgeWrapping;
     trackedTextures.add(domRefractionTexture);
+
+    const glassRefractionCanvas = document.createElement('canvas');
+    glassRefractionCanvas.width = 2;
+    glassRefractionCanvas.height = 2;
+    const glassRefractionContext = glassRefractionCanvas.getContext('2d');
+    if (!glassRefractionContext) throw new Error('Unable to create glass refraction texture');
+    const glassRefractionTexture = new THREE.CanvasTexture(glassRefractionCanvas);
+    glassRefractionTexture.colorSpace = THREE.SRGBColorSpace;
+    glassRefractionTexture.minFilter = THREE.LinearFilter;
+    glassRefractionTexture.magFilter = THREE.LinearFilter;
+    glassRefractionTexture.generateMipmaps = false;
+    glassRefractionTexture.wrapS = THREE.ClampToEdgeWrapping;
+    glassRefractionTexture.wrapT = THREE.ClampToEdgeWrapping;
+    trackedTextures.add(glassRefractionTexture);
 
     const glassTitleCanvas = document.createElement('canvas');
     glassTitleCanvas.width = 2;
@@ -222,17 +254,26 @@ if (canvas && cases && hero) {
     glassTitleTexture.wrapT = THREE.ClampToEdgeWrapping;
     trackedTextures.add(glassTitleTexture);
 
-    const glassMaterial = createGlassMaterial(domRefractionTexture, glassTitleTexture);
+    const stoneWetCanvas = document.createElement('canvas');
+    stoneWetCanvas.width = 2;
+    stoneWetCanvas.height = 2;
+    const stoneWetContext = stoneWetCanvas.getContext('2d');
+    if (!stoneWetContext) throw new Error('Unable to create stone wet mask');
+    const stoneWetTexture = new THREE.CanvasTexture(stoneWetCanvas);
+    stoneWetTexture.minFilter = THREE.LinearFilter;
+    stoneWetTexture.magFilter = THREE.LinearFilter;
+    stoneWetTexture.generateMipmaps = false;
+    stoneWetTexture.wrapS = THREE.ClampToEdgeWrapping;
+    stoneWetTexture.wrapT = THREE.ClampToEdgeWrapping;
+    trackedTextures.add(stoneWetTexture);
+
+    const glassMaterial = createGlassMaterial(glassRefractionTexture, glassTitleTexture);
     const paperFaceMaterial = createPaperFaceMaterial(paperAlbedo, paperBump, roundedMask);
     const milkResinFaceMaterial = createMilkResinFaceMaterial();
     const resinFaceMaterial = createResinFaceMaterial(castGlassBump, domRefractionTexture);
     const bodyMaterials = createBodyMaterials(paperBump);
     const sideMaterials = createSideMaterials(stoneSideTexture);
-    const stoneFaceMaterial = createStoneFaceMaterial(
-      stoneAlbedo,
-      stoneMaps.height,
-      stoneMaps.roughness,
-    );
+    const stoneFaceMaterial = createStoneFaceMaterial(stoneAlbedo, stoneMicrodetail, stoneWetTexture);
     const hiddenFaceMaterial = new THREE.MeshBasicMaterial({
       colorWrite: false,
       depthWrite: false,
@@ -276,6 +317,19 @@ if (canvas && cases && hero) {
         }),
       );
       shadow.position.z = -0.5;
+      const castShadow = kind === 'stone'
+        ? new THREE.Mesh(
+          new THREE.PlaneGeometry(1, 1),
+          new THREE.MeshBasicMaterial({
+            map: stoneCastShadowMap,
+            transparent: true,
+            opacity: 0.72,
+            depthWrite: false,
+            toneMapped: false,
+          }),
+        )
+        : undefined;
+      if (castShadow) castShadow.position.z = -0.58;
       const caustic = kind === 'resin'
         ? new THREE.Mesh(
           new THREE.PlaneGeometry(1, 1),
@@ -288,7 +342,9 @@ if (canvas && cases && hero) {
         )
         : undefined;
       if (caustic) caustic.position.z = -0.49;
-      scene?.add(shadow, group);
+      scene?.add(shadow);
+      if (castShadow) scene?.add(castShadow);
+      scene?.add(group);
       if (caustic) scene?.add(caustic);
 
       const state: CardState = {
@@ -298,6 +354,7 @@ if (canvas && cases && hero) {
         mesh,
         surface,
         shadow,
+        castShadow,
         caustic,
         shadowBaseY: 0.1,
       };
@@ -326,6 +383,7 @@ if (canvas && cases && hero) {
       canvasRect: DOMRect,
       pixelRatio: number,
       previousSignature: string,
+      blurPx = 0,
       force = false,
     ) => {
       const sourceData = sources.map((element) => {
@@ -364,7 +422,7 @@ if (canvas && cases && hero) {
       }
       targetContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
       targetContext.clearRect(0, 0, canvasRect.width, canvasRect.height);
-      targetContext.filter = targetTexture === glassTitleTexture ? 'blur(10px)' : 'none';
+      targetContext.filter = blurPx > 0 ? `blur(${blurPx}px)` : 'none';
 
       sourceData.forEach(({ rect, style, lines }) => {
         const fontSize = Number.parseFloat(style.fontSize) || 16;
@@ -409,8 +467,27 @@ if (canvas && cases && hero) {
         canvasRect,
         pixelRatio,
         lastDomSignature,
+        0,
         force,
       );
+      if (
+        glassRefractionCanvas.width !== domRefractionCanvas.width
+        || glassRefractionCanvas.height !== domRefractionCanvas.height
+      ) {
+        glassRefractionCanvas.width = domRefractionCanvas.width;
+        glassRefractionCanvas.height = domRefractionCanvas.height;
+      }
+      glassRefractionContext.setTransform(1, 0, 0, 1, 0, 0);
+      glassRefractionContext.clearRect(
+        0,
+        0,
+        glassRefractionCanvas.width,
+        glassRefractionCanvas.height,
+      );
+      glassRefractionContext.filter = `blur(${18 * pixelRatio}px)`;
+      glassRefractionContext.drawImage(domRefractionCanvas, 0, 0);
+      glassRefractionContext.filter = 'none';
+      glassRefractionTexture.needsUpdate = true;
       lastGlassTitleSignature = syncTextTexture(
         glassTitleSources,
         glassTitleCanvas,
@@ -419,6 +496,18 @@ if (canvas && cases && hero) {
         canvasRect,
         pixelRatio,
         lastGlassTitleSignature,
+        10,
+        force,
+      );
+      lastStoneWetSignature = syncTextTexture(
+        stoneWetSources,
+        stoneWetCanvas,
+        stoneWetContext,
+        stoneWetTexture,
+        canvasRect,
+        pixelRatio,
+        lastStoneWetSignature,
+        0,
         force,
       );
     };
@@ -442,6 +531,7 @@ if (canvas && cases && hero) {
         camera.aspect = aspect;
         camera.updateProjectionMatrix();
         glassMaterial.uniforms.uCanvasSize.value.set(canvasRect.width, canvasRect.height);
+        stoneFaceMaterial.uniforms.uCanvasSize.value.set(canvasRect.width, canvasRect.height);
         lastWidth = canvasRect.width;
         lastHeight = canvasRect.height;
         lastPixelRatio = pixelRatio;
@@ -548,6 +638,14 @@ if (canvas && cases && hero) {
           centerY - height / 2 - state.shadowBaseY * 0.48,
           -0.65,
         );
+        if (state.castShadow) {
+          state.castShadow.scale.set(width * 1.08, height * 1.04, 1);
+          state.castShadow.position.set(
+            centerX + width * 0.075,
+            centerY - height * 0.018,
+            -0.58,
+          );
+        }
         if (state.caustic) {
           state.caustic.scale.copy(state.shadow.scale);
           state.caustic.position.set(
@@ -584,10 +682,10 @@ if (canvas && cases && hero) {
       const card = element.querySelector<HTMLElement>('.material-card');
       if (card) resizeObserver?.observe(card);
     });
-    textRefractionSources.forEach((source) => resizeObserver?.observe(source));
+    observedTextSources.forEach((source) => resizeObserver?.observe(source));
 
     mutationObserver = new MutationObserver(markLayoutDirty);
-    textRefractionSources.forEach((source) => mutationObserver?.observe(source, {
+    observedTextSources.forEach((source) => mutationObserver?.observe(source, {
       attributes: true,
       childList: true,
       characterData: true,
@@ -602,6 +700,7 @@ if (canvas && cases && hero) {
       if (disposed) return;
       lastDomSignature = '';
       lastGlassTitleSignature = '';
+      lastStoneWetSignature = '';
       markLayoutDirty();
     });
 

@@ -31,3 +31,7 @@ export const glassTuning = {
   rimWidthPx: 8,
   refractionPx: 46,
 } as const;
+
+export const resinTuning = {
+  textWaveStrength: 2.2,
+} as const;

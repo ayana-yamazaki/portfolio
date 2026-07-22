@@ -8,6 +8,7 @@ import CaseFooter from '../components/CaseFooter.astro';
 import { caseStudies } from '../data/site';
 import { getImage } from 'astro:assets';
 import stoneLimestoneAlbedo from '../assets/stone-limestone-albedo.png';
+import stoneMicrodetailOverlay from '../assets/stone-microdetail-overlay.png';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
 const materials = ['stone', 'milk-resin', 'resin', 'glass'] as const;
@@ -15,7 +16,13 @@ const stoneLimestoneTexture = await getImage({
   src: stoneLimestoneAlbedo,
   width: 1024,
   format: 'webp',
-  quality: 88,
+  quality: 95,
+});
+const stoneMicrodetailTexture = await getImage({
+  src: stoneMicrodetailOverlay,
+  width: 1024,
+  format: 'webp',
+  quality: 92,
 });
 ---
 
@@ -84,6 +91,13 @@ const stoneLimestoneTexture = await getImage({
               <feComposite in="frost-light" in2="SourceAlpha" operator="in" result="frost-light-clipped" />
               <feBlend in="frosted" in2="frost-light-clipped" mode="soft-light" />
             </filter>
+
+            <filter id="stone-wet-letter" x="-12%" y="-18%" width="124%" height="136%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency=".018 .085" numOctaves="3" seed="29" result="letter-noise" />
+              <feDisplacementMap in="SourceGraphic" in2="letter-noise" scale="2.8" xChannelSelector="R" yChannelSelector="G" result="warped-letter" />
+              <feMorphology in="warped-letter" operator="dilate" radius=".18" result="soaked-letter" />
+              <feGaussianBlur in="soaked-letter" stdDeviation=".12" />
+            </filter>
           </defs>
         </svg>
 
@@ -93,15 +107,16 @@ const stoneLimestoneTexture = await getImage({
             <p class="home-hero__role">Product Builder / Product Designer</p>
             <p class="home-hero__description">複雑な現場を理解し、作るべきものを決め、触れる形まで持っていくプロダクトデザイナー</p>
           </div>
-          <h1 id="home-title" data-glass-refraction-source>How I Build</h1>
         </header>
 
         <div class="home-hero__cases" aria-label="Case studies">
+          <h1 class="home-hero__title" id="home-title" data-glass-refraction-source>THE WAY<br />I BUILD</h1>
           <canvas
             class="home-hero__materials-canvas"
             aria-hidden="true"
             data-materials-pbr
             data-stone-albedo-src={stoneLimestoneTexture.src}
+            data-stone-detail-src={stoneMicrodetailTexture.src}
           ></canvas>
           {caseStudies.map((caseStudy, index) => (
             <a class="home-hero__case" href={caseStudy.href} data-material={materials[index]}>
@@ -122,12 +137,15 @@ const stoneLimestoneTexture = await getImage({
                 </span>
                 <span class="home-hero__case-copy">
                   <span
-                    class="home-hero__case-title"
+                    class={`home-hero__case-title${materials[index] === 'stone' ? ' home-hero__case-title--stone-main' : ''}`}
+                    data-stone-wet-source={materials[index] === 'stone' ? '' : undefined}
                     data-resin-refraction-source={materials[index] === 'resin' ? '' : undefined}
                     data-glass-title-refraction-source={materials[index] === 'glass' ? '' : undefined}
                   >
-                    {materials[index] === 'milk-resin'
-                      ? <>Decide<br />What to<br /><span class="home-hero__embedded-title-strong">Build</span></>
+                    {materials[index] === 'stone'
+                      ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
+                      : materials[index] === 'milk-resin'
+                        ? <>Decide<br />What to<br /><span class="home-hero__embedded-title-strong">Build</span></>
                       : materials[index] === 'resin'
                         ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />and<br /><span class="home-hero__embedded-title-strong">Iterate</span></>
                         : materials[index] === 'glass'

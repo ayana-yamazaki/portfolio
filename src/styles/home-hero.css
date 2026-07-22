@@ -8,6 +8,11 @@ body:has(.home-main) {
 
 .home-hero {
   --stage-floor-y: 90%;
+  --home-hero-case-gap: clamp(12px, 2vw, 32px);
+  --build-title-size: clamp(66.4px, 10.4vw, 161.6px);
+  --build-title-x: 0px;
+  --build-title-y: 0px;
+  --build-title-overlap: 20%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -70,20 +75,27 @@ body:has(.home-main) {
   line-height: 1.65;
 }
 
-.home-hero__heading h1 {
+.home-hero__title {
+  position: absolute;
+  z-index: 2;
+  top: var(--build-title-y);
+  left: calc(50% + var(--home-hero-case-gap) / 2);
+  width: calc(50% - var(--home-hero-case-gap) / 2);
   margin: 0;
-  font-size: clamp(56px, 9vw, 140px);
+  translate: var(--build-title-x) calc(-100% + var(--build-title-overlap));
+  font-size: var(--build-title-size);
   font-weight: 500;
   line-height: .88;
   letter-spacing: -.075em;
   text-align: right;
+  pointer-events: none;
 }
 
 .home-hero__cases {
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(12px, 2vw, 32px);
+  gap: var(--home-hero-case-gap);
   align-items: start;
   flex: 1;
   margin-top: clamp(24px, 3vw, 48px);
@@ -279,14 +291,14 @@ body:has(.home-main) {
 
 /* Stone — compact mineral grain, matte highlights, and an irregular cut edge. */
 .material-card--stone {
-  --card-edge: #9b9a97;
-  --card-edge-dark: #686765;
+  --card-edge: #becfdd;
+  --card-edge-dark: #7f929f;
   --card-thickness: 35px;
   --stone-outline: polygon(
-    .4% .2%, 17% .4%, 31% .1%, 49% .5%, 65% .2%, 83% .4%, 99.7% .2%,
-    99.5% 14%, 99.8% 28%, 99.2% 43%, 99.7% 57%, 99.3% 72%, 99.8% 87%, 99.5% 99.7%,
-    82% 99.5%, 67% 99.8%, 51% 99.4%, 34% 99.8%, 18% 99.3%, .2% 99.7%,
-    .5% 84%, .1% 69%, .6% 54%, .2% 39%, .5% 23%, .2% 10%
+    .1% .1%, 17% .1%, 31% .05%, 49% .15%, 65% .05%, 83% .1%, 99.8% .1%,
+    99.7% 14%, 99.9% 28%, 99.5% 43%, 99.8% 57%, 99.6% 72%, 99.9% 87%, 99.7% 99.8%,
+    82% 99.7%, 67% 99.9%, 51% 99.6%, 34% 99.9%, 18% 99.6%, .1% 99.8%,
+    .15% 84%, .05% 69%, .2% 54%, .05% 39%, .15% 23%, .05% 10%
   );
 }
 
@@ -306,10 +318,10 @@ body:has(.home-main) {
 
 .material-card--stone .material-card__surface {
   background:
-    radial-gradient(ellipse at 21% 18%, rgba(76, 59, 39, .2) 0 1px, transparent 2.5px),
-    radial-gradient(ellipse at 73% 62%, rgba(86, 67, 43, .18) 0 1.4px, transparent 3px),
-    radial-gradient(ellipse at 42% 81%, rgba(248, 235, 208, .32) 0 1px, transparent 2.6px),
-    linear-gradient(145deg, #d9c9aa, #c8b696);
+    radial-gradient(ellipse at 21% 18%, rgba(57, 61, 61, .2) 0 1px, transparent 2.5px),
+    radial-gradient(ellipse at 73% 62%, rgba(69, 73, 72, .18) 0 1.4px, transparent 3px),
+    radial-gradient(ellipse at 42% 81%, rgba(235, 237, 234, .32) 0 1px, transparent 2.6px),
+    linear-gradient(145deg, #dbeaf5, #c6d8e5);
   background-size: 17px 19px, 29px 31px, 23px 27px, auto;
   filter: none;
 }
@@ -722,6 +734,21 @@ body:has(.home-main) {
   text-align: center;
 }
 
+.home-hero__case[data-material='stone'] .home-hero__case-title {
+  color: rgba(38, 45, 50, .6);
+  font-size: clamp(26px, 2.6vw, 31px);
+  font-weight: 400;
+  mix-blend-mode: multiply;
+  text-align: center;
+}
+
+.home-hero__case[data-material='stone'] .home-hero__case-title--stone-main {
+  position: relative;
+  z-index: 2;
+  filter: url('#stone-wet-letter');
+}
+
+.home-hero__case[data-material='stone'] .home-hero__case-copy,
 .home-hero__case[data-material='milk-resin'] .home-hero__case-copy,
 .home-hero__case[data-material='resin'] .home-hero__case-copy,
 .home-hero__case[data-material='glass'] .home-hero__case-copy {
@@ -762,8 +789,11 @@ body:has(.home-main) {
     padding-right: 24px;
   }
 
-  .home-hero__heading h1 {
-    font-size: clamp(50px, 17vw, 76px);
+  .home-hero__title {
+    right: 24px;
+    left: auto;
+    width: calc(100% - 48px);
+    font-size: clamp(64px, 21.6vw, 96px);
     white-space: nowrap;
   }
 
@@ -777,6 +807,7 @@ body:has(.home-main) {
     font-size: 28px;
   }
 
+  .home-hero__case[data-material='stone'] .home-hero__case-title,
   .home-hero__case[data-material='milk-resin'] .home-hero__case-title,
   .home-hero__case[data-material='resin'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
@@ -790,8 +821,8 @@ body:has(.home-main) {
     padding-bottom: 24px;
   }
 
-  .home-hero__heading h1 {
-    font-size: clamp(72px, 7.2vw, 104px);
+  .home-hero__title {
+    font-size: clamp(96px, 9.8vw, 148.8px);
   }
 
   .home-hero__cases {
@@ -804,6 +835,7 @@ body:has(.home-main) {
     font-size: 30px;
   }
 
+  .home-hero__case[data-material='stone'] .home-hero__case-title,
   .home-hero__case[data-material='milk-resin'] .home-hero__case-title,
   .home-hero__case[data-material='resin'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {

@@ -28,7 +28,7 @@ const makeSeededRandom = (initialSeed: number) => {
 const makeIrregularStoneShape = (width: number, height: number) => {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
-  const baseAmplitude = Math.min(width, height) * 0.0035;
+  const baseAmplitude = Math.min(width, height) * 0.0018;
   const random = makeSeededRandom(8243);
   const points: THREE.Vector2[] = [];
 
@@ -38,16 +38,19 @@ const makeIrregularStoneShape = (width: number, height: number) => {
     outward: THREE.Vector2,
     segments: number,
     phase: number,
+    amplitudeScale = 1,
+    chipChance = 0.04,
   ) => {
     for (let index = 0; index < segments; index += 1) {
       const t = index / segments;
       const point = from.clone().lerp(to, t);
-      const broad = Math.sin(t * Math.PI * 4 + phase) * baseAmplitude * 0.4
-        + Math.sin(t * Math.PI * 10 + phase * 1.7) * baseAmplitude * 0.18;
-      const chipped = random() < 0.08
-        ? -baseAmplitude * (1.8 + random() * 3.5)
+      const edgeAmplitude = baseAmplitude * amplitudeScale;
+      const broad = Math.sin(t * Math.PI * 4 + phase) * edgeAmplitude * 0.4
+        + Math.sin(t * Math.PI * 10 + phase * 1.7) * edgeAmplitude * 0.18;
+      const chipped = random() < chipChance
+        ? -edgeAmplitude * (1.8 + random() * 3.5)
         : 0;
-      const granular = (random() - 0.5) * baseAmplitude * 0.9;
+      const granular = (random() - 0.5) * edgeAmplitude * 0.9;
       point.addScaledVector(outward, broad + granular + chipped);
       points.push(point);
     }
@@ -73,6 +76,8 @@ const makeIrregularStoneShape = (width: number, height: number) => {
     new THREE.Vector2(0, 1),
     24,
     3.1,
+    0.42,
+    0.012,
   );
   addEdge(
     new THREE.Vector2(-halfWidth, halfHeight),
@@ -80,6 +85,8 @@ const makeIrregularStoneShape = (width: number, height: number) => {
     new THREE.Vector2(-1, 0),
     36,
     4.3,
+    0.48,
+    0.014,
   );
 
   return new THREE.Shape(points);

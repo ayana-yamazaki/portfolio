@@ -34,87 +34,6 @@ export const makeNoiseTexture = (kind: 'paper' | 'stone') => {
   return texture;
 };
 
-export const makeStoneSurfaceMaps = () => {
-  const width = 512;
-  const height = 768;
-  const heightSource = document.createElement('canvas');
-  const roughnessSource = document.createElement('canvas');
-  [heightSource, roughnessSource].forEach((source) => {
-    source.width = width;
-    source.height = height;
-  });
-  const heightContext = heightSource.getContext('2d');
-  const roughnessContext = roughnessSource.getContext('2d');
-  if (!heightContext || !roughnessContext) {
-    throw new Error('Unable to create procedural stone surface maps');
-  }
-
-  const heightImage = heightContext.createImageData(width, height);
-  const roughnessImage = roughnessContext.createImageData(width, height);
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = (y * width + x) * 4;
-      const broad = Math.sin(x * 0.017 + Math.sin(y * 0.012) * 2.7) * 4.2
-        + Math.cos(y * 0.014 - Math.sin(x * 0.009) * 2.1) * 3.4;
-      const mineral = Math.sin(x * 0.21 + y * 0.13) * 2.8
-        + Math.sin(x * 0.79 - y * 0.51) * 1.7;
-      const grain = Math.sin(x * 2.31 + y * 1.47) * 2.1
-        + Math.cos(x * 3.73 - y * 2.17) * 1.4;
-      const heightValue = 146 + broad * 1.5 + mineral * 2.2 + grain * 3.5;
-      heightImage.data[index] = heightValue;
-      heightImage.data[index + 1] = heightValue;
-      heightImage.data[index + 2] = heightValue;
-      heightImage.data[index + 3] = 255;
-
-      const roughnessValue = 224 + grain * 1.8 - broad * 0.5;
-      roughnessImage.data[index] = roughnessValue;
-      roughnessImage.data[index + 1] = roughnessValue;
-      roughnessImage.data[index + 2] = roughnessValue;
-      roughnessImage.data[index + 3] = 255;
-    }
-  }
-  heightContext.putImageData(heightImage, 0, 0);
-  roughnessContext.putImageData(roughnessImage, 0, 0);
-
-  let seed = 4819;
-  const random = () => {
-    seed = (seed * 16807) % 2147483647;
-    return (seed - 1) / 2147483646;
-  };
-  for (let index = 0; index < 360; index += 1) {
-    const x = random() * width;
-    const y = random() * height;
-    const large = random() > 0.9;
-    const radiusX = large ? 2.8 + random() * 8 : 0.45 + random() * 2.1;
-    const radiusY = radiusX * (0.48 + random() * 0.9);
-    const rotation = random() * Math.PI;
-
-    const pitDepth = large ? 42 + random() * 35 : 72 + random() * 42;
-    heightContext.fillStyle = `rgb(${pitDepth}, ${pitDepth}, ${pitDepth})`;
-    heightContext.beginPath();
-    heightContext.ellipse(x, y, radiusX, radiusY, rotation, 0, Math.PI * 2);
-    heightContext.fill();
-
-    roughnessContext.fillStyle = `rgb(${large ? 252 : 242}, ${large ? 252 : 242}, ${large ? 252 : 242})`;
-    roughnessContext.beginPath();
-    roughnessContext.ellipse(x, y, radiusX, radiusY, rotation, 0, Math.PI * 2);
-    roughnessContext.fill();
-  }
-
-  const configure = (texture: THREE.CanvasTexture) => {
-    texture.wrapS = THREE.ClampToEdgeWrapping;
-    texture.wrapT = THREE.ClampToEdgeWrapping;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.anisotropy = 2;
-    return texture;
-  };
-  return {
-    height: configure(new THREE.CanvasTexture(heightSource)),
-    roughness: configure(new THREE.CanvasTexture(roughnessSource)),
-  };
-};
-
 export const makeCastGlassBumpTexture = () => {
   const width = 384;
   const height = 576;
@@ -211,7 +130,7 @@ export const makeStoneSideTexture = () => {
   const context = source.getContext('2d');
   if (!context) throw new Error('Unable to create stone side texture');
 
-  context.fillStyle = '#a99c84';
+  context.fillStyle = '#becfdd';
   context.fillRect(0, 0, size, size);
 
   let seed = 1979;
@@ -311,6 +230,40 @@ export const makeShadowTexture = () => {
   context.roundRect(112, 18, 362, 28, 8);
   context.fill();
   context.restore();
+
+  const texture = new THREE.CanvasTexture(source);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  return texture;
+};
+
+export const makeStoneCastShadowTexture = () => {
+  const source = document.createElement('canvas');
+  source.width = 512;
+  source.height = 768;
+  const context = source.getContext('2d');
+  if (!context) throw new Error('Unable to create stone cast shadow');
+
+  const drawLayer = (blur: number, opacity: number, inset: number) => {
+    context.save();
+    context.filter = `blur(${blur}px)`;
+    context.fillStyle = `rgba(28, 25, 22, ${opacity})`;
+    context.beginPath();
+    context.roundRect(
+      46 + inset,
+      38 + inset,
+      420 - inset * 2,
+      692 - inset * 2,
+      5,
+    );
+    context.fill();
+    context.restore();
+  };
+
+  drawLayer(28, 0.22, 0);
+  drawLayer(11, 0.28, 7);
+  drawLayer(3, 0.2, 13);
 
   const texture = new THREE.CanvasTexture(source);
   texture.minFilter = THREE.LinearFilter;
