@@ -84,8 +84,8 @@ export const glassFragmentShader = `
     float tintStrength=.045+edgeAura*.13;
     vec3 color=mix(neutralFrost,spectralColor,tintStrength);
 
-    float light=max(dot(rimNormal,normalize(vec2(-.68,.74))),0.0);
-    float shade=max(dot(rimNormal,normalize(vec2(.68,-.74))),0.0);
+    float light=max(dot(rimNormal,normalize(vec2(.68,.74))),0.0);
+    float shade=max(dot(rimNormal,normalize(vec2(-.68,-.74))),0.0);
     float innerGlow=exp(-pow((inside-18.0)/11.0,2.0));
     color=mix(color,vec3(.99),pow(rim,2.0)*light*.34+innerGlow*light*.1);
     color*=1.0-pow(rim,1.55)*shade*.21;

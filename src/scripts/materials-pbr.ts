@@ -9,6 +9,7 @@ import {
   createStoneFaceMaterial,
 } from './materials/factories';
 import { makePanelGeometry, makeRoundedFaceGeometry } from './materials/geometry';
+import { createRenderHarness, type RenderHarness } from './materials/render-harness';
 import {
   makeNoiseTexture,
   makePaperAlbedoTexture,
@@ -34,16 +35,17 @@ type CardState = {
 
 const canvas = document.querySelector<ManagedCanvas>('[data-materials-pbr]');
 const cases = canvas?.closest<HTMLElement>('.home-hero__cases');
+const hero = cases?.closest<HTMLElement>('.home-hero');
 
-if (canvas && cases) {
+if (canvas && cases && hero) {
   canvas.materialsPbrCleanup?.();
   canvas.hidden = false;
   canvas.dataset.rendererState = 'initializing';
   delete canvas.dataset.rendererError;
 
   let disposed = false;
-  let frameId: number | null = null;
   let renderer: THREE.WebGLRenderer | undefined;
+  let renderHarness: RenderHarness | undefined;
   let scene: THREE.Scene | undefined;
   let environmentTarget: THREE.WebGLRenderTarget | undefined;
   let intersectionObserver: IntersectionObserver | undefined;
@@ -56,8 +58,7 @@ if (canvas && cases) {
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
-    if (frameId !== null) cancelAnimationFrame(frameId);
-    frameId = null;
+    renderHarness?.dispose();
     eventController.abort();
     intersectionObserver?.disconnect();
     resizeObserver?.disconnect();
@@ -82,6 +83,7 @@ if (canvas && cases) {
     renderer?.renderLists.dispose();
     renderer?.dispose();
     cases.classList.remove('is-materials-pbr-ready');
+    hero.style.removeProperty('--stage-floor-y');
     canvas.dataset.rendererState = 'stopped';
     if (canvas.materialsPbrCleanup === cleanup) delete canvas.materialsPbrCleanup;
   };
@@ -94,6 +96,15 @@ if (canvas && cases) {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = sceneTuning.exposure;
     renderer.setClearColor(0x000000, 0);
+    renderHarness = createRenderHarness({
+      canvas,
+      renderer,
+      maxPixelRatio: sceneTuning.maxPixelRatio,
+      maxPixelCount: sceneTuning.maxPixelCount,
+      maxContinuousFrames: sceneTuning.maxContinuousFrames,
+      maxDrawCalls: sceneTuning.maxDrawCalls,
+      maxTriangles: sceneTuning.maxTriangles,
+    });
 
     scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
@@ -106,10 +117,10 @@ if (canvas && cases) {
 
     scene.add(new THREE.HemisphereLight(0xfffcf5, 0x514d48, sceneTuning.hemisphereIntensity));
     const keyLight = new THREE.DirectionalLight(0xfff2da, sceneTuning.keyIntensity);
-    keyLight.position.set(-8, 9, 4.2);
+    keyLight.position.set(8, 9, 4.2);
     scene.add(keyLight);
     const fillLight = new THREE.DirectionalLight(0xc8dcff, sceneTuning.fillIntensity);
-    fillLight.position.set(6, -1, 3);
+    fillLight.position.set(-6, -1, 3);
     scene.add(fillLight);
 
     let textureReady = false;
@@ -120,11 +131,12 @@ if (canvas && cases) {
     let lastPixelRatio = 0;
     let lastSignature = '';
     let lastDomSignature = '';
+    let lastFloorY = 0;
     let renderFrame = () => {};
 
     const invalidate = () => {
-      if (disposed || !textureReady || !isVisible || frameId !== null) return;
-      frameId = requestAnimationFrame(() => renderFrame());
+      if (disposed || !textureReady || !isVisible) return;
+      renderHarness?.schedule(() => renderFrame());
     };
 
     const markLayoutDirty = () => {
@@ -226,6 +238,7 @@ if (canvas && cases) {
       };
       const setHover = (hoverTarget: number) => {
         state.hoverTarget = hoverTarget;
+        renderHarness?.resetAnimationBudget();
         invalidate();
       };
       element.addEventListener('pointerenter', () => setHover(1), { signal: eventController.signal });
@@ -316,15 +329,19 @@ if (canvas && cases) {
 
     const syncLayout = (force = false) => {
       const canvasRect = canvas.getBoundingClientRect();
+      const heroRect = hero.getBoundingClientRect();
       if (!canvasRect.width || !canvasRect.height) return false;
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, sceneTuning.maxPixelRatio);
+      const pixelRatio = renderHarness?.resolvePixelRatio(
+        canvasRect.width,
+        canvasRect.height,
+        window.devicePixelRatio || 1,
+      ) ?? 1;
       const sizeChanged = force
         || canvasRect.width !== lastWidth
         || canvasRect.height !== lastHeight
         || pixelRatio !== lastPixelRatio;
       if (sizeChanged) {
-        renderer?.setPixelRatio(pixelRatio);
-        renderer?.setSize(canvasRect.width, canvasRect.height, false);
+        renderHarness?.resize(canvasRect.width, canvasRect.height, window.devicePixelRatio || 1);
         const aspect = canvasRect.width / canvasRect.height;
         camera.left = -aspect;
         camera.right = aspect;
@@ -343,6 +360,13 @@ if (canvas && cases) {
       const rects = cardStates.map(({ element }) => (
         element.querySelector<HTMLElement>('.material-card')?.getBoundingClientRect()
       ));
+      const floorY = rects[0]
+        ? rects[0].top + rects[0].height * 0.9 - heroRect.top
+        : 0;
+      if (floorY > 0 && Math.abs(floorY - lastFloorY) > 0.5) {
+        hero.style.setProperty('--stage-floor-y', `${floorY}px`);
+        lastFloorY = floorY;
+      }
       const signature = [
         canvasRect.width,
         canvasRect.height,
@@ -373,7 +397,7 @@ if (canvas && cases) {
         state.group.rotation.set(
           THREE.MathUtils.degToRad(sceneTuning.baseTilt),
           THREE.MathUtils.degToRad(sceneTuning.baseYaw),
-          0,
+          THREE.MathUtils.degToRad(sceneTuning.baseRoll),
         );
         if (state.surface) {
           state.surface.geometry.dispose();
@@ -386,13 +410,17 @@ if (canvas && cases) {
           }
           state.surface.position.set(0, 0, depth / 2 + depth * 0.25 + 0.001);
         }
-        state.shadowBaseY = Math.max(depth * 4.5, 0.11);
+        state.shadowBaseY = Math.max(depth * 7, 0.16);
         state.shadow.scale.set(
-          width * 1.08,
+          width * 1.25,
           state.shadowBaseY * THREE.MathUtils.lerp(1.08, 0.82, state.hover),
           1,
         );
-        state.shadow.position.set(centerX + depth * 0.7, centerY - height / 2 - depth * 0.8, -0.65);
+        state.shadow.position.set(
+          centerX - width * 0.09,
+          centerY - height / 2 - state.shadowBaseY * 0.48,
+          -0.65,
+        );
         if (state.kind === 'glass') {
           glassMaterial.uniforms.uBounds.value.set(
             (rect.left - canvasRect.left) / canvasRect.width,
@@ -408,7 +436,6 @@ if (canvas && cases) {
     };
 
     renderFrame = () => {
-      frameId = null;
       if (disposed || !textureReady || !isVisible || !renderer || !scene) return;
       if (layoutDirty) layoutDirty = !syncLayout();
 
@@ -430,10 +457,11 @@ if (canvas && cases) {
           sceneTuning.hoverYaw,
           state.hover,
         ));
+        state.group.rotation.z = THREE.MathUtils.degToRad(sceneTuning.baseRoll);
         state.group.scale.setScalar(THREE.MathUtils.lerp(1.006, 0.994, state.hover));
         state.group.position.z = THREE.MathUtils.lerp(0.08, 0.015, state.hover);
         const shadowMaterial = state.shadow.material as THREE.MeshBasicMaterial;
-        shadowMaterial.opacity = THREE.MathUtils.lerp(0.28, 0.42, state.hover);
+        shadowMaterial.opacity = THREE.MathUtils.lerp(0.38, 0.5, state.hover);
         const targetShadowScale = state.shadowBaseY * THREE.MathUtils.lerp(1.08, 0.82, state.hover);
         const shadowDelta = targetShadowScale - state.shadow.scale.y;
         if (Math.abs(shadowDelta) < 0.0001) state.shadow.scale.y = targetShadowScale;
@@ -447,7 +475,7 @@ if (canvas && cases) {
       renderer.setClearColor(0x000000, 0);
       renderer.clear();
       renderer.render(scene, camera);
-      if (animationActive) invalidate();
+      if (animationActive && renderHarness?.allowNextAnimationFrame()) invalidate();
     };
 
     resizeObserver = new ResizeObserver(markLayoutDirty);

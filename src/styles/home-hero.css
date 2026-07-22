@@ -7,6 +7,7 @@ body:has(.home-main) {
 }
 
 .home-hero {
+  --stage-floor-y: 90%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -38,14 +39,31 @@ body:has(.home-main) {
   z-index: 1;
 }
 
-.home-hero__heading p {
+.home-hero__heading {
+  display: grid;
+}
+
+.home-hero__heading > * {
+  grid-area: 1 / 1;
+}
+
+.home-hero__name {
   margin: 0;
+  color: #f9f3f0;
   font-size: clamp(24px, 2vw, 30px);
   line-height: 1.4;
 }
 
+.home-hero__description {
+  max-width: 420px;
+  margin: 10px 0 0;
+  color: #f9f3f0;
+  font-size: clamp(13px, 1vw, 16px);
+  line-height: 1.65;
+}
+
 .home-hero__heading h1 {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: clamp(56px, 9vw, 140px);
   font-weight: 500;
   line-height: .88;
@@ -62,6 +80,45 @@ body:has(.home-main) {
   flex: 1;
   margin-top: clamp(-64px, -4.5vw, -46px);
   padding: 0 0 clamp(48px, 7vh, 88px);
+}
+
+.home-hero__stage {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-hero__stage-wall,
+.home-hero__stage-floor {
+  position: absolute;
+  right: 0;
+  left: 0;
+}
+
+.home-hero__stage-wall {
+  top: 0;
+  height: var(--stage-floor-y);
+  background: #1f5dcd;
+}
+
+.home-hero__stage-wall::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(63, 59, 54, .08), transparent);
+  filter: blur(5px);
+  content: '';
+}
+
+.home-hero__stage-floor {
+  top: var(--stage-floor-y);
+  bottom: 0;
+  border-top: 1px solid rgba(89, 85, 80, .12);
+  background: #f9f3f0;
 }
 
 .home-hero__materials-canvas {
@@ -575,7 +632,8 @@ body:has(.home-main) {
 
 .home-hero__case-title {
   display: block;
-  margin-top: 14px;
+  margin-top: 30px;
+  color: var(--text-color-secondary);
   font-size: 40px;
   font-weight: 500;
   line-height: 1.05;

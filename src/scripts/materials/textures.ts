@@ -101,15 +101,47 @@ export const makeRoundedMaskTexture = () => {
 export const makeShadowTexture = () => {
   const source = document.createElement('canvas');
   source.width = 512;
-  source.height = 128;
+  source.height = 192;
   const context = source.getContext('2d');
   if (!context) throw new Error('Unable to create shadow texture');
-  const gradient = context.createRadialGradient(256, 64, 5, 256, 64, 245);
-  gradient.addColorStop(0, 'rgba(25, 23, 21, .42)');
-  gradient.addColorStop(.45, 'rgba(37, 34, 31, .17)');
-  gradient.addColorStop(1, 'rgba(37, 34, 31, 0)');
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, 512, 128);
+
+  const drawDirectionalLayer = (
+    blur: number,
+    opacity: number,
+    farY: number,
+    farLeft: number,
+    farRight: number,
+  ) => {
+    context.save();
+    context.filter = `blur(${blur}px)`;
+    context.fillStyle = `rgba(31, 29, 27, ${opacity})`;
+    context.beginPath();
+    context.moveTo(116, 24);
+    context.lineTo(474, 24);
+    context.bezierCurveTo(448, 58, farRight + 42, farY - 24, farRight, farY);
+    context.lineTo(farLeft, farY);
+    context.bezierCurveTo(farLeft + 34, farY - 32, 92, 60, 116, 24);
+    context.closePath();
+    context.fill();
+    context.restore();
+  };
+
+  drawDirectionalLayer(22, 0.11, 174, 10, 308);
+  drawDirectionalLayer(11, 0.13, 132, 34, 350);
+  drawDirectionalLayer(5, 0.15, 82, 72, 410);
+
+  context.save();
+  context.filter = 'blur(1.5px)';
+  const contact = context.createLinearGradient(0, 18, 0, 48);
+  contact.addColorStop(0, 'rgba(22, 21, 20, .58)');
+  contact.addColorStop(0.28, 'rgba(28, 26, 24, .4)');
+  contact.addColorStop(1, 'rgba(35, 32, 29, 0)');
+  context.fillStyle = contact;
+  context.beginPath();
+  context.roundRect(112, 18, 362, 28, 8);
+  context.fill();
+  context.restore();
+
   const texture = new THREE.CanvasTexture(source);
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
