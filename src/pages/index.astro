@@ -8,7 +8,7 @@ import CaseFooter from '../components/CaseFooter.astro';
 import { caseStudies } from '../data/site';
 import { getImage } from 'astro:assets';
 import panel01 from '../../img/panel01-texture.png';
-import codeXmlIcon from '../assets/code-xml.svg';
+// import codeXmlIcon from '../assets/code-xml.svg';
 
 const materials = ['stone', 'paper', 'resin', 'glass'] as const;
 const panel01Texture = await getImage({
@@ -90,9 +90,10 @@ const panel01Texture = await getImage({
         <header class="home-hero__heading">
           <div class="home-hero__intro">
             <p class="home-hero__name">Ayana Yamazaki</p>
+            <p class="home-hero__role">Product Builder / Product Designer</p>
             <p class="home-hero__description">複雑な現場を理解し、作るべきものを決め、触れる形まで持っていくプロダクトデザイナー</p>
           </div>
-          <h1 id="home-title" data-glass-refraction-source>Product<br />Builder</h1>
+          <h1 id="home-title" data-glass-refraction-source>How I Build</h1>
         </header>
 
         <div class="home-hero__cases" aria-label="Case studies">
@@ -118,15 +119,22 @@ const panel01Texture = await getImage({
                   <span class="material-card__side material-card__side--right"></span>
                   <span class="material-card__side material-card__side--bottom"></span>
                 </span>
-                {materials[index] === 'glass' && (
+                {/* {materials[index] === 'glass' && (
                   <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />
-                )}
+                )} */}
               </span>
               <span class="home-hero__case-copy">
                 <span
                   class="home-hero__case-title"
                   data-resin-refraction-source={materials[index] === 'resin' ? '' : undefined}
-                >{caseStudy.title}</span>
+                  data-glass-title-refraction-source={materials[index] === 'glass' ? '' : undefined}
+                >
+                  {materials[index] === 'resin'
+                    ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />and<br /><span class="home-hero__embedded-title-strong">Iterate</span></>
+                    : materials[index] === 'glass'
+                      ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
+                      : caseStudy.title}
+                </span>
               </span>
               <span class="home-hero__case-text">{caseStudy.text.replace(/。$/, '')}</span>
             </a>

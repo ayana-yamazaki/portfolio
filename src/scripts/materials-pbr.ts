@@ -180,7 +180,7 @@ if (canvas && cases && hero) {
 
     const refractionSources = Array.from(
       document.querySelectorAll<HTMLElement>(
-        '[data-glass-refraction-source], [data-resin-refraction-source]',
+        '[data-glass-refraction-source], [data-resin-refraction-source], [data-glass-title-refraction-source]',
       ),
     );
     const domRefractionCanvas = document.createElement('canvas');
@@ -272,10 +272,15 @@ if (canvas && cases && hero) {
     });
 
     const readTextLines = (element: HTMLElement) => {
-      const lines = [''];
+      const lines: Array<{ text: string; fontWeight?: string }> = [{ text: '' }];
       element.childNodes.forEach((node) => {
-        if (node.nodeName === 'BR') lines.push('');
-        else lines[lines.length - 1] += node.textContent ?? '';
+        if (node.nodeName === 'BR') {
+          lines.push({ text: '' });
+          return;
+        }
+        const line = lines[lines.length - 1];
+        line.text += node.textContent ?? '';
+        if (node instanceof HTMLElement) line.fontWeight = getComputedStyle(node).fontWeight;
       });
       return lines;
     };
@@ -308,7 +313,7 @@ if (canvas && cases && hero) {
           style.letterSpacing,
           style.color,
           style.opacity,
-          lines.join('\n'),
+          lines.map(({ text, fontWeight }) => `${text}:${fontWeight ?? style.fontWeight}`).join('\n'),
         ].join('|')).join('::'),
       ].join('::');
       if (!force && signature === lastDomSignature) return;
@@ -327,7 +332,6 @@ if (canvas && cases && hero) {
         const fontSize = Number.parseFloat(style.fontSize) || 16;
         const parsedLineHeight = Number.parseFloat(style.lineHeight);
         const lineHeight = Number.isFinite(parsedLineHeight) ? parsedLineHeight : fontSize * 1.2;
-        domRefractionContext.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
         domRefractionContext.fillStyle = style.color;
         const parsedOpacity = Number.parseFloat(style.opacity);
         domRefractionContext.globalAlpha = Number.isFinite(parsedOpacity) ? parsedOpacity : 1;
@@ -342,8 +346,10 @@ if (canvas && cases && hero) {
         if (style.textAlign === 'right' || style.textAlign === 'end') x = rect.right - canvasRect.left;
         if (style.textAlign === 'center') x = rect.left - canvasRect.left + rect.width / 2;
         const y = rect.top - canvasRect.top + (lineHeight - fontSize) / 2;
-        lines.forEach((line, lineIndex) => {
-          domRefractionContext.fillText(line, x, y + lineIndex * lineHeight);
+        lines.forEach(({ text, fontWeight: lineFontWeight }, lineIndex) => {
+          const fontWeight = lineFontWeight ?? style.fontWeight;
+          domRefractionContext.font = `${style.fontStyle} ${fontWeight} ${style.fontSize} ${style.fontFamily}`;
+          domRefractionContext.fillText(text, x, y + lineIndex * lineHeight);
         });
       });
       domRefractionContext.globalAlpha = 1;
@@ -503,6 +509,11 @@ if (canvas && cases && hero) {
       if (card) resizeObserver?.observe(card);
     });
     refractionSources.forEach((source) => resizeObserver?.observe(source));
+    document.fonts?.ready.then(() => {
+      if (disposed) return;
+      lastDomSignature = '';
+      markLayoutDirty();
+    });
 
     mutationObserver = new MutationObserver(markLayoutDirty);
     refractionSources.forEach((source) => mutationObserver?.observe(source, {

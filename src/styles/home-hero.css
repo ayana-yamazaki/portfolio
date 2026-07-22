@@ -54,6 +54,14 @@ body:has(.home-main) {
   line-height: 1.4;
 }
 
+.home-hero__role {
+  margin: 2px 0 0;
+  color: #f9f3f0;
+  font-size: clamp(18px, 1.5vw, 24px);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .home-hero__description {
   max-width: 420px;
   margin: 10px 0 0;
@@ -78,7 +86,7 @@ body:has(.home-main) {
   gap: clamp(12px, 2vw, 32px);
   align-items: start;
   flex: 1;
-  margin-top: clamp(-64px, -4.5vw, -46px);
+  margin-top: clamp(24px, 3vw, 48px);
   padding: 0 0 clamp(48px, 7vh, 88px);
 }
 
@@ -618,13 +626,20 @@ body:has(.home-main) {
   letter-spacing: -.045em;
 }
 
-.home-hero__case[data-material='resin'] .home-hero__case-title {
+.home-hero__case[data-material='resin'] .home-hero__case-title,
+.home-hero__case[data-material='glass'] .home-hero__case-title {
   color: #fff;
   font-size: clamp(39px, 3.9vw, 51px);
-  font-weight: 600;
+  font-weight: 400;
+  text-align: right;
 }
 
-.home-hero__cases.is-materials-pbr-ready .home-hero__case[data-material='resin'] .home-hero__case-title {
+.home-hero__embedded-title-strong {
+  font-weight: 700;
+}
+
+.home-hero__cases.is-materials-pbr-ready .home-hero__case[data-material='resin'] .home-hero__case-title,
+.home-hero__cases.is-materials-pbr-ready .home-hero__case[data-material='glass'] .home-hero__case-title {
   visibility: hidden;
 }
 
@@ -660,7 +675,8 @@ body:has(.home-main) {
     font-size: 28px;
   }
 
-  .home-hero__case[data-material='resin'] .home-hero__case-title {
+  .home-hero__case[data-material='resin'] .home-hero__case-title,
+  .home-hero__case[data-material='glass'] .home-hero__case-title {
     font-size: 42px;
   }
 }
@@ -685,7 +701,8 @@ body:has(.home-main) {
     font-size: 30px;
   }
 
-  .home-hero__case[data-material='resin'] .home-hero__case-title {
+  .home-hero__case[data-material='resin'] .home-hero__case-title,
+  .home-hero__case[data-material='glass'] .home-hero__case-title {
     font-size: 45px;
   }
 

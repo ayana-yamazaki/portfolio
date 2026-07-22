@@ -54,10 +54,10 @@ export const glassFragmentShader = `
     return exp(-distanceFromCenter*distanceFromCenter);
   }
 
-  vec4 sampleBlurredDom(vec2 uv){
+  vec4 sampleBlurredDom(vec2 uv,float blurScale){
     vec2 texel=1.0/uCanvasSize;
-    vec2 nearOffset=texel*12.0;
-    vec2 farOffset=texel*24.0;
+    vec2 nearOffset=texel*12.0*blurScale;
+    vec2 farOffset=texel*24.0*blurScale;
     vec4 color=texture2D(uDomRefraction,uv)*.2;
     color+=texture2D(uDomRefraction,clamp(uv+vec2(nearOffset.x,0.0),vec2(.002),vec2(.998)))*.12;
     color+=texture2D(uDomRefraction,clamp(uv-vec2(nearOffset.x,0.0),vec2(.002),vec2(.998)))*.12;
@@ -119,12 +119,16 @@ export const glassFragmentShader = `
     color*=1.0-pow(rim,1.55)*shade*.21;
 
     vec2 refractionOffset=rimNormal*(uRefraction/uCanvasSize)*pow(rim,1.32);
-    vec2 refractedUv=clamp(vScreenUv-refractionOffset,vec2(.002),vec2(.998));
-    vec2 internalUv=clamp(vScreenUv+refractionOffset*.24,vec2(.002),vec2(.998));
-    vec4 refractedDom=sampleBlurredDom(refractedUv);
-    vec4 internalDom=sampleBlurredDom(internalUv);
+    float embeddedTitleRegion=smoothstep(.58,.66,local.y)*smoothstep(.12,.24,local.x);
+    float titleEffectScale=mix(1.0,.5,embeddedTitleRegion);
+    vec2 titleRefractionOffset=refractionOffset*titleEffectScale;
+    vec2 refractedUv=clamp(vScreenUv-titleRefractionOffset,vec2(.002),vec2(.998));
+    vec2 internalUv=clamp(vScreenUv+titleRefractionOffset*.24,vec2(.002),vec2(.998));
+    vec4 refractedDom=sampleBlurredDom(refractedUv,titleEffectScale);
+    vec4 internalDom=sampleBlurredDom(internalUv,titleEffectScale);
     vec4 bentDom=mix(internalDom,refractedDom,.82);
-    float bentTextStrength=bentDom.a*smoothstep(.08,.72,rim);
+    float rimTextStrength=bentDom.a*smoothstep(.08,.72,rim);
+    float bentTextStrength=mix(rimTextStrength,bentDom.a*.78,embeddedTitleRegion);
     color=mix(color,bentDom.rgb,bentTextStrength*.92);
 
     float side=max(max(vNormal.x,0.0),max(-vNormal.y,0.0));
@@ -186,7 +190,7 @@ export const resinFragmentShader = `
       vScreenUv.y
     );
     vec3 refractedBackdrop=mix(uWallColor,uFloorColor,floorMask);
-    vec2 textRefractionOffset=slope*vec2(.007,.0045);
+    vec2 textRefractionOffset=slope*vec2(.00105,.000675);
     vec4 refractedDom=texture2D(
       uDomRefraction,
       clamp(vScreenUv-textRefractionOffset,vec2(.002),vec2(.998))
