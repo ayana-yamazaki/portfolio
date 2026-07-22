@@ -7,8 +7,7 @@ import About from '../components/About.astro';
 import CaseFooter from '../components/CaseFooter.astro';
 import { caseStudies } from '../data/site';
 import { getImage } from 'astro:assets';
-import panel01 from '../../img/panel01.png';
-import panel02 from '../../img/panel02.png';
+import panel01 from '../../img/panel01-texture.png';
 import codeXmlIcon from '../assets/code-xml.svg';
 
 const materials = ['stone', 'paper', 'resin', 'glass'] as const;
@@ -102,7 +101,6 @@ const panel01Texture = await getImage({
             aria-hidden="true"
             data-materials-pbr
             data-stone-src={panel01Texture.src}
-            data-resin-src={panel02.src}
           ></canvas>
           {caseStudies.map((caseStudy, index) => (
             <a class="home-hero__case" href={caseStudy.href} data-material={materials[index]}>
@@ -114,9 +112,6 @@ const panel01Texture = await getImage({
                       {materials[index] === 'stone' && (
                         <img class="material-card__image" src={panel01Texture.src} alt="" />
                       )}
-                      {materials[index] === 'resin' && (
-                        <img class="material-card__image" src={panel02.src} alt="" />
-                      )}
                     </span>
                     <span class="material-card__sheen"></span>
                   </span>
@@ -127,7 +122,12 @@ const panel01Texture = await getImage({
                   <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />
                 )}
               </span>
-              <span class="home-hero__case-title">{caseStudy.title}</span>
+              <span class="home-hero__case-copy">
+                <span
+                  class="home-hero__case-title"
+                  data-resin-refraction-source={materials[index] === 'resin' ? '' : undefined}
+                >{caseStudy.title}</span>
+              </span>
               <span class="home-hero__case-text">{caseStudy.text.replace(/。$/, '')}</span>
             </a>
           ))}

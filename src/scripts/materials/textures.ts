@@ -34,6 +34,49 @@ export const makeNoiseTexture = (kind: 'paper' | 'stone') => {
   return texture;
 };
 
+export const makeCastGlassBumpTexture = () => {
+  const width = 384;
+  const height = 576;
+  const source = document.createElement('canvas');
+  source.width = width;
+  source.height = height;
+  const context = source.getContext('2d');
+  if (!context) throw new Error('Unable to create cast glass texture');
+  const image = context.createImageData(width, height);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4;
+      const u = x / width;
+      const v = y / height;
+      const warpX = Math.sin(v * 17 + Math.sin(v * 5) * 2.3) * 0.042
+        + Math.sin(v * 43 + u * 7) * 0.014;
+      const warpY = Math.sin(u * 15 + Math.cos(u * 4) * 2.7) * 0.036
+        + Math.cos(u * 37 - v * 8) * 0.013;
+      const vertical = Math.sin((u + warpX) * 49 + Math.sin(v * 25) * 2.2);
+      const horizontal = Math.sin((v + warpY) * 64 + Math.cos(u * 21) * 2.5);
+      const brokenRidges = Math.sin((u * 33 + v * 10) + Math.sin(v * 51) * 3.4)
+        * Math.sin((v * 39 - u * 6) + Math.cos(u * 43) * 2.6);
+      const broad = Math.sin(u * 11 + v * 8) + Math.cos(v * 13 - u * 7);
+      const heightValue = vertical * 0.31 + horizontal * 0.27 + brokenRidges * 0.29 + broad * 0.13;
+      const value = Math.max(0, Math.min(255, 128 + heightValue * 77));
+      image.data[index] = value;
+      image.data[index + 1] = value;
+      image.data[index + 2] = value;
+      image.data[index + 3] = 255;
+    }
+  }
+
+  context.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(source);
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = 2;
+  return texture;
+};
+
 export const makePaperAlbedoTexture = () => {
   const width = 512;
   const height = 768;
@@ -188,6 +231,46 @@ export const makeShadowTexture = () => {
   context.fill();
   context.restore();
 
+  const texture = new THREE.CanvasTexture(source);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  return texture;
+};
+
+export const makeCastGlassCausticTexture = () => {
+  const width = 512;
+  const height = 192;
+  const source = document.createElement('canvas');
+  source.width = width;
+  source.height = height;
+  const context = source.getContext('2d');
+  if (!context) throw new Error('Unable to create cast glass caustics');
+  const image = context.createImageData(width, height);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4;
+      const u = x / width;
+      const v = y / height;
+      const envelope = Math.sin(Math.min(1, v * 1.18) * Math.PI)
+        * Math.pow(Math.sin(Math.min(1, u) * Math.PI), 0.55);
+      const warp = Math.sin(v * 13 + Math.sin(u * 9) * 2.4) * 0.16;
+      const bands = Math.sin((u + warp) * 48 + Math.sin(v * 23) * 3.2)
+        + Math.sin(v * 36 - u * 11) * 0.56;
+      const bright = Math.pow(Math.max(0, bands * 0.5), 4);
+      const dark = Math.pow(Math.max(0, -bands * 0.5), 2);
+      const isBright = bright > dark * 0.78;
+      const value = isBright ? 245 : 34;
+      const alpha = envelope * (isBright ? bright * 0.42 : dark * 0.12);
+      image.data[index] = value;
+      image.data[index + 1] = value;
+      image.data[index + 2] = Math.min(255, value + (isBright ? 8 : 0));
+      image.data[index + 3] = Math.max(0, Math.min(255, alpha * 255));
+    }
+  }
+
+  context.putImageData(image, 0, 0);
   const texture = new THREE.CanvasTexture(source);
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;

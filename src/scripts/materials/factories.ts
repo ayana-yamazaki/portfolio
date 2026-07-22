@@ -3,6 +3,8 @@ import { glassTuning } from './config';
 import {
   glassFragmentShader,
   glassVertexShader,
+  resinFragmentShader,
+  resinVertexShader,
 } from './shaders';
 
 export const createGlassMaterial = (domRefractionTexture: THREE.Texture) => new THREE.ShaderMaterial({
@@ -14,6 +16,9 @@ export const createGlassMaterial = (domRefractionTexture: THREE.Texture) => new 
     uRadius: { value: 4 },
     uRim: { value: glassTuning.rimWidthPx },
     uRefraction: { value: glassTuning.refractionPx },
+    uFloorY: { value: 0.1 },
+    uWallColor: { value: new THREE.Vector3(31 / 255, 93 / 255, 205 / 255) },
+    uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
   },
   vertexShader: glassVertexShader,
   fragmentShader: glassFragmentShader,
@@ -42,17 +47,23 @@ export const createPaperFaceMaterial = (
   sheenColor: new THREE.Color(0xfff5df),
 });
 
-export const createResinFaceMaterial = (image: THREE.Texture) => new THREE.MeshPhysicalMaterial({
-  map: image,
-  color: 0xffffff,
-  roughness: 0.3,
-  metalness: 0,
-  clearcoat: 1,
-  clearcoatRoughness: 0.12,
-  envMapIntensity: 0.35,
+export const createResinFaceMaterial = (
+  castGlassBump: THREE.Texture,
+  domRefractionTexture: THREE.Texture,
+) => new THREE.ShaderMaterial({
+  uniforms: {
+    uBump: { value: castGlassBump },
+    uDomRefraction: { value: domRefractionTexture },
+    uTexel: { value: new THREE.Vector2(1 / 384, 1 / 576) },
+    uFloorY: { value: 0.1 },
+    uWallColor: { value: new THREE.Vector3(31 / 255, 93 / 255, 205 / 255) },
+    uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
+  },
+  vertexShader: resinVertexShader,
+  fragmentShader: resinFragmentShader,
   transparent: true,
-  alphaTest: 0.01,
-  depthWrite: true,
+  depthWrite: false,
+  toneMapped: false,
 });
 
 export const createBodyMaterials = (
@@ -76,13 +87,15 @@ export const createBodyMaterials = (
     sheenColor: new THREE.Color(0xfff8e8),
   }),
   resin: new THREE.MeshPhysicalMaterial({
-    color: 0xf5f2ee,
-    roughness: 0.24,
+    color: 0xbcd2d5,
+    roughness: 0.12,
     metalness: 0,
-    bumpMap: stoneBump,
-    bumpScale: 0.006,
     clearcoat: 1,
-    clearcoatRoughness: 0.17,
+    clearcoatRoughness: 0.08,
+    envMapIntensity: 0.9,
+    transparent: true,
+    opacity: 0.065,
+    depthWrite: false,
   }),
 });
 
@@ -101,11 +114,15 @@ export const createSideMaterials = (stoneTexture: THREE.Texture) => ({
     metalness: 0,
   }),
   resin: new THREE.MeshPhysicalMaterial({
-    color: 0xb9b7b1,
-    roughness: 0.3,
+    color: 0x4d676c,
+    roughness: 0.22,
     metalness: 0,
-    clearcoat: 0.8,
-    clearcoatRoughness: 0.2,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08,
+    envMapIntensity: 0.5,
+    transparent: true,
+    opacity: 0.72,
+    depthWrite: true,
   }),
   glass: new THREE.MeshPhysicalMaterial({
     color: 0xa9c0c4,
@@ -125,17 +142,14 @@ export const createStoneFaceMaterial = (image: THREE.Texture) => {
     roughness: 0.88,
     metalness: 0,
     envMapIntensity: 0.22,
+    emissive: new THREE.Color(0xffffff),
+    emissiveMap: image,
+    emissiveIntensity: 0.12,
+    side: THREE.DoubleSide,
+    depthTest: false,
+    depthWrite: false,
     polygonOffset: true,
     polygonOffsetFactor: -2,
   });
-  material.onBeforeCompile = (shader) => {
-    shader.fragmentShader = shader.fragmentShader.replace(
-      '#include <colorspace_fragment>',
-      `float stoneLuma = dot(gl_FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-      gl_FragColor.rgb = mix(vec3(stoneLuma), gl_FragColor.rgb, 1.5);
-      #include <colorspace_fragment>`,
-    );
-  };
-  material.customProgramCacheKey = () => 'stone-face-lit-saturation-1.5';
   return material;
 };

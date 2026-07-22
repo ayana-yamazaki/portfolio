@@ -12,6 +12,8 @@ import {
 import { makePanelGeometry, makeRoundedFaceGeometry } from './materials/geometry';
 import { createRenderHarness, type RenderHarness } from './materials/render-harness';
 import {
+  makeCastGlassBumpTexture,
+  makeCastGlassCausticTexture,
   makeNoiseTexture,
   makePaperAlbedoTexture,
   makeRoundedMaskTexture,
@@ -30,6 +32,7 @@ type CardState = {
   mesh: THREE.Mesh;
   surface?: THREE.Mesh;
   shadow: THREE.Mesh;
+  caustic?: THREE.Mesh;
   shadowBaseY: number;
 };
 
@@ -119,10 +122,10 @@ if (canvas && cases && hero) {
 
     scene.add(new THREE.HemisphereLight(0xfffcf5, 0x514d48, sceneTuning.hemisphereIntensity));
     const keyLight = new THREE.DirectionalLight(0xfff2da, sceneTuning.keyIntensity);
-    keyLight.position.set(8, 9, 4.2);
+    keyLight.position.set(-8, 9, 4.2);
     scene.add(keyLight);
     const fillLight = new THREE.DirectionalLight(0xc8dcff, sceneTuning.fillIntensity);
-    fillLight.position.set(-6, -1, 3);
+    fillLight.position.set(6, -1, 3);
     scene.add(fillLight);
 
     let textureReady = false;
@@ -164,21 +167,21 @@ if (canvas && cases && hero) {
     stoneMap.colorSpace = THREE.SRGBColorSpace;
     stoneMap.minFilter = THREE.LinearMipmapLinearFilter;
     stoneMap.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-    const resinMap = textureLoader.load(canvas.dataset.resinSrc ?? '', invalidate);
-    resinMap.colorSpace = THREE.SRGBColorSpace;
-    resinMap.minFilter = THREE.LinearMipmapLinearFilter;
-    resinMap.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     const paperBump = makeNoiseTexture('paper');
     const stoneBump = makeNoiseTexture('stone');
+    const castGlassBump = makeCastGlassBumpTexture();
+    const castGlassCaustic = makeCastGlassCausticTexture();
     const paperAlbedo = makePaperAlbedoTexture();
     const stoneSideTexture = makeStoneSideTexture();
     const roundedMask = makeRoundedMaskTexture();
     const shadowMap = makeShadowTexture();
-    [stoneMap, resinMap, paperBump, stoneBump, paperAlbedo, stoneSideTexture, roundedMask, shadowMap]
+    [stoneMap, paperBump, stoneBump, castGlassBump, castGlassCaustic, paperAlbedo, stoneSideTexture, roundedMask, shadowMap]
       .forEach((texture) => trackedTextures.add(texture));
 
     const refractionSources = Array.from(
-      document.querySelectorAll<HTMLElement>('[data-glass-refraction-source]'),
+      document.querySelectorAll<HTMLElement>(
+        '[data-glass-refraction-source], [data-resin-refraction-source]',
+      ),
     );
     const domRefractionCanvas = document.createElement('canvas');
     domRefractionCanvas.width = 2;
@@ -196,7 +199,7 @@ if (canvas && cases && hero) {
 
     const glassMaterial = createGlassMaterial(domRefractionTexture);
     const paperFaceMaterial = createPaperFaceMaterial(paperAlbedo, paperBump, roundedMask);
-    const resinFaceMaterial = createResinFaceMaterial(resinMap);
+    const resinFaceMaterial = createResinFaceMaterial(castGlassBump, domRefractionTexture);
     const bodyMaterials = createBodyMaterials(paperBump, stoneBump);
     const sideMaterials = createSideMaterials(stoneSideTexture);
     const stoneFaceMaterial = createStoneFaceMaterial(stoneMap);
@@ -220,6 +223,7 @@ if (canvas && cases && hero) {
       let surface: THREE.Mesh | undefined;
       if (kind === 'stone') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), stoneFaceMaterial);
+        surface.renderOrder = 10;
       } else if (kind === 'paper') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 32, 48), paperFaceMaterial);
       } else if (kind === 'resin') {
@@ -239,7 +243,20 @@ if (canvas && cases && hero) {
         }),
       );
       shadow.position.z = -0.5;
+      const caustic = kind === 'resin'
+        ? new THREE.Mesh(
+          new THREE.PlaneGeometry(1, 1),
+          new THREE.MeshBasicMaterial({
+            map: castGlassCaustic,
+            transparent: true,
+            opacity: 0.78,
+            depthWrite: false,
+          }),
+        )
+        : undefined;
+      if (caustic) caustic.position.z = -0.49;
       scene?.add(shadow, group);
+      if (caustic) scene?.add(caustic);
 
       const state: CardState = {
         element,
@@ -248,6 +265,7 @@ if (canvas && cases && hero) {
         mesh,
         surface,
         shadow,
+        caustic,
         shadowBaseY: 0.1,
       };
       cardStates.push(state);
@@ -364,6 +382,11 @@ if (canvas && cases && hero) {
       const floorY = rects[0]
         ? rects[0].top + rects[0].height * 0.9 - heroRect.top
         : 0;
+      const floorScreenY = 1 - (
+        (heroRect.top + floorY - canvasRect.top) / canvasRect.height
+      );
+      glassMaterial.uniforms.uFloorY.value = floorScreenY;
+      resinFaceMaterial.uniforms.uFloorY.value = floorScreenY;
       if (floorY > 0 && Math.abs(floorY - lastFloorY) > 0.5) {
         hero.style.setProperty('--stage-floor-y', `${floorY}px`);
         lastFloorY = floorY;
@@ -429,22 +452,30 @@ if (canvas && cases && hero) {
           state.surface.position.set(
             0,
             0,
-            state.kind === 'stone' || state.kind === 'glass'
+            state.kind === 'stone' || state.kind === 'resin' || state.kind === 'glass'
               ? depth / 2 + 0.001
               : depth / 2 + depth * 0.25 + 0.001,
           );
         }
         state.shadowBaseY = Math.max(depth * 7, 0.16);
         state.shadow.scale.set(
-          width * 1.25,
+          -width * 1.25,
           state.shadowBaseY * 1.08,
           1,
         );
         state.shadow.position.set(
-          centerX - width * 0.09,
+          centerX + width * 0.09,
           centerY - height / 2 - state.shadowBaseY * 0.48,
           -0.65,
         );
+        if (state.caustic) {
+          state.caustic.scale.copy(state.shadow.scale);
+          state.caustic.position.set(
+            state.shadow.position.x,
+            state.shadow.position.y,
+            -0.64,
+          );
+        }
         if (state.kind === 'glass') {
           glassMaterial.uniforms.uWorldCardSize.value.set(width, height);
           glassMaterial.uniforms.uCardSize.value.set(referenceRect.width, referenceRect.height);

@@ -20,12 +20,12 @@ export const sceneTuning = {
   hemisphereIntensity: 0.58,
   keyIntensity: 2.25,
   fillIntensity: 0.38,
-  baseTilt: 0,
-  baseYaw: -15,
+  baseTilt: 8,
+  baseYaw: 0,
   baseRoll: 0,
 } as const;
 
 export const glassTuning = {
-  rimWidthPx: 30,
+  rimWidthPx: 8,
   refractionPx: 46,
 } as const;
