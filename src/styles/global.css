@@ -1,10 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Roboto+Condensed:wght@700&display=swap');
 
-:root { --accent-color: #006AB6; --text-color-secondary: #4a4a4a; --keyvisual-background: #f6f3f1; --divider-color: #cccccc; }
+:root {
+  --accent-color: #006AB6;
+  --text-color-secondary: #4a4a4a;
+  --keyvisual-background: #f6f3f1;
+  --divider-color: #cccccc;
+  --body-font: 'Inter', 'Noto Sans JP', sans-serif;
+  --heading-font: 'Noto Sans JP', sans-serif;
+  --award-font: 'Roboto Condensed', 'Arial Narrow', sans-serif;
+}
+
+html:lang(en) {
+  --body-font: 'Inter', sans-serif;
+  --heading-font: 'Inter', sans-serif;
+  --award-font: 'Inter', sans-serif;
+}
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; color: #181818; background: #ffffff; font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+body { margin: 0; color: #181818; background: #ffffff; font-family: var(--body-font); }
 main { overflow: hidden; }
 section { padding: 0 clamp(24px, 7vw, 112px); }
 .external-article-button { display: inline-flex; align-items: center; gap: 18px; padding: 16px 20px; color: #fff; background: #111; border: 1px solid #111; font-size: 18px; font-weight: 600; line-height: 1.4; text-decoration: none; transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease; }

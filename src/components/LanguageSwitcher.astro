@@ -1,0 +1,75 @@
+---
+import { getLocalizedPath, type Locale } from '../i18n/locale';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const search = Astro.url.search;
+const japaneseHref = `${getLocalizedPath(Astro.url.pathname, 'ja')}${search}`;
+const englishHref = `${getLocalizedPath(Astro.url.pathname, 'en')}${search}`;
+---
+
+<nav class="language-switcher" aria-label={locale === 'ja' ? '言語選択' : 'Language selection'}>
+  <a
+    href={japaneseHref}
+    hreflang="ja"
+    lang="ja"
+    data-language="ja"
+    aria-current={locale === 'ja' ? 'page' : undefined}
+  >JA</a>
+  <span aria-hidden="true">/</span>
+  <a
+    href={englishHref}
+    hreflang="en"
+    lang="en"
+    data-language="en"
+    aria-current={locale === 'en' ? 'page' : undefined}
+  >EN</a>
+</nav>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('.language-switcher a[data-language]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const language = link.dataset.language;
+      if (language) localStorage.setItem('portfolio-locale', language);
+
+      if (window.location.hash) {
+        const target = new URL(link.href);
+        target.hash = window.location.hash;
+        link.href = target.toString();
+      }
+    });
+  });
+</script>
+
+<style>
+  .language-switcher {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+    color: var(--divider-color);
+    font-size: 11px;
+    letter-spacing: .08em;
+  }
+
+  .language-switcher a {
+    color: var(--text-color-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-decoration: none;
+  }
+
+  .language-switcher a[aria-current='page'] {
+    color: #181818;
+    font-weight: 700;
+  }
+
+  .language-switcher a:hover,
+  .language-switcher a:focus-visible {
+    color: var(--accent-color);
+  }
+</style>

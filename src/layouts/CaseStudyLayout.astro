@@ -4,19 +4,24 @@ import '../styles/case-study.css';
 import CaseFooter from '../components/CaseFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import RevealObserver from '../components/RevealObserver.astro';
+import LocaleRedirect from '../components/LocaleRedirect.astro';
+import { getLocaleUrl, type Locale } from '../i18n/locale';
 
 interface Props {
   title: string;
   description: string;
+  locale: Locale;
 }
 
-const { title, description } = Astro.props;
+const { title, description, locale } = Astro.props;
 const ogTitle = `${title} — Ayana Yamazaki`;
-const canonicalUrl = new URL(Astro.url.pathname, 'https://ayana-works.com');
+const canonicalUrl = getLocaleUrl(Astro.url.pathname, locale);
+const japaneseUrl = getLocaleUrl(Astro.url.pathname, 'ja');
+const englishUrl = getLocaleUrl(Astro.url.pathname, 'en');
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -27,16 +32,23 @@ const canonicalUrl = new URL(Astro.url.pathname, 'https://ayana-works.com');
     <meta property="og:description" content={description} />
     <meta property="og:type" content="article" />
     <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={locale === 'ja' ? 'ja_JP' : 'en_US'} />
+    <meta property="og:locale:alternate" content={locale === 'ja' ? 'en_US' : 'ja_JP'} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="ja" href={japaneseUrl} />
+    <link rel="alternate" hreflang="en" href={englishUrl} />
+    <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
+    <LocaleRedirect locale={locale} />
     <title>{title} — Ayana Yamazaki</title>
   </head>
   <body id="top">
-    <SiteHeader />
+    <SiteHeader locale={locale} />
 
     <main class="case-page">
       <slot />
     </main>
 
-    <CaseFooter />
+    <CaseFooter locale={locale} />
 
     <RevealObserver />
   </body>

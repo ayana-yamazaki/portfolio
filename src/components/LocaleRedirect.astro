@@ -1,0 +1,41 @@
+---
+import type { Locale } from '../i18n/locale';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+{locale === 'ja' && (
+  <script is:inline>
+    (() => {
+      try {
+        const savedLocale = localStorage.getItem('portfolio-locale');
+        const supportedPreference = navigator.languages
+          .map((language) => language.toLowerCase())
+          .find((language) =>
+            language === 'ja'
+            || language.startsWith('ja-')
+            || language === 'en'
+            || language.startsWith('en-')
+          );
+        const preferredLocale = savedLocale === 'ja' || savedLocale === 'en'
+          ? savedLocale
+          : supportedPreference?.startsWith('ja')
+            ? 'ja'
+            : 'en';
+
+        if (preferredLocale === 'en' && !location.pathname.startsWith('/en/')) {
+          const englishPath = location.pathname === '/'
+            ? '/en/'
+            : `/en${location.pathname.replace(/\/+$/, '')}`;
+          location.replace(`${englishPath}${location.search}${location.hash}`);
+        }
+      } catch {
+        // Keep the Japanese page when browser preferences are unavailable.
+      }
+    })();
+  </script>
+)}

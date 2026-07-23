@@ -1,11 +1,20 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 import { getCaseStudy } from '../data/site';
+import TranslatedContent from '../components/TranslatedContent.astro';
+import { buildAiTranslations } from '../i18n/build-ai';
+import type { Locale } from '../i18n/locale';
 
-const caseStudy = getCaseStudy('/build-ai-native');
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = 'ja' } = Astro.props;
+const caseStudy = getCaseStudy('/build-ai-native', locale);
 ---
 
-<CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription}>
+<CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription} locale={locale}>
+  <TranslatedContent locale={locale} translations={buildAiTranslations}>
   <section class="case-hero case-hero--split case-hero--wide-first case-hero--ai-native">
     <div class="case-hero-copy">
       <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
@@ -144,6 +153,7 @@ const caseStudy = getCaseStudy('/build-ai-native');
       </div>
     </section>
   </div>
+  </TranslatedContent>
 </CaseStudyLayout>
 
 <style>

@@ -1,12 +1,24 @@
 ---
-import { about } from '../data/site';
+import { getAbout } from '../data/site';
+import type { Locale } from '../i18n/locale';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const about = getAbout(locale);
 ---
 
 <section id="about" class="about" aria-labelledby="about-title">
   <h2 id="about-title">{about.label}</h2>
   <div class="about-intro">
     <div class="case-prose case-prose--full">{about.description.map((line) => <p>{line}</p>)}</div>
-    <img src={about.profileImage} alt="山崎文菜のプロフィール写真" loading="lazy" />
+    <img
+      src={about.profileImage}
+      alt={locale === 'ja' ? '山崎文菜のプロフィール写真' : 'Portrait of Ayana Yamazaki'}
+      loading="lazy"
+    />
   </div>
   <div class="experience">
     <h3>Experience</h3>

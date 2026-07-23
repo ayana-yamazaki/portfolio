@@ -1,7 +1,14 @@
 ---
-import { caseStudies } from '../data/site';
+import { getCaseStudies } from '../data/site';
+import { getLocalizedPath, stripLocalePrefix, type Locale } from '../i18n/locale';
 
-const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const caseStudies = getCaseStudies(locale);
+const currentPath = stripLocalePrefix(Astro.url.pathname);
 const isHome = currentPath === '/';
 const currentCaseIndex = caseStudies.findIndex((caseStudy) => caseStudy.href === currentPath);
 
@@ -21,15 +28,17 @@ const footer: {
   ? {
     title: nextCase.title,
     description: nextCase.text,
-    href: nextCase.href,
+    href: getLocalizedPath(nextCase.href, locale),
     action: 'View next case',
     image: nextCase.footerImage,
     cardImage: nextCase.footerCardImage,
   }
   : {
     title: 'How I Build',
-    description: '現場を理解し、作るべきものを決め、触れる形まで持っていく。',
-    href: '/',
+    description: locale === 'ja'
+      ? '現場を理解し、作るべきものを決め、触れる形まで持っていく。'
+      : 'Understand the field, decide what to build, and make it tangible.',
+    href: getLocalizedPath('/', locale),
     action: 'Back to overview',
   };
 ---
@@ -72,7 +81,7 @@ const footer: {
   <div class="case-footer__utility">
     <p>Ayana Yamazaki - Product Builder / Product Designer</p>
     <nav aria-label="Footer navigation">
-      <a href="/">Home</a>
+      <a href={getLocalizedPath('/', locale)}>Home</a>
       <a href="https://x.com/ayana_yamazaki" target="_blank" rel="noreferrer">X / Twitter</a>
       <a href="#top">Back to top ↑</a>
     </nav>

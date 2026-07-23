@@ -79,19 +79,22 @@ body:has(.home-main) {
   width: 100%;
   max-width: none;
   margin: 10px 0 0;
-  color: var(--text-color-secondary);
-  font-size: clamp(13px, 1vw, 16px);
+  color: #181818;
+  font-size: clamp(15px, 1vw, 18px);
+  font-weight: 500;
   line-height: 1.65;
   white-space: nowrap;
 }
 
 .home-hero__capability {
-  max-width: 56ch;
+  width: 100%;
+  max-width: none;
   margin: 8px 0 0;
-  color: #181818;
+  color: var(--text-color-secondary);
   font-size: clamp(12px, .9vw, 14px);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.65;
+  white-space: nowrap;
 }
 
 .home-hero__title {
@@ -837,10 +840,6 @@ body:has(.home-main) {
 
   .home-hero__description {
     white-space: normal;
-  }
-
-  .home-hero__capability {
-    max-width: 38em;
   }
 
   .home-hero__title {

@@ -1,16 +1,25 @@
 export const gemVertexShader = `
+  attribute vec3 aFacetCenter;
+  attribute vec3 aFacetBarycentric;
   varying vec2 vScreenUv;
   varying vec2 vUv;
   varying vec3 vViewNormal;
   varying vec3 vViewPosition;
+  varying vec3 vFacetBarycentric;
+  varying float vFacetScreenX;
 
   void main(){
     vec4 viewPosition=modelViewMatrix*vec4(position,1.0);
     vec4 clip=projectionMatrix*viewPosition;
+    vec4 facetClip=projectionMatrix
+      *modelViewMatrix
+      *vec4(aFacetCenter,1.0);
     vScreenUv=clip.xy/clip.w*.5+.5;
     vUv=uv;
     vViewNormal=normalize(normalMatrix*normal);
     vViewPosition=viewPosition.xyz;
+    vFacetBarycentric=aFacetBarycentric;
+    vFacetScreenX=facetClip.x/facetClip.w*.5+.5;
     gl_Position=clip;
   }
 `;
@@ -35,6 +44,8 @@ export const gemFragmentShader = `
   uniform vec3 uLightDirection;
   uniform vec3 uKeyColor;
   uniform float uKeyIntensity;
+  uniform float uSettleLightPosition;
+  uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
   uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
@@ -43,6 +54,8 @@ export const gemFragmentShader = `
   varying vec2 vUv;
   varying vec3 vViewNormal;
   varying vec3 vViewPosition;
+  varying vec3 vFacetBarycentric;
+  varying float vFacetScreenX;
 
   vec3 sceneAt(vec2 uv){
     vec4 backdrop=texture2D(uBackdrop,clamp(uv,vec2(.002),vec2(.998)));
@@ -320,6 +333,51 @@ export const gemFragmentShader = `
       reflectedBackground,
       clamp(backgroundReflection,0.0,.72)
     );
+    vec3 settleGemLightDirection=normalize(vec3(-.38,.78,.62));
+    vec3 settleGemHalfVector=normalize(
+      settleGemLightDirection+viewDirection
+    );
+    float settleGemFacetSpecular=pow(
+      max(dot(normal,settleGemHalfVector),0.0),
+      18.0
+    );
+    float settleGemFacetPulse=1.0-smoothstep(
+      .012,
+      .032,
+      abs(vFacetScreenX-uSettleLightPosition)
+    );
+    float settleGemBarycentric=min(
+      vFacetBarycentric.x,
+      min(vFacetBarycentric.y,vFacetBarycentric.z)
+    );
+    float settleGemFacetEdge=1.0-smoothstep(
+      .025,
+      .11,
+      settleGemBarycentric
+    );
+    float settleGemFacetResponse=sideMask
+      *(.22+settleGemFacetSpecular*1.56)
+      +thinRim*.82;
+    float settleGemGlint=settleGemFacetPulse
+      *settleGemFacetResponse
+      *(.26+settleGemFacetEdge*.74)
+      *uSettleLightStrength;
+    vec3 settleGemSpectrum=gemSpectralColor(clamp(
+      vUv.y*.72+uSettleLightPosition*.28,
+      0.0,
+      1.0
+    ));
+    vec3 settleGemColor=mix(
+      vec3(1.0,.94,.76),
+      settleGemSpectrum,
+      .72
+    );
+    color+=settleGemColor*settleGemGlint*.72;
+    color=mix(
+      color,
+      settleGemColor,
+      clamp(settleGemGlint*.28,0.0,.34)
+    );
     gl_FragColor=vec4(color,1.0);
     #include <colorspace_fragment>
   }
@@ -372,6 +430,8 @@ export const glassFragmentShader = `
   uniform vec3 uFloorColor;
   uniform vec2 uLightDirection;
   uniform float uGlintStrength;
+  uniform float uSettleLightPosition;
+  uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
   uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
@@ -587,6 +647,17 @@ export const glassFragmentShader = `
       uBackgroundReflectionFallback,
       upperBackgroundReflection
     );
+    float settleGlassBand=exp(
+      -pow((vScreenUv.x-uSettleLightPosition)/.032,2.0)
+    );
+    float settleGlassUpperEdge=smoothstep(.62,.9,local.y);
+    float settleGlassEdge=topSurface
+      *(innerShoulder*.52+outerShoulder+sideMask*.72)
+      *settleGlassUpperEdge;
+    float settleGlassGlint=settleGlassBand
+      *settleGlassEdge
+      *uSettleLightStrength;
+    color+=vec3(1.0,.965,.82)*settleGlassGlint*.48;
 
     gl_FragColor=vec4(clamp(color,vec3(0.0),vec3(1.0)),1.0);
     #include <colorspace_fragment>
@@ -632,6 +703,8 @@ export const seaGlassFragmentShader = `
   uniform float uRefraction;
   uniform vec2 uLightDirection;
   uniform float uGlintStrength;
+  uniform float uSettleLightPosition;
+  uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
   uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
@@ -758,6 +831,15 @@ export const seaGlassFragmentShader = `
       clamp(backgroundReflection,0.0,.62)
     );
     color*=1.0-directionalShade*fresnel*.025;
+    float settleSeaTopSurface=smoothstep(.04,.56,normal.y);
+    float settleSeaGlow=exp(
+      -pow((vScreenUv.x-uSettleLightPosition)/.05,2.0)
+    )*settleSeaTopSurface*uSettleLightStrength;
+    color=mix(
+      color,
+      vec3(1.0,.98,.88),
+      clamp(settleSeaGlow*.34,0.0,.34)
+    );
 
     gl_FragColor=vec4(color,1.0);
   }
@@ -774,6 +856,9 @@ export const roughGlassFragmentShader = `
   uniform float uBandBottomY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
+  uniform vec2 uLightDirection;
+  uniform float uSettleLightPosition;
+  uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
   uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
@@ -804,7 +889,7 @@ export const roughGlassFragmentShader = `
     float centerHeight=texture2D(uBump,vUv).r;
     vec2 slope=vec2(rightHeight-leftHeight,upHeight-downHeight)*5.8;
     vec3 surfaceNormal=normalize(vec3(-slope.x,-slope.y,1.0));
-    vec3 overheadLight=normalize(vec3(0.0,1.0,.24));
+    vec3 overheadLight=normalize(vec3(uLightDirection,.24));
     vec3 halfVector=normalize(overheadLight+vec3(0.0,0.0,1.0));
     float flatLight=overheadLight.z;
     float waveLight=dot(surfaceNormal,overheadLight);

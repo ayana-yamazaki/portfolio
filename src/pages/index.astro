@@ -5,30 +5,54 @@ import '../styles/home-hero.css';
 import '../styles/case-study.css';
 import About from '../components/About.astro';
 import CaseFooter from '../components/CaseFooter.astro';
-import { caseStudies } from '../data/site';
+import SiteHeader from '../components/SiteHeader.astro';
+import LocaleRedirect from '../components/LocaleRedirect.astro';
+import { getCaseStudies } from '../data/site';
+import { getLocaleUrl, getLocalizedPath, type Locale } from '../i18n/locale';
 import nanakamadoImage from '../../img/nanakamado.png';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = 'ja' } = Astro.props;
+const caseStudies = getCaseStudies(locale);
 const materials = ['gem', 'sea-glass', 'rough-glass', 'glass'] as const;
-const ogTitle = 'Ayana Yamazaki｜複雑な現場を、動くプロダクトへ翻訳';
-const ogDescription = '現場調査から課題定義、ロードマップ、プロトタイピング、UI設計まで。AIとコードを使い、作るべきものを触れる仕様へ変えるProduct Builder / Product Designer 山崎文菜のポートフォリオ';
+const ogTitle = locale === 'ja'
+  ? 'Ayana Yamazaki｜複雑な現場を、動くプロダクトへ翻訳'
+  : 'Ayana Yamazaki | Product Builder and Product Designer';
+const ogDescription = locale === 'ja'
+  ? '現場調査から課題定義、ロードマップ、プロトタイピング、UI設計まで。AIとコードを使い、作るべきものを触れる仕様へ変えるProduct Builder / Product Designer 山崎文菜のポートフォリオ'
+  : 'Ayana Yamazaki is a product builder and product designer who turns complex frontline operations into tangible, testable products through research, product definition, prototyping, and code.';
+const canonicalUrl = getLocaleUrl('/', locale);
+const japaneseUrl = getLocaleUrl('/', 'ja');
+const englishUrl = getLocaleUrl('/', 'en');
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Ayana Yamazaki — Product Builder" />
+    <meta name="description" content={ogDescription} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={ogDescription} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://ayana-works.com/" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={locale === 'ja' ? 'ja_JP' : 'en_US'} />
+    <meta property="og:locale:alternate" content={locale === 'ja' ? 'en_US' : 'ja_JP'} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="ja" href={japaneseUrl} />
+    <link rel="alternate" hreflang="en" href={englishUrl} />
+    <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
+    <LocaleRedirect locale={locale} />
     <title>Ayana Yamazaki — Product Builder</title>
   </head>
   <body id="top">
+    <SiteHeader locale={locale} />
     <main class="home-main">
       <section class="home-hero" aria-labelledby="home-title">
         <svg class="material-filters" aria-hidden="true">
@@ -56,8 +80,16 @@ const ogDescription = '現場調査から課題定義、ロードマップ、プ
           <div class="home-hero__intro">
             <p class="home-hero__name">Ayana Yamazaki</p>
             <p class="home-hero__role">Product Builder / Product Designer</p>
-            <p class="home-hero__description">複雑な現場を、動くプロダクトへ翻訳する</p>
-            <p class="home-hero__capability">現場理解から課題定義、ロードマップ、コードベースの検証までを横断します。</p>
+            <p class="home-hero__description">
+              {locale === 'ja'
+                ? '複雑な現場を、動くプロダクトへ翻訳する'
+                : 'Turning complex frontline work into products that work'}
+            </p>
+            <p class="home-hero__capability">
+              {locale === 'ja'
+                ? '現場理解から課題定義、ロードマップ、コードベースのプロトタイプ・一部実装までを横断します。'
+                : 'From field research and product definition to roadmaps, code-based prototypes, and implementation.'}
+            </p>
           </div>
         </header>
 
@@ -79,11 +111,11 @@ const ogDescription = '現場調査から課題定義、ロードマップ、プ
             data-renderer-state="initializing"
           ></canvas>
           {caseStudies.map((caseStudy, index) => (
-            <a class="home-hero__case" href={caseStudy.href} data-material={materials[index]}>
+            <a class="home-hero__case" href={getLocalizedPath(caseStudy.href, locale)} data-material={materials[index]}>
               <span class="home-hero__card-wrap">
                 <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
-                <span class="material-card__shadow"></span>
-                <span class="material-card__volume">
+                <span class="material-card__shadow" hidden></span>
+                <span class="material-card__volume" hidden>
                   <span class="material-card__front">
                     <span class="material-card__surface"></span>
                     <span class="material-card__sheen"></span>
@@ -119,9 +151,9 @@ const ogDescription = '現場調査から課題定義、ロードマップ、プ
           ))}
         </div>
       </section>
-      <About />
+      <About locale={locale} />
     </main>
-    <CaseFooter />
+    <CaseFooter locale={locale} />
 
     <script>
       import '../scripts/materials-pbr';

@@ -1,4 +1,4 @@
-import { makePanelGeometry } from '../geometry';
+import { makeRoughGlassGeometry } from '../geometry';
 import type { CardDefinition } from './types';
 
 export const roughGlassCardDefinition: CardDefinition = {
@@ -12,5 +12,5 @@ export const roughGlassCardDefinition: CardDefinition = {
   shadowProfile: 'rough-glass',
   shadowFollowsLift: true,
   cacheDuringMotion: true,
-  createGeometry: makePanelGeometry,
+  createGeometry: makeRoughGlassGeometry,
 };

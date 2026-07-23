@@ -99,6 +99,117 @@ export const makePanelGeometry = (width: number, height: number, depth: number, 
   return geometry;
 };
 
+export const getRoughGlassChamferSize = (
+  width: number,
+  height: number,
+  depth: number,
+  radius: number,
+) => Math.min(
+  width * .1,
+  height * .08,
+  Math.max(radius * .75, depth * .0086),
+);
+
+export const makeRoughGlassGeometry = (
+  width: number,
+  height: number,
+  depth: number,
+  radius: number,
+) => {
+  type Point = readonly [number, number, number];
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const halfDepth = depth / 2;
+  const chamfer = getRoughGlassChamferSize(width, height, depth, radius);
+  const frontZ = halfDepth;
+  const chamferBackZ = frontZ - chamfer;
+  const topInnerY = halfHeight - chamfer;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const edgeProgress: number[] = [];
+
+  const addVertex = ([x, y, z]: Point) => {
+    positions.push(x, y, z);
+    uvs.push(x / width + .5, y / height + .5);
+    edgeProgress.push(x / width + .5);
+  };
+  const addTriangle = (a: Point, b: Point, c: Point) => {
+    addVertex(a);
+    addVertex(b);
+    addVertex(c);
+  };
+  const addQuad = (a: Point, b: Point, c: Point, d: Point) => {
+    addTriangle(a, b, c);
+    addTriangle(a, c, d);
+  };
+  const addPolygon = (points: Point[]) => {
+    for (let index = 1; index < points.length - 1; index += 1) {
+      addTriangle(points[0], points[index], points[index + 1]);
+    }
+  };
+
+  const frontBottomLeft: Point = [-halfWidth, -halfHeight, frontZ];
+  const frontBottomRight: Point = [halfWidth, -halfHeight, frontZ];
+  const frontTopLeft: Point = [-halfWidth, topInnerY, frontZ];
+  const frontTopRight: Point = [halfWidth, topInnerY, frontZ];
+  const chamferTopLeft: Point = [-halfWidth, halfHeight, chamferBackZ];
+  const chamferTopRight: Point = [halfWidth, halfHeight, chamferBackZ];
+  const backBottomLeft: Point = [-halfWidth, -halfHeight, -halfDepth];
+  const backBottomRight: Point = [halfWidth, -halfHeight, -halfDepth];
+  const backTopLeft: Point = [-halfWidth, halfHeight, -halfDepth];
+  const backTopRight: Point = [halfWidth, halfHeight, -halfDepth];
+
+  addQuad(frontBottomLeft, frontBottomRight, frontTopRight, frontTopLeft);
+  addQuad(backBottomLeft, backTopLeft, backTopRight, backBottomRight);
+  const bodyVertexCount = positions.length / 3;
+
+  addQuad(chamferTopLeft, chamferTopRight, backTopRight, backTopLeft);
+  addQuad(backBottomLeft, backBottomRight, frontBottomRight, frontBottomLeft);
+  addPolygon([
+    frontBottomLeft,
+    frontTopLeft,
+    chamferTopLeft,
+    backTopLeft,
+    backBottomLeft,
+  ]);
+  addPolygon([
+    frontBottomRight,
+    backBottomRight,
+    backTopRight,
+    chamferTopRight,
+    frontTopRight,
+  ]);
+  const sideVertexCount = positions.length / 3 - bodyVertexCount;
+
+  addQuad(frontTopLeft, frontTopRight, chamferTopRight, chamferTopLeft);
+  const edgeVertexCount = positions.length / 3 - bodyVertexCount - sideVertexCount;
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  geometry.setAttribute(
+    'uv',
+    new THREE.Float32BufferAttribute(uvs, 2),
+  );
+  geometry.setAttribute(
+    'aEdgeProgress',
+    new THREE.Float32BufferAttribute(edgeProgress, 1),
+  );
+  geometry.addGroup(0, bodyVertexCount, 0);
+  geometry.addGroup(bodyVertexCount, sideVertexCount, 1);
+  geometry.addGroup(
+    bodyVertexCount + sideVertexCount,
+    edgeVertexCount,
+    2,
+  );
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+};
+
 export const makeGlassPanelGeometry = (
   width: number,
   height: number,
@@ -408,6 +519,41 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  const facetCenters: number[] = [];
+  const facetBarycentrics: number[] = [];
+  for (let index = 0; index < positions.length; index += 9) {
+    const centerX = (
+      positions[index]
+      + positions[index + 3]
+      + positions[index + 6]
+    ) / 3;
+    const centerY = (
+      positions[index + 1]
+      + positions[index + 4]
+      + positions[index + 7]
+    ) / 3;
+    const centerZ = (
+      positions[index + 2]
+      + positions[index + 5]
+      + positions[index + 8]
+    ) / 3;
+    for (let vertex = 0; vertex < 3; vertex += 1) {
+      facetCenters.push(centerX, centerY, centerZ);
+    }
+    facetBarycentrics.push(
+      1, 0, 0,
+      0, 1, 0,
+      0, 0, 1,
+    );
+  }
+  geometry.setAttribute(
+    'aFacetCenter',
+    new THREE.Float32BufferAttribute(facetCenters, 3),
+  );
+  geometry.setAttribute(
+    'aFacetBarycentric',
+    new THREE.Float32BufferAttribute(facetBarycentrics, 3),
+  );
   geometry.addGroup(frontStart, frontCount, 0);
   geometry.addGroup(frontCount, positions.length / 3 - frontCount, 1);
   geometry.computeVertexNormals();

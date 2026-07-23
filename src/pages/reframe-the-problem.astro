@@ -13,11 +13,20 @@ import fieldResearch05 from '../../img/reposaku/Field Research05.jpg';
 import fieldResearchSenior from '../../img/reposaku/Field Research-senior.jpg';
 import reposakuDeviceOn from '../../img/reposaku/device-on.jpg';
 import reposakuKeyVisual from '../../img/reposaku/keyvisual.jpg';
+import TranslatedContent from '../components/TranslatedContent.astro';
+import { reframeTranslations } from '../i18n/reframe';
+import type { Locale } from '../i18n/locale';
 
-const caseStudy = getCaseStudy('/reframe-the-problem');
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = 'ja' } = Astro.props;
+const caseStudy = getCaseStudy('/reframe-the-problem', locale);
 ---
 
-<CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription}>
+<CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription} locale={locale}>
+  <TranslatedContent locale={locale} translations={reframeTranslations}>
       <section class="case-hero reposaku-hero">
         <figure class="reposaku-cover" data-reveal>
           <img src={reposakuCover.src} alt="複数の農業車両と走行軌跡を可視化するレポサク" />
@@ -212,6 +221,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
         </section>
 
       </div>
+  </TranslatedContent>
 </CaseStudyLayout>
 
 <style>
@@ -219,7 +229,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
     min-height: calc(100svh - 65px);
     justify-content: flex-start;
     gap: clamp(26px, 3vw, 44px);
-    margin-top: -56px;
+    margin-top: 0;
     padding-top: 0;
     padding-bottom: clamp(28px, 4vw, 56px);
   }
@@ -243,7 +253,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
   }
 
   .case-key-facts .reposaku-award-fact-en {
-    font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--award-font);
     font-size: clamp(16px, 1.4vw, 22px);
     font-weight: 700;
     line-height: 1;
@@ -253,7 +263,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
   .case-key-facts .reposaku-award-fact-ja {
     margin-top: .22em;
     color: #ed3939;
-    font-family: 'Noto Sans JP', sans-serif;
+    font-family: var(--heading-font);
     font-size: clamp(22px, 2.1vw, 32px);
     font-weight: 700;
     line-height: 1.08;

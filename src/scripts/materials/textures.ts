@@ -86,7 +86,7 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     }
 
     const radius = materialProfiles[kind].radiusPx
-      * (kind === 'glass' ? 1.2 : 1);
+      * (kind === 'glass' ? 2 : 1);
     context.roundRect(left, top, width, height, radius);
   };
 
