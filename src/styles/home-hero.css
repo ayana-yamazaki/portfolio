@@ -417,62 +417,6 @@ body:has(.home-main) {
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, .42), inset -2px 0 4px rgba(52, 58, 58, .24);
 }
 
-/* Paper — warm cotton stock with directional fibres and layered thickness. */
-.material-card--paper {
-  --card-edge: #c4bcab;
-  --card-edge-dark: #8f8778;
-}
-
-.material-card--paper .material-card__front,
-.material-card--paper .material-card__front::after {
-  border-radius: 20px;
-}
-
-.material-card--paper .material-card__side--right {
-  border-radius: 0 10px 10px 0;
-}
-
-.material-card--paper .material-card__side--bottom {
-  border-radius: 0 0 20px 20px;
-}
-
-.material-card--paper .material-card__side--right {
-  background: repeating-linear-gradient(90deg, #d6cebf 0 1px, #9c9485 1px 2px, #c3bbac 2px 3px);
-}
-
-.material-card--paper .material-card__side--bottom {
-  background: repeating-linear-gradient(0deg, #d6cebf 0 1px, #938b7d 1px 2px, #c3bbac 2px 3px);
-}
-
-.material-card--paper .material-card__shadow {
-  opacity: .65;
-}
-
-.material-card--paper .material-card__surface {
-  background:
-    radial-gradient(ellipse at 12% 8%, rgba(255, 255, 255, .88), transparent 42%),
-    linear-gradient(105deg, rgba(164, 142, 109, .08), transparent 28% 72%, rgba(126, 105, 79, .1)),
-    #e9e2d3;
-  filter: url('#material-paper-grain');
-  transform: perspective(900px) rotateY(-.18deg);
-}
-
-.material-card--paper .material-card__surface::before {
-  inset: 0;
-  background: repeating-linear-gradient(87deg, transparent 0 7px, rgba(109, 91, 66, .035) 8px, transparent 9px 15px);
-  mix-blend-mode: multiply;
-}
-
-.material-card--paper .material-card__surface::after {
-  inset: 0;
-  box-shadow: inset 0 0 30px rgba(102, 82, 55, .09);
-}
-
-.material-card--paper .material-card__sheen {
-  background: linear-gradient(122deg, rgba(255, 255, 255, .34), transparent 31% 72%, rgba(91, 75, 51, .05));
-  opacity: .58;
-}
-
 /* Sea glass — softly translucent with a worn gem silhouette. */
 .material-card--sea-glass {
   --card-edge: rgba(255, 255, 255, .76);
@@ -791,6 +735,10 @@ body:has(.home-main) {
   font-size: clamp(11px, .9vw, 13px);
   line-height: 1.55;
   text-align: center;
+}
+
+.home-hero__case-text--strong {
+  font-weight: 700;
 }
 
 .home-hero__case-link {

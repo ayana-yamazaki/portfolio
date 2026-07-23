@@ -105,8 +105,9 @@ export const makeGlassPanelGeometry = (
   height: number,
   depth: number,
   radius: number,
+  shoulderWidth: number,
 ) => {
-  const shoulder = Math.min(depth * .22, radius * .24);
+  const shoulder = Math.min(shoulderWidth, depth * .34, radius * .45);
   const bodyDepth = Math.max(depth - shoulder * 2, depth * .2);
   const shapeWidth = Math.max(width - shoulder * 2, shoulder * 2);
   const shapeHeight = Math.max(height - shoulder * 2, shoulder * 2);
@@ -129,6 +130,39 @@ export const makeGlassPanelGeometry = (
   const smoothedGeometry = mergeVertices(geometry, 1e-5);
   geometry.dispose();
   smoothedGeometry.computeVertexNormals();
+
+  const normals = smoothedGeometry.getAttribute('normal');
+  const vertexCount = normals.count;
+  const surfaceRegions = new Float32Array(vertexCount);
+  const bevelProgress = new Float32Array(vertexCount);
+  const opticalThickness = new Float32Array(vertexCount);
+
+  for (let index = 0; index < vertexCount; index += 1) {
+    const normalX = normals.getX(index);
+    const normalY = normals.getY(index);
+    const normalZ = Math.max(normals.getZ(index), 0);
+    const lateralNormal = Math.min(1, Math.hypot(normalX, normalY));
+    surfaceRegions[index] = THREE.MathUtils.clamp(1 - normalZ, 0, 1);
+    bevelProgress[index] = lateralNormal;
+    opticalThickness[index] = THREE.MathUtils.clamp(
+      .08 + Math.pow(lateralNormal, .72) * .92,
+      .08,
+      1,
+    );
+  }
+
+  smoothedGeometry.setAttribute(
+    'aSurfaceRegion',
+    new THREE.BufferAttribute(surfaceRegions, 1),
+  );
+  smoothedGeometry.setAttribute(
+    'aBevelProgress',
+    new THREE.BufferAttribute(bevelProgress, 1),
+  );
+  smoothedGeometry.setAttribute(
+    'aOpticalThickness',
+    new THREE.BufferAttribute(opticalThickness, 1),
+  );
   return smoothedGeometry;
 };
 

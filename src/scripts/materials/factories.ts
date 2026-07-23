@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {
+  backgroundReflectionTuning,
   gemTuning,
   glintProfiles,
   glassTuning,
@@ -32,6 +33,20 @@ const createGlintUniforms = (
   uGlintStrength: { value: strength * lightingTuning.glint.strength },
 });
 
+const createBackgroundReflectionUniforms = (
+  kind: keyof typeof backgroundReflectionTuning.profiles,
+) => {
+  const profile = backgroundReflectionTuning.profiles[kind];
+  return {
+    uBackgroundReflectionFallback: {
+      value: new THREE.Color(backgroundReflectionTuning.fallbackColor),
+    },
+    uBandTopY: { value: 1 },
+    uBackgroundReflectionStrength: { value: profile.strength },
+    uBackgroundReflectionRayDistance: { value: profile.rayDistance },
+  };
+};
+
 export const createGemFaceMaterial = (
   backdropTexture: THREE.Texture,
   domRefractionTexture: THREE.Texture,
@@ -59,6 +74,7 @@ export const createGemFaceMaterial = (
     },
     uKeyColor: { value: new THREE.Color(lightingTuning.key.color) },
     uKeyIntensity: { value: lightingTuning.key.intensity },
+    ...createBackgroundReflectionUniforms('gem'),
   },
   vertexShader: gemVertexShader,
   fragmentShader: gemFragmentShader,
@@ -76,10 +92,11 @@ export const createGlassMaterial = (
     uDomRefraction: { value: domRefractionTexture },
     uCanvasSize: { value: new THREE.Vector2(1, 1) },
     uWorldCardSize: { value: new THREE.Vector2(1, 1) },
-    uCardSize: { value: new THREE.Vector2(1, 1) },
-    uRadius: { value: 4 },
-    uRim: { value: glassTuning.rimWidthPx },
+    uThicknessPx: { value: 80 },
     uRefraction: { value: glassTuning.refractionPx },
+    uIor: { value: glassTuning.ior },
+    uAbsorptionStrength: { value: glassTuning.absorptionStrength },
+    uDispersionStrength: { value: glassTuning.dispersionStrength },
     uFloorY: { value: 0.1 },
     uWallColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
     uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
@@ -87,33 +104,14 @@ export const createGlassMaterial = (
       glintProfiles.glass.strength,
       new THREE.Vector2(-.72, 1).normalize(),
     ),
-    uCornerBoost: { value: glintProfiles.glass.cornerBoost },
+    ...createBackgroundReflectionUniforms('glass'),
   },
   vertexShader: glassVertexShader,
   fragmentShader: glassFragmentShader,
-  transparent: true,
+  transparent: false,
+  depthTest: true,
   depthWrite: true,
   toneMapped: false,
-});
-
-export const createPaperFaceMaterial = (
-  albedo: THREE.Texture,
-  bump: THREE.Texture,
-  roundedMask: THREE.Texture,
-) => new THREE.MeshPhysicalMaterial({
-  map: albedo,
-  color: 0xfffcf4,
-  roughness: 0.9,
-  metalness: 0,
-  bumpMap: bump,
-  bumpScale: 0.026,
-  displacementMap: bump,
-  displacementScale: 0.0055,
-  displacementBias: -0.00275,
-  alphaMap: roundedMask,
-  alphaTest: 0.5,
-  sheen: 0.06,
-  sheenColor: new THREE.Color(0xfff5df),
 });
 
 export const createRoughGlassFaceMaterial = (
@@ -130,6 +128,7 @@ export const createRoughGlassFaceMaterial = (
     uFloorY: { value: 0.1 },
     uWallColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
     uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
+    ...createBackgroundReflectionUniforms('rough-glass'),
   },
   vertexShader: roughGlassVertexShader,
   fragmentShader: roughGlassFragmentShader,
@@ -148,6 +147,7 @@ export const createSeaGlassMaterial = (
     uCanvasSize: { value: new THREE.Vector2(1, 1) },
     uRefraction: { value: seaGlassTuning.refractionPx },
     ...createGlintUniforms(glintProfiles['sea-glass'].strength),
+    ...createBackgroundReflectionUniforms('sea-glass'),
   },
   vertexShader: seaGlassVertexShader,
   fragmentShader: seaGlassFragmentShader,
@@ -158,16 +158,7 @@ export const createSeaGlassMaterial = (
   toneMapped: false,
 });
 
-export const createBodyMaterials = (paperBump: THREE.Texture) => ({
-  paper: new THREE.MeshPhysicalMaterial({
-    color: 0xd8cfbd,
-    roughness: 0.94,
-    metalness: 0,
-    bumpMap: paperBump,
-    bumpScale: 0.045,
-    sheen: 0.08,
-    sheenColor: new THREE.Color(0xfff8e8),
-  }),
+export const createBodyMaterials = () => ({
   'rough-glass': new THREE.MeshPhysicalMaterial({
     color: 0xbcd2d5,
     roughness: 0.12,
@@ -183,11 +174,6 @@ export const createBodyMaterials = (paperBump: THREE.Texture) => ({
 
 export const createSideMaterials = (gemMaterial: THREE.Material) => ({
   gem: gemMaterial,
-  paper: new THREE.MeshPhysicalMaterial({
-    color: 0xb9ae99,
-    roughness: 0.96,
-    metalness: 0,
-  }),
   'rough-glass': new THREE.MeshPhysicalMaterial({
     color: 0x9fb9bd,
     roughness: 0.16,

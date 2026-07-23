@@ -1,4 +1,4 @@
-export type MaterialKind = 'gem' | 'paper' | 'sea-glass' | 'rough-glass' | 'glass';
+export type MaterialKind = 'gem' | 'sea-glass' | 'rough-glass' | 'glass';
 
 const gemThicknessPx = 350;
 
@@ -7,7 +7,6 @@ export const materialProfiles: Record<MaterialKind, {
   thicknessPx: number;
 }> = {
   gem: { radiusPx: 22, thicknessPx: gemThicknessPx },
-  paper: { radiusPx: 4, thicknessPx: 350 },
   'sea-glass': { radiusPx: 8, thicknessPx: 110 },
   'rough-glass': { radiusPx: 4, thicknessPx: gemThicknessPx },
   glass: { radiusPx: 64, thicknessPx: 80 },
@@ -97,7 +96,7 @@ type SimpleShadowProfile = {
 };
 
 export const simpleShadowProfiles: Record<
-  'sea-glass' | 'rough-glass' | 'glass',
+  'sea-glass' | 'rough-glass',
   SimpleShadowProfile
 > = {
   'sea-glass': {
@@ -118,15 +117,29 @@ export const simpleShadowProfiles: Record<
       contact: { blur: .45, opacity: .28, x: 4, y: 3 },
     },
   },
-  glass: {
-    scale: [1.3, 1.18],
-    offset: { xRatio: .026, yRatio: -.008 },
-    layers: {
-      soft: { blur: 24, opacity: .1, x: 30, y: 22 },
-      middle: { blur: 7, opacity: .16, x: 17, y: 12 },
-      contact: { blur: .4, opacity: .2, x: 3, y: 2 },
-    },
-  },
+};
+
+export const glassContactShadowProfile = {
+  scale: [1.02, .14],
+  offset: { xRatio: 0, yRatio: -.5 },
+} as const;
+
+type BackgroundReflectionProfile = {
+  strength: number;
+  rayDistance: number;
+};
+
+export const backgroundReflectionTuning = {
+  fallbackColor: 0xf9f3f0,
+  profiles: {
+    gem: { strength: .66, rayDistance: .17 },
+    'sea-glass': { strength: .5, rayDistance: .23 },
+    'rough-glass': { strength: .58, rayDistance: .17 },
+    glass: { strength: .62, rayDistance: .18 },
+  } satisfies Record<
+    'gem' | 'sea-glass' | 'rough-glass' | 'glass',
+    BackgroundReflectionProfile
+  >,
 };
 
 export const glintProfiles = {
@@ -142,7 +155,6 @@ export const glintProfiles = {
   },
   glass: {
     strength: 1.9,
-    cornerBoost: 1.2,
   },
 } as const;
 
@@ -158,6 +170,9 @@ export const gemTuning = {
 export const glassTuning = {
   rimWidthPx: 12,
   refractionPx: 48,
+  ior: 1.47,
+  absorptionStrength: .24,
+  dispersionStrength: .12,
 } as const;
 
 export const seaGlassTuning = {

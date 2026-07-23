@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import {
+  glassContactShadowProfile,
+  glassTuning,
   lightingTuning,
   materialProfiles,
   sceneTuning,
@@ -11,7 +13,6 @@ import {
   createGemFaceMaterial,
   createGlassMaterial,
   createSeaGlassMaterial,
-  createPaperFaceMaterial,
   createRoughGlassFaceMaterial,
   createSideMaterials,
 } from './materials/factories';
@@ -28,9 +29,6 @@ import {
   makeRoughGlassCausticTexture,
   makeGemFloorCausticTexture,
   makeGemPrismTexture,
-  makeNoiseTexture,
-  makePaperAlbedoTexture,
-  makeRoundedMaskTexture,
   makeCardShadowTexture,
 } from './materials/textures';
 
@@ -44,7 +42,6 @@ type CardState = {
   group: THREE.Group;
   mesh: THREE.Mesh;
   surface?: THREE.Mesh;
-  topSurface?: THREE.Mesh;
   bottomSurface?: THREE.Mesh;
   shadow: THREE.Mesh;
   caustic?: THREE.Mesh;
@@ -257,21 +254,15 @@ if (canvas && cases && hero) {
       markLayoutDirty();
     };
 
-    const paperBump = makeNoiseTexture();
     const roughGlassBump = makeRoughGlassBumpTexture();
     const roughGlassCaustic = makeRoughGlassCausticTexture();
     const gemFloorCaustic = makeGemFloorCausticTexture();
     const gemPrism = makeGemPrismTexture();
-    const paperAlbedo = makePaperAlbedoTexture();
-    const roundedMask = makeRoundedMaskTexture();
     [
-      paperBump,
       roughGlassBump,
       roughGlassCaustic,
       gemFloorCaustic,
       gemPrism,
-      paperAlbedo,
-      roundedMask,
     ]
       .forEach((texture) => trackedTextures.add(texture));
     const shadowMaps = new Map<MaterialKind, THREE.Texture>();
@@ -358,7 +349,6 @@ if (canvas && cases && hero) {
       gemFloorInteraction,
     );
     const glassMaterial = createGlassMaterial(glassBackdropTexture, domRefractionTexture);
-    const paperFaceMaterial = createPaperFaceMaterial(paperAlbedo, paperBump, roundedMask);
     const seaGlassMaterial = createSeaGlassMaterial(
       glassBackdropTexture,
       seaGlassBlurTexture,
@@ -368,16 +358,8 @@ if (canvas && cases && hero) {
       glassBackdropTexture,
       domRefractionTexture,
     );
-    const bodyMaterials = createBodyMaterials(paperBump);
+    const bodyMaterials = createBodyMaterials();
     const sideMaterials = createSideMaterials(gemFaceMaterial);
-    const roughGlassTopMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: .86,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-      toneMapped: false,
-    });
     const roughGlassBottomMaterial = new THREE.MeshBasicMaterial({
       color: 0xa9c4c9,
       transparent: true,
@@ -491,33 +473,27 @@ if (canvas && cases && hero) {
       group.add(mesh);
 
       let surface: THREE.Mesh | undefined;
-      if (kind === 'paper') {
-        surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 32, 48), paperFaceMaterial);
-      } else if (kind === 'rough-glass') {
+      if (kind === 'rough-glass') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), roughGlassFaceMaterial);
       }
       if (surface) group.add(surface);
 
-      let topSurface: THREE.Mesh | undefined;
       let bottomSurface: THREE.Mesh | undefined;
       if (kind === 'rough-glass') {
-        topSurface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), roughGlassTopMaterial);
         bottomSurface = new THREE.Mesh(
           new THREE.PlaneGeometry(1, 1),
           roughGlassBottomMaterial,
         );
-        topSurface.rotation.x = -Math.PI / 2;
         bottomSurface.rotation.x = -Math.PI / 2;
-        topSurface.renderOrder = 3;
         bottomSurface.renderOrder = 1;
-        group.add(topSurface, bottomSurface);
+        group.add(bottomSurface);
       }
 
       const shadow = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicMaterial({
           map: getShadowMap(kind),
-          color: kind === 'paper' ? 0xffffff : 0x000000,
+          color: kind === 'glass' ? 0xffffff : 0x000000,
           transparent: true,
           opacity: 1,
           depthWrite: false,
@@ -562,7 +538,6 @@ if (canvas && cases && hero) {
         group,
         mesh,
         surface,
-        topSurface,
         bottomSurface,
         shadow,
         caustic,
@@ -753,6 +728,7 @@ if (canvas && cases && hero) {
       const bandHeight = Number.parseFloat(bandStyle.height);
       const bandLeft = Number.parseFloat(bandStyle.left);
       const bandTop = Number.parseFloat(bandStyle.top);
+      let bandTopScreenY = 1;
       if (
         Number.isFinite(bandWidth)
         && Number.isFinite(bandHeight)
@@ -764,6 +740,7 @@ if (canvas && cases && hero) {
           : new DOMMatrixReadOnly(bandStyle.transform);
         const x = casesRect.left - canvasRect.left + bandLeft + transform.e;
         const y = casesRect.top - canvasRect.top + bandTop + transform.f;
+        bandTopScreenY = 1 - y / canvasRect.height;
         const radius = Number.parseFloat(bandStyle.borderTopLeftRadius) || 0;
         glassBackdropContext.save();
         glassBackdropContext.beginPath();
@@ -773,6 +750,10 @@ if (canvas && cases && hero) {
         glassBackdropContext.fillRect(x, y, bandWidth, bandHeight);
         glassBackdropContext.restore();
       }
+      gemFaceMaterial.uniforms.uBandTopY.value = bandTopScreenY;
+      seaGlassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
+      roughGlassFaceMaterial.uniforms.uBandTopY.value = bandTopScreenY;
+      glassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
 
       if (!backdropImage || !rect || !style) {
         glassBackdropTexture.needsUpdate = true;
@@ -927,8 +908,14 @@ if (canvas && cases && hero) {
           ? makeGemGeometry(width, height, depth)
           : state.kind === 'sea-glass'
             ? makeSeaGlassGeometry(width, height, depth)
-            : state.kind === 'glass'
-              ? makeGlassPanelGeometry(width, height, depth, radius)
+          : state.kind === 'glass'
+              ? makeGlassPanelGeometry(
+                width,
+                height,
+                depth,
+                radius,
+                glassTuning.rimWidthPx * pxY,
+              )
             : makePanelGeometry(width, height, depth, radius);
         const centerX = (((rect.left + rect.width / 2) - canvasRect.left) / canvasRect.width * 2 - 1) * aspect;
         const centerY = 1 - (((rect.top + rect.height / 2) - canvasRect.top) / canvasRect.height * 2);
@@ -947,15 +934,11 @@ if (canvas && cases && hero) {
         state.group.position.z = 0.08;
         if (state.surface) {
           state.surface.geometry.dispose();
-          if (state.kind === 'paper') {
-            state.surface.geometry = new THREE.PlaneGeometry(width - radius * 0.14, height - radius * 0.14, 32, 48);
-          } else {
-            state.surface.geometry = makeRoundedFaceGeometry(
-              width - radius * 0.2,
-              height - radius * 0.2,
-              radius * 0.9,
-            );
-          }
+          state.surface.geometry = makeRoundedFaceGeometry(
+            width - radius * 0.2,
+            height - radius * 0.2,
+            radius * 0.9,
+          );
           state.surface.position.set(
             0,
             0,
@@ -964,49 +947,47 @@ if (canvas && cases && hero) {
               : depth / 2 + depth * 0.25 + 0.001,
           );
         }
-        if (state.topSurface && state.bottomSurface) {
-          state.topSurface.geometry.dispose();
+        if (state.bottomSurface) {
           state.bottomSurface.geometry.dispose();
-          state.topSurface.geometry = new THREE.PlaneGeometry(
-            width - radius * .2,
-            depth * .96,
-          );
           state.bottomSurface.geometry = new THREE.PlaneGeometry(
             width - radius * .2,
             depth * .96,
           );
-          state.topSurface.position.set(0, height / 2 - radius * .08, 0);
           state.bottomSurface.position.set(0, -height / 2 + radius * .08, 0);
         }
         const isGem = state.kind === 'gem';
         const simpleShadowProfile = state.kind === 'sea-glass'
           || state.kind === 'rough-glass'
-          || state.kind === 'glass'
           ? simpleShadowProfiles[state.kind]
           : undefined;
+        const shadowProfile = state.kind === 'glass'
+          ? glassContactShadowProfile
+          : simpleShadowProfile;
         state.shadow.scale.set(
           width * (
-            isGem ? 1.28 : simpleShadowProfile?.scale[0] ?? 1.1
+            isGem ? 1.28 : shadowProfile?.scale[0] ?? 1.1
           ),
           height * (
-            isGem ? 1.16 : simpleShadowProfile?.scale[1] ?? 1.06
+            isGem ? 1.16 : shadowProfile?.scale[1] ?? 1.06
           ),
           1,
         );
         state.baseShadowY = centerY + height * (
           isGem
             ? -.06
-            : simpleShadowProfile?.offset.yRatio
+            : shadowProfile?.offset.yRatio
               ?? lightingTuning.shadowOffset.yRatio
         );
         state.shadow.position.set(
           centerX + width * (
             isGem
               ? .12
-              : simpleShadowProfile?.offset.xRatio
+              : shadowProfile?.offset.xRatio
                 ?? lightingTuning.shadowOffset.xRatio
           ),
-          state.baseShadowY + state.liftPx * pxY * .5,
+          state.baseShadowY + state.liftPx * pxY * (
+            state.kind === 'glass' ? 0 : .5
+          ),
           -0.65,
         );
         if (state.caustic) {
@@ -1041,8 +1022,7 @@ if (canvas && cases && hero) {
         }
         if (state.kind === 'glass') {
           glassMaterial.uniforms.uWorldCardSize.value.set(width, height);
-          glassMaterial.uniforms.uCardSize.value.set(referenceRect.width, referenceRect.height);
-          glassMaterial.uniforms.uRadius.value = radiusPx;
+          glassMaterial.uniforms.uThicknessPx.value = profile.thicknessPx;
         }
       });
       return true;
@@ -1068,7 +1048,9 @@ if (canvas && cases && hero) {
 
         const liftWorld = state.liftPx * pxY;
         state.group.position.y = state.baseGroupY + liftWorld;
-        state.shadow.position.y = state.baseShadowY + liftWorld * .5;
+        state.shadow.position.y = state.baseShadowY + liftWorld * (
+          state.kind === 'glass' ? 0 : .5
+        );
         if (state.caustic) {
           state.caustic.position.y = state.baseCausticY + liftWorld * .5;
         }

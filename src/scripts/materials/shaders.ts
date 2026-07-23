@@ -35,6 +35,10 @@ export const gemFragmentShader = `
   uniform vec3 uLightDirection;
   uniform vec3 uKeyColor;
   uniform float uKeyIntensity;
+  uniform vec3 uBackgroundReflectionFallback;
+  uniform float uBandTopY;
+  uniform float uBackgroundReflectionStrength;
+  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vScreenUv;
   varying vec2 vUv;
   varying vec3 vViewNormal;
@@ -243,6 +247,52 @@ export const gemFragmentShader = `
       1.0
     );
     vec3 bodySpectrum=gemSpectralColor(bodySpectrumPosition);
+    float topFacing=smoothstep(.16,.72,normal.y);
+    float backgroundFacetAlignment=smoothstep(
+      .08,
+      .72,
+      max(dot(normalizedReflection,sideStripDirection),0.0)
+    );
+    float reflectionReach=uBackgroundReflectionRayDistance
+      *(.62+backgroundFacetAlignment*.58);
+    vec2 reflectedBackgroundUv=vec2(
+      vScreenUv.x+normalizedReflection.x*reflectionReach*.22,
+      vScreenUv.y+reflectionReach
+    );
+    float reflectedBackgroundOutside=clamp(
+      step(reflectedBackgroundUv.x,0.0)
+        +step(1.0,reflectedBackgroundUv.x)
+        +step(reflectedBackgroundUv.y,0.0)
+        +step(1.0,reflectedBackgroundUv.y),
+      0.0,
+      1.0
+    );
+    vec4 reflectedBackgroundSample=texture2D(
+      uBackdrop,
+      clamp(reflectedBackgroundUv,vec2(.002),vec2(.998))
+    );
+    vec3 reflectedBackground=mix(
+      uBackgroundReflectionFallback,
+      reflectedBackgroundSample.rgb,
+      reflectedBackgroundSample.a
+    );
+    reflectedBackground=mix(
+      reflectedBackground,
+      uBackgroundReflectionFallback,
+      reflectedBackgroundOutside
+    );
+    float distanceToBand=max(uBandTopY-vScreenUv.y,0.0);
+    float reflectionBand=exp(
+      -pow(
+        (distanceToBand-reflectionReach*.86)
+          /max(reflectionReach*.15,.0001),
+        2.0
+      )
+    );
+    float backgroundReflection=topFacing
+      *reflectionBand
+      *mix(.18,1.0,backgroundFacetAlignment)
+      *uBackgroundReflectionStrength;
 
     vec3 transmitted=refracted*mix(1.0,.08,internalDark);
     transmitted=mix(transmitted,glossPlaneColor,glossPlane*.09);
@@ -265,24 +315,38 @@ export const gemFragmentShader = `
     reflectedLight+=glossEdgeColor*glossEdge*.16;
     vec3 color=transmitted*(1.0-reflectionWeight)
       +toneMapReflection(reflectedLight);
+    color=mix(
+      color,
+      reflectedBackground,
+      clamp(backgroundReflection,0.0,.72)
+    );
     gl_FragColor=vec4(color,1.0);
     #include <colorspace_fragment>
   }
 `;
 
 export const glassVertexShader = `
+  attribute float aSurfaceRegion;
+  attribute float aBevelProgress;
+  attribute float aOpticalThickness;
   varying vec2 vScreenUv;
-  varying vec2 vLocalPosition;
+  varying vec3 vLocalPosition;
   varying vec3 vViewNormal;
   varying vec3 vViewPosition;
+  varying float vSurfaceRegion;
+  varying float vBevelProgress;
+  varying float vOpticalThickness;
 
   void main(){
     vec4 viewPosition=modelViewMatrix*vec4(position,1.0);
     vec4 clip=projectionMatrix*viewPosition;
     vScreenUv=clip.xy/clip.w*.5+.5;
-    vLocalPosition=position.xy;
+    vLocalPosition=position;
     vViewNormal=normalize(normalMatrix*normal);
     vViewPosition=viewPosition.xyz;
+    vSurfaceRegion=aSurfaceRegion;
+    vBevelProgress=aBevelProgress;
+    vOpticalThickness=aOpticalThickness;
     gl_Position=clip;
   }
 `;
@@ -293,25 +357,27 @@ export const glassFragmentShader = `
   uniform sampler2D uDomRefraction;
   uniform vec2 uCanvasSize;
   uniform vec2 uWorldCardSize;
-  uniform vec2 uCardSize;
-  uniform float uRadius;
-  uniform float uRim;
+  uniform float uThicknessPx;
   uniform float uRefraction;
+  uniform float uIor;
+  uniform float uAbsorptionStrength;
+  uniform float uDispersionStrength;
   uniform float uFloorY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
   uniform vec2 uLightDirection;
   uniform float uGlintStrength;
-  uniform float uCornerBoost;
+  uniform vec3 uBackgroundReflectionFallback;
+  uniform float uBandTopY;
+  uniform float uBackgroundReflectionStrength;
+  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vScreenUv;
-  varying vec2 vLocalPosition;
+  varying vec3 vLocalPosition;
   varying vec3 vViewNormal;
   varying vec3 vViewPosition;
-
-  float sdRoundBox(vec2 p,vec2 b,float r){
-    vec2 q=abs(p)-b+r;
-    return min(max(q.x,q.y),0.0)+length(max(q,0.0))-r;
-  }
+  varying float vSurfaceRegion;
+  varying float vBevelProgress;
+  varying float vOpticalThickness;
 
   float gaussian(float value,float center,float width){
     float distanceFromCenter=(value-center)/width;
@@ -319,44 +385,47 @@ export const glassFragmentShader = `
   }
 
   vec3 sceneAt(vec2 uv){
-    vec4 backdrop=texture2D(uBackdrop,uv);
+    vec2 sampleUv=clamp(uv,vec2(.002),vec2(.998));
+    vec4 backdrop=texture2D(uBackdrop,sampleUv);
     float floorMask=1.0-smoothstep(
       uFloorY-1.5/uCanvasSize.y,
       uFloorY+1.5/uCanvasSize.y,
-      uv.y
+      sampleUv.y
     );
     vec3 base=mix(uWallColor,uFloorColor,floorMask);
     vec3 scene=mix(base,backdrop.rgb,backdrop.a);
-    vec4 text=texture2D(uDomRefraction,uv);
+    vec4 text=texture2D(uDomRefraction,sampleUv);
     return mix(scene,text.rgb,text.a);
   }
 
   void main(){
-    vec2 local=vLocalPosition/uWorldCardSize+.5;
-    vec2 p=(local-.5)*uCardSize;
-    vec2 halfSize=uCardSize*.5;
-    float d=sdRoundBox(p,halfSize,uRadius);
-    float inside=max(-d,0.0);
-    float rimProfile=1.0-smoothstep(0.0,uRim*1.55,inside);
-    float rimCore=pow(rimProfile,1.35);
-    float stepSize=.65;
-    vec2 gradient=vec2(
-      sdRoundBox(p+vec2(stepSize,0),halfSize,uRadius)-sdRoundBox(p-vec2(stepSize,0),halfSize,uRadius),
-      sdRoundBox(p+vec2(0,stepSize),halfSize,uRadius)-sdRoundBox(p-vec2(0,stepSize),halfSize,uRadius)
-    );
-    vec2 edgeNormal=gradient/max(length(gradient),.0001);
-
-    vec3 meshNormal=normalize(vViewNormal);
-    if(!gl_FrontFacing) meshNormal=-meshNormal;
+    vec2 local=vLocalPosition.xy/uWorldCardSize+.5;
+    vec3 opticalNormal=normalize(vViewNormal);
+    if(!gl_FrontFacing) opticalNormal=-opticalNormal;
     vec3 viewDirection=normalize(-vViewPosition);
-    float sideAmount=smoothstep(.06,.72,length(meshNormal.xy));
-    vec3 roundedFrontNormal=normalize(vec3(
-      edgeNormal*rimProfile*.72,
-      max(.48,1.0-rimProfile*.42)
-    ));
-    vec3 opticalNormal=normalize(mix(roundedFrontNormal,meshNormal,sideAmount));
-    float facing=clamp(abs(dot(opticalNormal,viewDirection)),0.0,1.0);
-    float fresnel=pow(1.0-facing,4.0);
+    float surfaceRegion=clamp(vSurfaceRegion,0.0,1.0);
+    float bevelProgress=clamp(vBevelProgress,0.0,1.0);
+    float shoulderMask=smoothstep(.04,.62,surfaceRegion)
+      *(1.0-smoothstep(.84,1.0,surfaceRegion));
+    float sideMask=smoothstep(.68,.97,surfaceRegion);
+    float roundedMask=smoothstep(
+      .025,
+      .86,
+      max(surfaceRegion,bevelProgress*.94)
+    );
+    float facing=clamp(abs(dot(opticalNormal,viewDirection)),.001,1.0);
+    float grazing=1.0-facing;
+    float fresnel=.04+.96*pow(grazing,5.0);
+    float rightSurface=roundedMask*max(opticalNormal.x,0.0);
+    float leftSurface=roundedMask*max(-opticalNormal.x,0.0);
+    float topSurface=roundedMask*max(opticalNormal.y,0.0);
+    float bottomSurface=roundedMask*max(-opticalNormal.y,0.0);
+    float thicknessScale=clamp(uThicknessPx/80.0,.5,1.8);
+    float opticalPath=clamp(
+      vOpticalThickness*(.68+grazing*.58)*thicknessScale,
+      .04,
+      1.0
+    );
 
     float spectrumPosition=clamp(local.x*.7+(1.0-local.y)*.3,0.0,1.0);
     float blueWeight=gaussian(spectrumPosition,.02,.18);
@@ -373,19 +442,22 @@ export const glassFragmentShader = `
       +vec3(.95,.3,.57)*redWeight
     )/max(totalWeight,.0001);
 
-    vec2 meshBend=meshNormal.xy;
-    meshBend/=max(length(meshBend),.0001);
-    vec2 bendDirection=normalize(mix(edgeNormal,meshBend,sideAmount));
-    float opticalThickness=clamp(
-      rimProfile*.5+sideAmount*.48+fresnel*.3,
+    vec3 refractedRay=refract(-viewDirection,opticalNormal,1.0/uIor);
+    vec2 projectedRay=refractedRay.xy/max(abs(refractedRay.z),.24);
+    vec2 bendDirection=mix(opticalNormal.xy,projectedRay,.36);
+    bendDirection=clamp(bendDirection,vec2(-1.4),vec2(1.4));
+    float bendStrength=smoothstep(.012,.32,length(opticalNormal.xy));
+    vec2 bendPixels=bendDirection*uRefraction*opticalPath*bendStrength;
+    vec2 bend=bendPixels/uCanvasSize;
+    float dispersionMask=clamp(
+      (shoulderMask*.7+sideMask+bottomSurface*.28)*opticalPath,
       0.0,
       1.0
     );
-    vec2 bendPixels=bendDirection*uRefraction*(.1+opticalThickness*.72);
-    vec2 bend=bendPixels/uCanvasSize;
-    vec2 uv=clamp(vScreenUv-bend,vec2(.002),vec2(.998));
-    vec2 redUv=clamp(vScreenUv-bend*1.09,vec2(.002),vec2(.998));
-    vec2 blueUv=clamp(vScreenUv-bend*.91,vec2(.002),vec2(.998));
+    float dispersion=uDispersionStrength*dispersionMask;
+    vec2 uv=vScreenUv-bend;
+    vec2 redUv=vScreenUv-bend*(1.0+dispersion);
+    vec2 blueUv=vScreenUv-bend*(1.0-dispersion);
     vec3 centerSample=sceneAt(uv);
     vec3 refracted=vec3(sceneAt(redUv).r,centerSample.g,sceneAt(blueUv).b);
     vec3 color=refracted;
@@ -393,47 +465,101 @@ export const glassFragmentShader = `
     vec3 keyDirection=normalize(vec3(uLightDirection,.72));
     vec3 halfVector=normalize(keyDirection+viewDirection);
     float directLight=max(dot(opticalNormal,keyDirection),0.0);
-    float directShade=max(dot(opticalNormal,-keyDirection),0.0);
-    float specular=pow(max(dot(opticalNormal,halfVector),0.0),96.0);
-    vec2 rimLightDirection=normalize(uLightDirection);
-    float topShoulder=rimCore*pow(max(edgeNormal.y,0.0),1.25);
-    topShoulder*=mix(1.0,.62,smoothstep(.08,.92,local.x));
-    float cornerShoulder=rimCore*pow(
-      max(dot(edgeNormal,rimLightDirection),0.0),
-      1.4
-    );
-    cornerShoulder*=smoothstep(.58,.9,local.y);
-    float upperLeftGlow=exp(-pow((local.x-.25)/.3,2.0))
-      *exp(-pow((local.y-.9)/.16,2.0));
-    upperLeftGlow*=smoothstep(.08,.78,rimCore);
-    float surfaceGloss=topShoulder*(.38+directLight*.26)
-      +cornerShoulder*.18
-      +upperLeftGlow*.18;
-    float cornerGlint=exp(-dot(local-vec2(.13,.87),local-vec2(.13,.87))/.0012);
-    float reflection=clamp(
-      fresnel*.46
-        +specular*(.2+uGlintStrength*.18)
-        +surfaceGloss
-        +cornerGlint*uCornerBoost*.12,
-      0.0,
-      .82
-    );
-    float spectralStrength=clamp(rimCore*.18+sideAmount*.09+fresnel*.07,0.0,.26);
-    color=mix(color,spectralColor,spectralStrength);
-    color=mix(color,vec3(1.0,.998,.99),reflection);
-    float lowerRightAbsorption=max(opticalNormal.x,0.0)*.16
-      +max(-opticalNormal.y,0.0)*.22;
-    color*=1.0-directShade*(rimProfile*.16+sideAmount*.18);
-    color*=1.0-lowerRightAbsorption*(rimProfile*.52+sideAmount*.32);
+    float normalHalf=max(dot(opticalNormal,halfVector),0.0);
+    float broadSpecular=pow(normalHalf,18.0);
+    float sharpSpecular=pow(normalHalf,150.0);
+    float upperLeftWeight=mix(1.0,.58,smoothstep(.06,.92,local.x));
+    float topHighlight=topSurface*upperLeftWeight;
+    float upperLeftCorner=leftSurface*smoothstep(.58,.94,local.y);
 
-    float alpha=.045
-      +rimProfile*.24
-      +sideAmount*.26
-      +fresnel*.34
-      +specular*.22
-      +surfaceGloss*.3;
-    alpha=clamp(alpha,0.0,.92);
-    gl_FragColor=vec4(color,alpha);
+    float absorptionAmount=clamp(
+      opticalPath*uAbsorptionStrength*(
+        .22+rightSurface*.5+bottomSurface*.72+sideMask*.16
+      ),
+      0.0,
+      .42
+    );
+    color*=mix(vec3(1.0),vec3(.84,.96,.985),absorptionAmount);
+    float sideShadow=rightSurface*(.13+sideMask*.11)
+      +bottomSurface*(.2+sideMask*.14)
+      +pow(grazing,2.2)*sideMask*.12;
+    color*=1.0-clamp(sideShadow,0.0,.4);
+
+    float spectralStrength=clamp(
+      dispersionMask*(shoulderMask*.1+sideMask*.16+bottomSurface*.08),
+      0.0,
+      .24
+    );
+    color=mix(color,spectralColor,spectralStrength);
+
+    vec3 topPanelRay=reflect(-viewDirection,opticalNormal);
+    float topFaceMask=clamp(
+      topHighlight*.9+upperLeftCorner*.22,
+      0.0,
+      1.0
+    );
+    float reflectionReach=uBackgroundReflectionRayDistance
+      *(.88+max(topPanelRay.y,0.0)*.12);
+    vec2 reflectedBackgroundUv=vec2(
+      vScreenUv.x+topPanelRay.x*reflectionReach*.18,
+      vScreenUv.y+reflectionReach
+    );
+    float reflectedBackgroundOutside=clamp(
+      step(reflectedBackgroundUv.x,0.0)
+        +step(1.0,reflectedBackgroundUv.x)
+        +step(reflectedBackgroundUv.y,0.0)
+        +step(1.0,reflectedBackgroundUv.y),
+      0.0,
+      1.0
+    );
+    vec4 reflectedBackgroundSample=texture2D(
+      uBackdrop,
+      clamp(reflectedBackgroundUv,vec2(.002),vec2(.998))
+    );
+    vec3 reflectedBackground=mix(
+      uBackgroundReflectionFallback,
+      reflectedBackgroundSample.rgb,
+      reflectedBackgroundSample.a
+    );
+    reflectedBackground=mix(
+      reflectedBackground,
+      uBackgroundReflectionFallback,
+      reflectedBackgroundOutside
+    );
+    float distanceToBand=max(uBandTopY-vScreenUv.y,0.0);
+    float reflectionBand=1.0-smoothstep(
+      reflectionReach*.7,
+      reflectionReach,
+      distanceToBand
+    );
+    float backgroundReflection=topFaceMask
+      *reflectionBand
+      *uBackgroundReflectionStrength;
+    color=mix(
+      color,
+      reflectedBackground,
+      clamp(backgroundReflection,0.0,.62)
+    );
+
+    float broadReflection=topHighlight*broadSpecular*(.22+directLight*.18)
+      +upperLeftCorner*broadSpecular*.14;
+    float sharpReflection=sharpSpecular*(
+      .18+uGlintStrength*.2
+    )*(shoulderMask+sideMask*.72);
+    float edgeReflection=pow(grazing,2.6)
+      *(shoulderMask*.07+sideMask*.13);
+    float reflection=clamp(
+      fresnel*(shoulderMask*.28+sideMask*.46)
+        +broadReflection
+        +sharpReflection
+        +edgeReflection,
+      0.0,
+      .72
+    );
+    color=mix(color,vec3(1.0,.998,.99),reflection);
+
+    gl_FragColor=vec4(clamp(color,vec3(0.0),vec3(1.0)),1.0);
+    #include <colorspace_fragment>
   }
 `;
 
@@ -476,6 +602,10 @@ export const seaGlassFragmentShader = `
   uniform float uRefraction;
   uniform vec2 uLightDirection;
   uniform float uGlintStrength;
+  uniform vec3 uBackgroundReflectionFallback;
+  uniform float uBandTopY;
+  uniform float uBackgroundReflectionStrength;
+  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vUv;
   varying vec2 vScreenUv;
   varying vec3 vViewNormal;
@@ -527,6 +657,60 @@ export const seaGlassFragmentShader = `
     float directionalLight=max(dot(normal.xy,lightDirection),0.0);
     float directionalShade=max(dot(normal.xy,-lightDirection),0.0);
     float fresnel=pow(1.0-facing,2.2);
+    vec3 topPanelRay=reflect(-viewDirection,normal);
+    float topFacing=smoothstep(.14,.68,normal.y);
+    float reflectionReach=uBackgroundReflectionRayDistance
+      *(.9+max(topPanelRay.y,0.0)*.1)
+      +microNoise*.008;
+    vec2 reflectedBackgroundUv=vec2(
+      vScreenUv.x
+        +topPanelRay.x*reflectionReach*.2
+        +microNoise*.006,
+      vScreenUv.y+reflectionReach
+    );
+    float reflectedBackgroundOutside=clamp(
+      step(reflectedBackgroundUv.x,0.0)
+        +step(1.0,reflectedBackgroundUv.x)
+        +step(reflectedBackgroundUv.y,0.0)
+        +step(1.0,reflectedBackgroundUv.y),
+      0.0,
+      1.0
+    );
+    vec2 reflectedSampleUv=clamp(
+      reflectedBackgroundUv,
+      vec2(.002),
+      vec2(.998)
+    );
+    vec4 reflectedSharpSample=texture2D(uBackdrop,reflectedSampleUv);
+    vec4 reflectedBlurredSample=texture2D(
+      uBackdropBlurred,
+      reflectedSampleUv
+    );
+    vec3 reflectedSharp=mix(
+      uBackgroundReflectionFallback,
+      reflectedSharpSample.rgb,
+      reflectedSharpSample.a
+    );
+    vec3 reflectedBlurred=mix(
+      uBackgroundReflectionFallback,
+      reflectedBlurredSample.rgb,
+      reflectedBlurredSample.a
+    );
+    vec3 reflectedBackground=mix(reflectedSharp,reflectedBlurred,.78);
+    reflectedBackground=mix(
+      reflectedBackground,
+      uBackgroundReflectionFallback,
+      reflectedBackgroundOutside
+    );
+    float distanceToBand=max(uBandTopY-vScreenUv.y,0.0);
+    float reflectionBand=1.0-smoothstep(
+      reflectionReach*.72,
+      reflectionReach,
+      distanceToBand
+    );
+    float backgroundReflection=topFacing
+      *reflectionBand
+      *uBackgroundReflectionStrength;
     float broadHighlight=smoothstep(.22,.9,fresnel)*(.12+uGlintStrength*.09);
     float faceIllumination=.02+directionalLight*.04;
     color=mix(
@@ -538,6 +722,11 @@ export const seaGlassFragmentShader = `
     upperGlow*=exp(-pow((vUv.x-.28)/.26,2.0));
     upperGlow*=smoothstep(.35,.88,facing);
     color=mix(color,vec3(1.0,.998,.99),upperGlow*.48);
+    color=mix(
+      color,
+      reflectedBackground,
+      clamp(backgroundReflection,0.0,.62)
+    );
     color*=1.0-directionalShade*fresnel*.025;
 
     gl_FragColor=vec4(color,1.0);
@@ -554,6 +743,10 @@ export const roughGlassFragmentShader = `
   uniform float uFloorY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
+  uniform vec3 uBackgroundReflectionFallback;
+  uniform float uBandTopY;
+  uniform float uBackgroundReflectionStrength;
+  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vUv;
   varying vec2 vScreenUv;
 
@@ -627,8 +820,71 @@ export const roughGlassFragmentShader = `
     float blueBackdrop=smoothstep(.06,.28,color.b-max(color.r,color.g));
     float cavityStrength=mix(.19,.3,blueBackdrop);
     color*=1.0-waveShadow*.16-cavityShadow*cavityStrength;
-    float whiteReflection=waveHighlight*.13+waveSpecular*.38+crestLight*.07;
-    color=mix(color,vec3(1.0,.998,.99),clamp(whiteReflection,0.0,.52));
+    float reflectionWaveA=sin(vUv.x*6.4+.35)*.018
+      +sin(vUv.x*13.5-.8)*.005;
+    float reflectionWaveB=sin(vUv.x*5.2-1.1)*.014
+      +sin(vUv.x*11.0+.5)*.004;
+    float reflectionWaveC=sin(vUv.x*7.1+1.4)*.01
+      +sin(vUv.x*15.0-.2)*.003;
+    float reflectionBandA=exp(-pow(
+      (vUv.y-(.93+reflectionWaveA))/.026,
+      2.0
+    ));
+    float reflectionBandB=exp(-pow(
+      (vUv.y-(.865+reflectionWaveB))/.019,
+      2.0
+    ));
+    float reflectionBandC=exp(-pow(
+      (vUv.y-(.81+reflectionWaveC))/.014,
+      2.0
+    ));
+    float roughReflectionBands=max(
+      reflectionBandA,
+      max(reflectionBandB*.72,reflectionBandC*.44)
+    );
+    roughReflectionBands*=smoothstep(.72,.82,vUv.y);
+    vec2 reflectedBackgroundUv=vec2(
+      vScreenUv.x+slope.x*.004,
+      uBandTopY+uBackgroundReflectionRayDistance*.08
+    );
+    float reflectedBackgroundOutside=clamp(
+      step(reflectedBackgroundUv.x,0.0)
+        +step(1.0,reflectedBackgroundUv.x)
+        +step(reflectedBackgroundUv.y,0.0)
+        +step(1.0,reflectedBackgroundUv.y),
+      0.0,
+      1.0
+    );
+    vec4 reflectedBackgroundSample=texture2D(
+      uBackdrop,
+      clamp(reflectedBackgroundUv,vec2(.002),vec2(.998))
+    );
+    vec3 reflectedBackground=mix(
+      uBackgroundReflectionFallback,
+      reflectedBackgroundSample.rgb,
+      reflectedBackgroundSample.a
+    );
+    reflectedBackground=mix(
+      reflectedBackground,
+      uBackgroundReflectionFallback,
+      reflectedBackgroundOutside
+    );
+    float roughBackgroundReflection=roughReflectionBands
+      *mix(.82,1.0,crestLight)
+      *uBackgroundReflectionStrength;
+    color=mix(
+      color,
+      reflectedBackground,
+      clamp(roughBackgroundReflection,0.0,.68)
+    );
+    float microSurfaceHighlight=waveHighlight*.028
+      +waveSpecular*.075
+      +crestLight*.016;
+    color=mix(
+      color,
+      vec3(1.0,.998,.99),
+      clamp(microSurfaceHighlight,0.0,.12)
+    );
     gl_FragColor=vec4(color,1.0);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
