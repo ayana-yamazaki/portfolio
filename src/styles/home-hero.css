@@ -589,7 +589,7 @@ body:has(.home-main) {
 /* Clear glass fallback — WebGL replaces it once the material renderer is ready. */
 .material-card--glass {
   --card-thickness: 24px;
-  --glass-radius: clamp(34px, 3.8vw, 54px);
+  --glass-radius: 64px;
   --card-edge: rgba(220, 242, 246, .42);
   --card-edge-dark: rgba(70, 102, 112, .34);
   transform: none;
@@ -730,7 +730,7 @@ body:has(.home-main) {
 .material-card--glass .material-card__surface::after {
   inset: clamp(8px, 1.2vw, 16px);
   border: 1px solid rgba(255, 255, 255, .34);
-  border-radius: calc(var(--glass-radius) - clamp(8px, 1.2vw, 16px));
+  border-radius: max(0px, calc(var(--glass-radius) - clamp(8px, 1.2vw, 16px)));
   box-shadow: 0 0 10px rgba(255, 255, 255, .12), inset 0 0 12px rgba(34, 76, 88, .08);
 }
 

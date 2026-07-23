@@ -10,7 +10,7 @@ export const materialProfiles: Record<MaterialKind, {
   paper: { radiusPx: 4, thicknessPx: 350 },
   'sea-glass': { radiusPx: 8, thicknessPx: 110 },
   'rough-glass': { radiusPx: 4, thicknessPx: gemThicknessPx },
-  glass: { radiusPx: 46, thicknessPx: 34 },
+  glass: { radiusPx: 64, thicknessPx: 80 },
 };
 
 export const sceneTuning = {
@@ -83,6 +83,52 @@ export const lightingTuning = {
   },
 } as const;
 
+type SimpleShadowProfile = {
+  scale: readonly [number, number];
+  offset: {
+    xRatio: number;
+    yRatio: number;
+  };
+  layers: {
+    soft: { blur: number; opacity: number; x: number; y: number };
+    middle: { blur: number; opacity: number; x: number; y: number };
+    contact: { blur: number; opacity: number; x: number; y: number };
+  };
+};
+
+export const simpleShadowProfiles: Record<
+  'sea-glass' | 'rough-glass' | 'glass',
+  SimpleShadowProfile
+> = {
+  'sea-glass': {
+    scale: [1.3, 1.18],
+    offset: { xRatio: .03, yRatio: -.01 },
+    layers: {
+      soft: { blur: 28, opacity: .12, x: 34, y: 27 },
+      middle: { blur: 9, opacity: .19, x: 19, y: 14 },
+      contact: { blur: .45, opacity: .24, x: 4, y: 3 },
+    },
+  },
+  'rough-glass': {
+    scale: [1.3, 1.18],
+    offset: { xRatio: .032, yRatio: -.012 },
+    layers: {
+      soft: { blur: 32, opacity: .14, x: 38, y: 29 },
+      middle: { blur: 10, opacity: .22, x: 23, y: 17 },
+      contact: { blur: .45, opacity: .28, x: 4, y: 3 },
+    },
+  },
+  glass: {
+    scale: [1.3, 1.18],
+    offset: { xRatio: .026, yRatio: -.008 },
+    layers: {
+      soft: { blur: 24, opacity: .1, x: 30, y: 22 },
+      middle: { blur: 7, opacity: .16, x: 17, y: 12 },
+      contact: { blur: .4, opacity: .2, x: 3, y: 2 },
+    },
+  },
+};
+
 export const glintProfiles = {
   gem: {
     roughness: 0.025,
@@ -96,8 +142,6 @@ export const glintProfiles = {
   },
   glass: {
     strength: 1.9,
-    edgeWidthPx: 9,
-    faceBandWidth: 0.075,
     cornerBoost: 1.2,
   },
 } as const;
@@ -112,7 +156,7 @@ export const gemTuning = {
 } as const;
 
 export const glassTuning = {
-  rimWidthPx: 24,
+  rimWidthPx: 12,
   refractionPx: 48,
 } as const;
 

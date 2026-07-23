@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 const makeRoundedShape = (width: number, height: number, radius: number) => {
   const halfWidth = width / 2;
@@ -35,7 +36,7 @@ const makeGemShape = (width: number, height: number) => new THREE.Shape(
   makeGemPoints(width, height),
 );
 
-const makeSeaGlassOutline = (width: number, height: number, segments = 96) => {
+export const makeSeaGlassOutline = (width: number, height: number, segments = 96) => {
   const points = makeGemPoints(width, height);
   const wear = Math.min(width, height);
   const cornerRadii = [.16, .13, .18, .15, .2, .13, .17].map((ratio) => wear * ratio);
@@ -97,6 +98,38 @@ export const makePanelGeometry = (width: number, height: number, depth: number, 
   }
 
   return geometry;
+};
+
+export const makeGlassPanelGeometry = (
+  width: number,
+  height: number,
+  depth: number,
+  radius: number,
+) => {
+  const shoulder = Math.min(depth * .22, radius * .24);
+  const bodyDepth = Math.max(depth - shoulder * 2, depth * .2);
+  const shapeWidth = Math.max(width - shoulder * 2, shoulder * 2);
+  const shapeHeight = Math.max(height - shoulder * 2, shoulder * 2);
+  const shapeRadius = Math.max(radius - shoulder, 0);
+  const geometry = new THREE.ExtrudeGeometry(
+    makeRoundedShape(shapeWidth, shapeHeight, shapeRadius),
+    {
+      depth: bodyDepth,
+      steps: 1,
+      curveSegments: 40,
+      bevelEnabled: true,
+      bevelSegments: 24,
+      bevelSize: shoulder,
+      bevelThickness: shoulder,
+    },
+  );
+  geometry.translate(0, 0, -bodyDepth / 2);
+  geometry.deleteAttribute('normal');
+  geometry.deleteAttribute('uv');
+  const smoothedGeometry = mergeVertices(geometry, 1e-5);
+  geometry.dispose();
+  smoothedGeometry.computeVertexNormals();
+  return smoothedGeometry;
 };
 
 export const makeGemGeometry = (width: number, height: number, depth: number) => {

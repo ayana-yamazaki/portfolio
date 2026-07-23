@@ -19,12 +19,15 @@ import {
   roughGlassVertexShader,
 } from './shaders';
 
-const createGlintUniforms = (strength: number) => ({
+const createGlintUniforms = (
+  strength: number,
+  lightDirection = new THREE.Vector2(
+    lightingTuning.key.position[0],
+    lightingTuning.key.position[1],
+  ).normalize(),
+) => ({
   uLightDirection: {
-    value: new THREE.Vector2(
-      lightingTuning.key.position[0],
-      lightingTuning.key.position[1],
-    ).normalize(),
+    value: lightDirection,
   },
   uGlintStrength: { value: strength * lightingTuning.glint.strength },
 });
@@ -80,15 +83,16 @@ export const createGlassMaterial = (
     uFloorY: { value: 0.1 },
     uWallColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
     uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
-    ...createGlintUniforms(glintProfiles.glass.strength),
-    uEdgeGlintWidth: { value: glintProfiles.glass.edgeWidthPx },
-    uFaceBandWidth: { value: glintProfiles.glass.faceBandWidth },
+    ...createGlintUniforms(
+      glintProfiles.glass.strength,
+      new THREE.Vector2(-.72, 1).normalize(),
+    ),
     uCornerBoost: { value: glintProfiles.glass.cornerBoost },
   },
   vertexShader: glassVertexShader,
   fragmentShader: glassFragmentShader,
   transparent: true,
-  depthWrite: false,
+  depthWrite: true,
   toneMapped: false,
 });
 
@@ -193,22 +197,6 @@ export const createSideMaterials = (gemMaterial: THREE.Material) => ({
     envMapIntensity: 0.7,
     transparent: true,
     opacity: 0.38,
-    depthWrite: false,
-  }),
-  glass: new THREE.MeshPhysicalMaterial({
-    color: 0xe8fbff,
-    roughness: 0.025,
-    metalness: 0,
-    transmission: 0.96,
-    thickness: 0.58,
-    ior: 1.47,
-    clearcoat: 1,
-    clearcoatRoughness: 0.035,
-    envMapIntensity: 1.35,
-    attenuationColor: new THREE.Color(0xbcecf3),
-    attenuationDistance: 2.4,
-    transparent: true,
-    opacity: 0.92,
     depthWrite: false,
   }),
 });

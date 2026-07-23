@@ -1,5 +1,11 @@
 import * as THREE from 'three';
-import { lightingTuning, type MaterialKind } from './config';
+import {
+  lightingTuning,
+  materialProfiles,
+  simpleShadowProfiles,
+  type MaterialKind,
+} from './config';
+import { makeSeaGlassOutline } from './geometry';
 
 const hashGrid = (x: number, y: number, seed: number) => {
   let value = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(seed, 69069);
@@ -213,7 +219,19 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     const width = 384;
     const height = 640;
     context.beginPath();
-    if (kind === 'gem' || kind === 'sea-glass') {
+    if (kind === 'sea-glass') {
+      const points = makeSeaGlassOutline(width, height);
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
+      context.moveTo(centerX + points[0].x, centerY - points[0].y);
+      points.slice(1).forEach((point) => {
+        context.lineTo(centerX + point.x, centerY - point.y);
+      });
+      context.closePath();
+      return;
+    }
+
+    if (kind === 'gem') {
       const points = [
         { x: left + width * .24, y: top },
         { x: left + width * .86, y: top + height * .05 },
@@ -223,40 +241,15 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
         { x: left + width * .06, y: top + height * .92 },
         { x: left, y: top + height * .23 },
       ];
-      if (kind === 'gem') {
-        context.moveTo(points[0].x, points[0].y);
-        points.slice(1).forEach((point) => context.lineTo(point.x, point.y));
-      } else {
-        const radii = [44, 36, 48, 38, 52, 37, 46];
-        const entries = points.map((point, index) => {
-          const previous = points[(index - 1 + points.length) % points.length];
-          const distance = Math.hypot(previous.x - point.x, previous.y - point.y);
-          const ratio = Math.min(.38, radii[index] / distance);
-          return {
-            x: point.x + (previous.x - point.x) * ratio,
-            y: point.y + (previous.y - point.y) * ratio,
-          };
-        });
-        const exits = points.map((point, index) => {
-          const next = points[(index + 1) % points.length];
-          const distance = Math.hypot(next.x - point.x, next.y - point.y);
-          const ratio = Math.min(.38, radii[index] / distance);
-          return {
-            x: point.x + (next.x - point.x) * ratio,
-            y: point.y + (next.y - point.y) * ratio,
-          };
-        });
-        context.moveTo(entries[0].x, entries[0].y);
-        points.forEach((point, index) => {
-          context.lineTo(entries[index].x, entries[index].y);
-          context.quadraticCurveTo(point.x, point.y, exits[index].x, exits[index].y);
-        });
-      }
+      context.moveTo(points[0].x, points[0].y);
+      points.slice(1).forEach((point) => context.lineTo(point.x, point.y));
       context.closePath();
       return;
     }
 
-    const radius = kind === 'glass' ? 38 : kind === 'rough-glass' ? 14 : 22;
+    const radius = kind === 'glass' || kind === 'rough-glass'
+      ? materialProfiles[kind].radiusPx
+      : 22;
     context.roundRect(left, top, width, height, radius);
   };
 
@@ -269,11 +262,18 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
   ) => {
     context.save();
     context.filter = `blur(${blur}px)`;
-    context.fillStyle = `rgba(24, 28, 27, ${opacity})`;
+    const neutralBlack = kind === 'sea-glass'
+      || kind === 'rough-glass'
+      || kind === 'glass';
+    context.fillStyle = neutralBlack
+      ? `rgba(0, 0, 0, ${opacity})`
+      : `rgba(24, 28, 27, ${opacity})`;
     traceCardShape(offsetX, offsetY);
     context.fill();
     if (strokeWidth > 0) {
-      context.strokeStyle = `rgba(18, 22, 21, ${Math.min(.72, opacity * 1.7)})`;
+      context.strokeStyle = neutralBlack
+        ? `rgba(0, 0, 0, ${Math.min(.72, opacity * 1.7)})`
+        : `rgba(18, 22, 21, ${Math.min(.72, opacity * 1.7)})`;
       context.lineWidth = strokeWidth;
       context.stroke();
     }
@@ -284,22 +284,53 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     drawLayer(34, .105, 54, 42);
     drawLayer(11, .175, 31, 24);
     drawLayer(1.2, .098, 11, 8, 1.2);
-  } else if (kind === 'glass') {
-    context.save();
-    context.filter = 'blur(12px)';
-    context.strokeStyle = 'rgba(20, 28, 30, .16)';
-    context.lineWidth = 10;
-    traceCardShape(6, 8);
-    context.stroke();
-    context.restore();
-
-    context.save();
-    context.filter = 'blur(2px)';
-    context.strokeStyle = 'rgba(28, 36, 38, .1)';
-    context.lineWidth = 3;
-    traceCardShape(2, 3);
-    context.stroke();
-    context.restore();
+  } else if (
+    kind === 'sea-glass'
+    || kind === 'rough-glass'
+    || kind === 'glass'
+  ) {
+    const profile = simpleShadowProfiles[kind];
+    drawLayer(
+      profile.layers.soft.blur,
+      profile.layers.soft.opacity,
+      profile.layers.soft.x,
+      profile.layers.soft.y,
+    );
+    drawLayer(
+      profile.layers.middle.blur,
+      profile.layers.middle.opacity,
+      profile.layers.middle.x,
+      profile.layers.middle.y,
+    );
+    drawLayer(
+      profile.layers.contact.blur,
+      profile.layers.contact.opacity,
+      profile.layers.contact.x,
+      profile.layers.contact.y,
+    );
+    if (kind === 'glass') {
+      const cutoutWidth = source.width / profile.scale[0] + 6;
+      const cutoutHeight = source.height / profile.scale[1] + 6;
+      const cutoutCenterX = source.width * (
+        .5 - profile.offset.xRatio / profile.scale[0]
+      );
+      const cutoutCenterY = source.height * (
+        .5 + profile.offset.yRatio / profile.scale[1]
+      );
+      context.save();
+      context.globalCompositeOperation = 'destination-out';
+      context.fillStyle = '#000';
+      context.beginPath();
+      context.roundRect(
+        cutoutCenterX - cutoutWidth / 2,
+        cutoutCenterY - cutoutHeight / 2,
+        cutoutWidth,
+        cutoutHeight,
+        materialProfiles.glass.radiusPx + 4,
+      );
+      context.fill();
+      context.restore();
+    }
   } else {
     drawLayer(
       28,
@@ -380,61 +411,76 @@ export const makeGemFloorCausticTexture = () => {
     { points: [[236, 522], [246, 518], [356, 690]], color: 'rgba(248, 252, 255, .24)', blur: .5 },
   ];
   scatteredFacets.forEach(({ points, color, blur }) => {
-    traceFacet(points, 'rgba(220, 240, 255, .08)', 7);
-    traceFacet(points, color, blur);
+    const anchor: [number, number] = [250, 500];
+    const compactPoints = points.map(([x, y]) => [
+      anchor[0] + (x - anchor[0]) * .58 + 42,
+      anchor[1] + (y - anchor[1]) * .58 + 12,
+    ] as [number, number]);
+    traceFacet(compactPoints, 'rgba(220, 240, 255, .08)', 5);
+    traceFacet(compactPoints, color, blur * .72);
   });
 
-  const prismRays: Array<{
+  const texture = new THREE.CanvasTexture(source);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  return texture;
+};
+
+export const makeGemPrismTexture = () => {
+  const source = document.createElement('canvas');
+  source.width = 512;
+  source.height = 768;
+  const context = source.getContext('2d');
+  if (!context) throw new Error('Unable to create gem prism light');
+
+  const rays = [
+    { points: [[92, 191], [99, 187], [354, 666]], color: 'rgba(70, 164, 255, .94)' },
+    { points: [[96, 189], [103, 187], [386, 654]], color: 'rgba(72, 255, 174, .94)' },
+    { points: [[100, 188], [107, 189], [418, 638]], color: 'rgba(255, 240, 62, .96)' },
+    { points: [[104, 189], [111, 192], [450, 614]], color: 'rgba(255, 118, 56, .94)' },
+    { points: [[108, 191], [115, 195], [480, 586]], color: 'rgba(255, 68, 164, .92)' },
+  ] satisfies Array<{
     points: Array<[number, number]>;
-    glow: string;
-    core: string;
-  }> = [
-    {
-      points: [[300, 438], [314, 432], [402, 640]],
-      glow: 'rgba(80, 174, 255, .18)',
-      core: 'rgba(80, 174, 255, .78)',
-    },
-    {
-      points: [[312, 432], [326, 432], [422, 642]],
-      glow: 'rgba(88, 255, 184, .18)',
-      core: 'rgba(88, 255, 184, .78)',
-    },
-    {
-      points: [[324, 432], [338, 436], [442, 638]],
-      glow: 'rgba(255, 244, 82, .2)',
-      core: 'rgba(255, 244, 82, .84)',
-    },
-    {
-      points: [[336, 436], [350, 442], [462, 628]],
-      glow: 'rgba(255, 132, 72, .18)',
-      core: 'rgba(255, 132, 72, .78)',
-    },
-    {
-      points: [[348, 442], [362, 450], [480, 616]],
-      glow: 'rgba(255, 82, 174, .18)',
-      core: 'rgba(255, 82, 174, .76)',
-    },
+    color: string;
+  }>;
+
+  const trace = (
+    points: Array<[number, number]>,
+    color: string,
+    blur: number,
+  ) => {
+    context.save();
+    context.filter = `blur(${blur}px)`;
+    context.fillStyle = color;
+    context.beginPath();
+    context.moveTo(...points[0]);
+    points.slice(1).forEach((point) => context.lineTo(...point));
+    context.closePath();
+    context.fill();
+    context.restore();
+  };
+  const interpolate = (
+    from: [number, number],
+    to: [number, number],
+    amount: number,
+  ): [number, number] => [
+    from[0] + (to[0] - from[0]) * amount,
+    from[1] + (to[1] - from[1]) * amount,
   ];
-  prismRays.forEach(({ points, glow, core }) => {
+
+  rays.forEach(({ points, color }) => {
     const [startA, startB, tip] = points;
     const origin: [number, number] = [
       (startA[0] + startB[0]) * .5,
       (startA[1] + startB[1]) * .5,
     ];
-    const interpolate = (
-      from: [number, number],
-      to: [number, number],
-      amount: number,
-    ): [number, number] => [
-      from[0] + (to[0] - from[0]) * amount,
-      from[1] + (to[1] - from[1]) * amount,
-    ];
-    const sharpTip = interpolate(origin, tip, .58);
-    const tailStartA = interpolate(startA, tip, .38);
-    const tailStartB = interpolate(startB, tip, .38);
-    traceFacet(points, glow, 10);
-    traceFacet([tailStartA, tailStartB, tip], core, 6);
-    traceFacet([startA, startB, sharpTip], core, .65);
+    const sharpTip = interpolate(origin, tip, .52);
+    const tailStartA = interpolate(startA, tip, .34);
+    const tailStartB = interpolate(startB, tip, .34);
+    trace(points, color, 12);
+    trace([tailStartA, tailStartB, tip], color, 7);
+    trace([startA, startB, sharpTip], color, .7);
   });
 
   const texture = new THREE.CanvasTexture(source);
