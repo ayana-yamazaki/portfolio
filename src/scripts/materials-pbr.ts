@@ -29,6 +29,7 @@ import {
   RenderDirtyFlag,
   type RenderDirtyFlags,
 } from './materials/engine/dirty-state';
+import { scheduleIdleWork } from './materials/engine/idle-work';
 import {
   createMotionCache,
   type MotionCache,
@@ -84,6 +85,7 @@ if (canvas && cases && hero) {
   let renderer: THREE.WebGLRenderer | undefined;
   let renderHarness: RenderHarness | undefined;
   let motionCache: MotionCache | undefined;
+  let cancelMotionCacheWarm: (() => void) | undefined;
   let scene: THREE.Scene | undefined;
   let environmentTarget: THREE.WebGLRenderTarget | undefined;
   let gemEnvironmentTarget: THREE.WebGLCubeRenderTarget | undefined;
@@ -97,6 +99,8 @@ if (canvas && cases && hero) {
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
+    cancelMotionCacheWarm?.();
+    cancelMotionCacheWarm = undefined;
     motionCache?.dispose();
     renderHarness?.dispose();
     eventController.abort();
@@ -262,6 +266,8 @@ if (canvas && cases && hero) {
     };
 
     const markLayoutDirty = () => {
+      cancelMotionCacheWarm?.();
+      cancelMotionCacheWarm = undefined;
       invalidate(
         RenderDirtyFlag.layout
         | RenderDirtyFlag.backdrop
@@ -605,6 +611,7 @@ if (canvas && cases && hero) {
       renderer,
       scene,
       camera,
+      samples: sceneTuning.motionCacheSamples,
       items: cardStates.map(({ kind, renderables }) => ({
         id: kind,
         renderables,
@@ -904,6 +911,31 @@ if (canvas && cases && hero) {
       const rects = cardStates.map(({ element }) => (
         element.querySelector<HTMLElement>('.material-card')?.getBoundingClientRect()
       ));
+      rects.forEach((rect, index) => {
+        const state = cardStates[index];
+        if (!rect || !state) return;
+        const padding = sceneTuning.motionCachePaddingPx;
+        const left = Math.max(0, Math.floor(
+          (rect.left - canvasRect.left - padding) * pixelRatio,
+        ));
+        const top = Math.max(0, Math.floor(
+          (rect.top - canvasRect.top - padding) * pixelRatio,
+        ));
+        const right = Math.min(
+          Math.round(canvasRect.width * pixelRatio),
+          Math.ceil((rect.right - canvasRect.left + padding) * pixelRatio),
+        );
+        const bottom = Math.min(
+          Math.round(canvasRect.height * pixelRatio),
+          Math.ceil((rect.bottom - canvasRect.top + padding) * pixelRatio),
+        );
+        motionCache?.setItemBounds(state.kind, {
+          x: left,
+          y: top,
+          width: right - left,
+          height: bottom - top,
+        });
+      });
       const floorY = rects[0]
         ? rects[0].top + rects[0].height * 0.9 - heroRect.top
         : 0;
@@ -1111,6 +1143,34 @@ if (canvas && cases && hero) {
       return isAnimating;
     };
 
+    const scheduleMotionCacheWarm = () => {
+      if (
+        disposed
+        || !isVisible
+        || cancelMotionCacheWarm
+        || !motionCache?.needsPreparation()
+      ) {
+        return;
+      }
+
+      const warm = () => {
+        cancelMotionCacheWarm = undefined;
+        if (
+          disposed
+          || !isVisible
+          || dirty.has(RenderDirtyFlag.layout)
+          || cardStates.some(({ liftPx, liftToPx }) => (
+            Math.abs(liftPx) > 0.01 || Math.abs(liftToPx) > 0.01
+          ))
+        ) {
+          return;
+        }
+        motionCache?.prepare();
+      };
+
+      cancelMotionCacheWarm = scheduleIdleWork(warm);
+    };
+
     renderFrame = () => {
       if (disposed || !textureReady || !isVisible || !renderer || !scene) return;
       if (dirty.has(RenderDirtyFlag.layout) && syncLayout()) {
@@ -1141,6 +1201,7 @@ if (canvas && cases && hero) {
       if (liftAnimating && renderHarness?.allowNextAnimationFrame()) {
         invalidate(RenderDirtyFlag.transform);
       }
+      if (dynamicIds.size === 0) scheduleMotionCacheWarm();
     };
 
     markTextureReady();

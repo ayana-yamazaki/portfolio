@@ -5,11 +5,25 @@ export type MotionCacheItem = {
   renderables: THREE.Object3D[];
 };
 
+type MotionCacheBounds = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type MotionCacheOptions = {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.Camera;
   items: MotionCacheItem[];
+  samples?: number;
+};
+
+type CachedLayer = {
+  texture: THREE.FramebufferTexture;
+  material: THREE.MeshBasicMaterial;
+  mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
 };
 
 export const createMotionCache = ({
@@ -17,82 +31,195 @@ export const createMotionCache = ({
   scene,
   camera,
   items,
+  samples = 2,
 }: MotionCacheOptions) => {
-  const target = new THREE.WebGLRenderTarget(1, 1, {
-    format: THREE.RGBAFormat,
-    type: THREE.UnsignedByteType,
-    minFilter: THREE.LinearFilter,
-    magFilter: THREE.LinearFilter,
-    depthBuffer: true,
-    stencilBuffer: false,
-  });
-  target.texture.colorSpace = THREE.SRGBColorSpace;
-  target.texture.generateMipmaps = false;
-  target.samples = 4;
-
   const compositeScene = new THREE.Scene();
-  const compositeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
+  const compositeCamera = new THREE.OrthographicCamera(0, 1, 1, 0, 0, 2);
   compositeCamera.position.z = 1;
-  const compositeGeometry = new THREE.PlaneGeometry(2, 2);
-  const compositeMaterial = new THREE.MeshBasicMaterial({
-    map: target.texture,
-    transparent: true,
-    depthTest: false,
-    depthWrite: false,
-    toneMapped: false,
-  });
-  const composite = new THREE.Mesh(compositeGeometry, compositeMaterial);
-  composite.frustumCulled = false;
-  compositeScene.add(composite);
 
+  const itemBounds = new Map<string, MotionCacheBounds>();
+  const layers = new Map<string, CachedLayer>();
+  let width = 1;
+  let height = 1;
   let cacheDirty = true;
-  let dynamicSignature = '';
+  let cacheReady = false;
 
-  const setVisibility = (visibleIds?: Set<string>) => {
+  const setVisibility = (visibleIds: Set<string>) => {
     items.forEach((item) => {
-      const visible = visibleIds ? visibleIds.has(item.id) : true;
+      const visible = visibleIds.has(item.id);
       item.renderables.forEach((object) => {
         object.visible = visible;
       });
     });
   };
 
-  const resize = (width: number, height: number) => {
-    const nextWidth = Math.max(1, Math.round(width));
-    const nextHeight = Math.max(1, Math.round(height));
-    if (target.width === nextWidth && target.height === nextHeight) return;
-    target.setSize(nextWidth, nextHeight);
+  const showAllItems = () => {
+    items.forEach((item) => {
+      item.renderables.forEach((object) => {
+        object.visible = true;
+      });
+    });
+  };
+
+  const disposeLayers = () => {
+    layers.forEach(({ texture, material, mesh }) => {
+      compositeScene.remove(mesh);
+      mesh.geometry.dispose();
+      texture.dispose();
+      material.dispose();
+    });
+    layers.clear();
+  };
+
+  const markDirty = () => {
     cacheDirty = true;
+    cacheReady = false;
+    disposeLayers();
+  };
+
+  const resize = (nextWidth: number, nextHeight: number) => {
+    const resolvedWidth = Math.max(1, Math.round(nextWidth));
+    const resolvedHeight = Math.max(1, Math.round(nextHeight));
+    if (width === resolvedWidth && height === resolvedHeight) return;
+    width = resolvedWidth;
+    height = resolvedHeight;
+    compositeCamera.right = width;
+    compositeCamera.top = height;
+    compositeCamera.updateProjectionMatrix();
+    markDirty();
+  };
+
+  const setItemBounds = (id: string, bounds: MotionCacheBounds) => {
+    const nextBounds = {
+      x: Math.max(0, Math.round(bounds.x)),
+      y: Math.max(0, Math.round(bounds.y)),
+      width: Math.max(1, Math.round(bounds.width)),
+      height: Math.max(1, Math.round(bounds.height)),
+    };
+    const previous = itemBounds.get(id);
+    if (
+      previous
+      && previous.x === nextBounds.x
+      && previous.y === nextBounds.y
+      && previous.width === nextBounds.width
+      && previous.height === nextBounds.height
+    ) {
+      return;
+    }
+    itemBounds.set(id, nextBounds);
+    markDirty();
   };
 
   const invalidate = () => {
-    cacheDirty = true;
+    markDirty();
   };
 
-  const renderStaticCards = (dynamicIds: Set<string>) => {
-    const staticIds = new Set(
-      items
-        .filter(({ id }) => !dynamicIds.has(id))
-        .map(({ id }) => id),
+  const createLayer = (
+    id: string,
+    bounds: MotionCacheBounds,
+    scratchTexture: THREE.Texture,
+  ) => {
+    const texture = new THREE.FramebufferTexture(bounds.width, bounds.height);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+    texture.flipY = false;
+
+    const sourceBottom = height - bounds.y - bounds.height;
+    const sourceRegion = new THREE.Box2(
+      new THREE.Vector2(bounds.x, sourceBottom),
+      new THREE.Vector2(bounds.x + bounds.width, sourceBottom + bounds.height),
     );
-    setVisibility(staticIds);
-    renderer.setRenderTarget(target);
-    renderer.setClearColor(0x000000, 0);
-    renderer.clear(true, true, true);
-    renderer.render(scene, camera);
-    setVisibility();
-    renderer.setRenderTarget(null);
-    cacheDirty = false;
+    renderer.copyTextureToTexture(
+      scratchTexture,
+      texture,
+      sourceRegion,
+      new THREE.Vector2(0, 0),
+    );
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(bounds.width, bounds.height),
+      material,
+    );
+    mesh.position.set(
+      bounds.x + bounds.width / 2,
+      height - bounds.y - bounds.height / 2,
+      0,
+    );
+    mesh.frustumCulled = false;
+    compositeScene.add(mesh);
+    layers.set(id, { texture, material, mesh });
+  };
+
+  const prepare = () => {
+    if (!cacheDirty && cacheReady) return true;
+    if (items.some(({ id }) => !itemBounds.has(id))) return false;
+
+    disposeLayers();
+    const scratch = new THREE.WebGLRenderTarget(width, height, {
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      depthBuffer: true,
+      stencilBuffer: false,
+    });
+    scratch.texture.colorSpace = THREE.SRGBColorSpace;
+    scratch.texture.generateMipmaps = false;
+    scratch.samples = Math.min(samples, renderer.capabilities.maxSamples);
+
+    const previousTarget = renderer.getRenderTarget();
+    const previousViewport = renderer.getViewport(new THREE.Vector4());
+    const previousScissor = renderer.getScissor(new THREE.Vector4());
+    const previousScissorTest = renderer.getScissorTest();
+    const previousClearColor = renderer.getClearColor(new THREE.Color()).clone();
+    const previousClearAlpha = renderer.getClearAlpha();
+    const previousAutoClear = renderer.autoClear;
+
+    try {
+      renderer.autoClear = false;
+      renderer.setRenderTarget(scratch);
+
+      items.forEach((item) => {
+        const bounds = itemBounds.get(item.id);
+        if (!bounds) return;
+        setVisibility(new Set([item.id]));
+        renderer.setRenderTarget(scratch);
+        renderer.setClearColor(0x000000, 0);
+        renderer.clear(true, true, true);
+        renderer.render(scene, camera);
+        createLayer(item.id, bounds, scratch.texture);
+      });
+
+      cacheDirty = false;
+      cacheReady = layers.size === items.length;
+      return cacheReady;
+    } finally {
+      showAllItems();
+      renderer.setRenderTarget(previousTarget);
+      renderer.setViewport(previousViewport);
+      renderer.setScissor(previousScissor);
+      renderer.setScissorTest(previousScissorTest);
+      renderer.setClearColor(previousClearColor, previousClearAlpha);
+      renderer.autoClear = previousAutoClear;
+      scratch.dispose();
+    }
   };
 
   const render = (dynamicIds: Set<string>) => {
-    if (dynamicIds.size === 0) return false;
-    const nextSignature = [...dynamicIds].sort().join('|');
-    if (nextSignature !== dynamicSignature) {
-      dynamicSignature = nextSignature;
-      cacheDirty = true;
-    }
-    if (cacheDirty) renderStaticCards(dynamicIds);
+    if (dynamicIds.size === 0 || !cacheReady) return false;
+
+    layers.forEach(({ mesh }, id) => {
+      mesh.visible = !dynamicIds.has(id);
+    });
 
     const previousAutoClear = renderer.autoClear;
     renderer.autoClear = false;
@@ -103,28 +230,28 @@ export const createMotionCache = ({
     renderer.clearDepth();
     setVisibility(dynamicIds);
     renderer.render(scene, camera);
-    setVisibility();
+    showAllItems();
     renderer.autoClear = previousAutoClear;
     return true;
   };
 
   const reset = () => {
-    dynamicSignature = '';
-    cacheDirty = true;
-    setVisibility();
+    markDirty();
+    showAllItems();
   };
 
   const dispose = () => {
-    setVisibility();
-    target.dispose();
-    compositeGeometry.dispose();
-    compositeMaterial.dispose();
+    showAllItems();
+    disposeLayers();
     compositeScene.clear();
   };
 
   return {
     resize,
+    setItemBounds,
     invalidate,
+    needsPreparation: () => cacheDirty || !cacheReady,
+    prepare,
     render,
     reset,
     dispose,
