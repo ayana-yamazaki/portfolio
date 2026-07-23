@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import type { WebGLRenderer } from 'three';
 
 export type RenderDiagnostics = {
   scheduledFrames: number;
@@ -16,7 +16,7 @@ export type RenderDiagnostics = {
 
 type HarnessOptions = {
   canvas: HTMLCanvasElement;
-  renderer: THREE.WebGLRenderer;
+  renderer: WebGLRenderer;
   maxPixelRatio: number;
   maxPixelCount: number;
   maxContinuousFrames: number;

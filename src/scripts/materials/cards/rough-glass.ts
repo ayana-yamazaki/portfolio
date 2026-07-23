@@ -1,7 +1,7 @@
-import { makeRoughGlassGeometry } from '../geometry';
-import type { CardDefinition } from './types';
+import { makeRoughGlassGeometry } from '../geometry?card=rough-glass';
+import type { PreparedCardDefinition } from './types';
 
-export const roughGlassCardDefinition: CardDefinition = {
+export const roughGlassCardDefinition: PreparedCardDefinition = {
   kind: 'rough-glass',
   meshMaterial: 'body',
   surface: 'rough-glass',

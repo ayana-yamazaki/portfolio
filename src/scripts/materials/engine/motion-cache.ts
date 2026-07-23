@@ -1,8 +1,28 @@
-import * as THREE from 'three';
+import {
+  Box2,
+  Color,
+  FramebufferTexture,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  OrthographicCamera,
+  PlaneGeometry,
+  RGBAFormat,
+  SRGBColorSpace,
+  Scene,
+  UnsignedByteType,
+  Vector2,
+  Vector4,
+  WebGLRenderTarget,
+  type Camera,
+  type Object3D,
+  type Texture,
+  type WebGLRenderer,
+} from 'three';
 
 export type MotionCacheItem = {
   id: string;
-  renderables: THREE.Object3D[];
+  renderables: Object3D[];
   cacheable?: boolean;
 };
 
@@ -14,17 +34,17 @@ type MotionCacheBounds = {
 };
 
 type MotionCacheOptions = {
-  renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  camera: THREE.Camera;
+  renderer: WebGLRenderer;
+  scene: Scene;
+  camera: Camera;
   items: MotionCacheItem[];
   samples?: number;
 };
 
 type CachedLayer = {
-  texture: THREE.FramebufferTexture;
-  material: THREE.MeshBasicMaterial;
-  mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
+  texture: FramebufferTexture;
+  material: MeshBasicMaterial;
+  mesh: Mesh<PlaneGeometry, MeshBasicMaterial>;
 };
 
 export const createMotionCache = ({
@@ -34,8 +54,8 @@ export const createMotionCache = ({
   items,
   samples = 2,
 }: MotionCacheOptions) => {
-  const compositeScene = new THREE.Scene();
-  const compositeCamera = new THREE.OrthographicCamera(0, 1, 1, 0, 0, 2);
+  const compositeScene = new Scene();
+  const compositeCamera = new OrthographicCamera(0, 1, 1, 0, 0, 2);
   compositeCamera.position.z = 1;
 
   const cachedItems = items.filter(({ cacheable }) => cacheable !== false);
@@ -124,36 +144,36 @@ export const createMotionCache = ({
   const createLayer = (
     id: string,
     bounds: MotionCacheBounds,
-    scratchTexture: THREE.Texture,
+    scratchTexture: Texture,
   ) => {
-    const texture = new THREE.FramebufferTexture(bounds.width, bounds.height);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
+    const texture = new FramebufferTexture(bounds.width, bounds.height);
+    texture.colorSpace = SRGBColorSpace;
+    texture.minFilter = LinearFilter;
+    texture.magFilter = LinearFilter;
     texture.generateMipmaps = false;
     texture.flipY = false;
 
     const sourceBottom = height - bounds.y - bounds.height;
-    const sourceRegion = new THREE.Box2(
-      new THREE.Vector2(bounds.x, sourceBottom),
-      new THREE.Vector2(bounds.x + bounds.width, sourceBottom + bounds.height),
+    const sourceRegion = new Box2(
+      new Vector2(bounds.x, sourceBottom),
+      new Vector2(bounds.x + bounds.width, sourceBottom + bounds.height),
     );
     renderer.copyTextureToTexture(
       scratchTexture,
       texture,
       sourceRegion,
-      new THREE.Vector2(0, 0),
+      new Vector2(0, 0),
     );
 
-    const material = new THREE.MeshBasicMaterial({
+    const material = new MeshBasicMaterial({
       map: texture,
       transparent: true,
       depthTest: false,
       depthWrite: false,
       toneMapped: false,
     });
-    const mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(bounds.width, bounds.height),
+    const mesh = new Mesh(
+      new PlaneGeometry(bounds.width, bounds.height),
       material,
     );
     mesh.position.set(
@@ -171,23 +191,23 @@ export const createMotionCache = ({
     if (cachedItems.some(({ id }) => !itemBounds.has(id))) return false;
 
     disposeLayers();
-    const scratch = new THREE.WebGLRenderTarget(width, height, {
-      format: THREE.RGBAFormat,
-      type: THREE.UnsignedByteType,
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
+    const scratch = new WebGLRenderTarget(width, height, {
+      format: RGBAFormat,
+      type: UnsignedByteType,
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
       depthBuffer: true,
       stencilBuffer: false,
     });
-    scratch.texture.colorSpace = THREE.SRGBColorSpace;
+    scratch.texture.colorSpace = SRGBColorSpace;
     scratch.texture.generateMipmaps = false;
     scratch.samples = Math.min(samples, renderer.capabilities.maxSamples);
 
     const previousTarget = renderer.getRenderTarget();
-    const previousViewport = renderer.getViewport(new THREE.Vector4());
-    const previousScissor = renderer.getScissor(new THREE.Vector4());
+    const previousViewport = renderer.getViewport(new Vector4());
+    const previousScissor = renderer.getScissor(new Vector4());
     const previousScissorTest = renderer.getScissorTest();
-    const previousClearColor = renderer.getClearColor(new THREE.Color()).clone();
+    const previousClearColor = renderer.getClearColor(new Color()).clone();
     const previousClearAlpha = renderer.getClearAlpha();
     const previousAutoClear = renderer.autoClear;
 

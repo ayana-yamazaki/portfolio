@@ -266,17 +266,22 @@ body:has(.home-main) {
   ~ .home-hero__case .material-card__side,
 .home-hero__materials-canvas[data-renderer-state='initializing']
   ~ .home-hero__case .material-card__shadow,
-.home-hero__cases.is-materials-pbr-ready .material-card__front,
-.home-hero__cases.is-materials-pbr-ready .material-card__side,
-.home-hero__cases.is-materials-pbr-ready .material-card__shadow {
+.home-hero__cases.is-materials-pbr-ready
+  .home-hero__case[data-material-pbr-ready] .material-card__front,
+.home-hero__cases.is-materials-pbr-ready
+  .home-hero__case[data-material-pbr-ready] .material-card__side,
+.home-hero__cases.is-materials-pbr-ready
+  .home-hero__case[data-material-pbr-ready] .material-card__shadow {
   opacity: 0;
 }
 
-.home-hero__cases.is-materials-pbr-ready .material-card__volume {
+.home-hero__cases.is-materials-pbr-ready
+  .home-hero__case[data-material-pbr-ready] .material-card__volume {
   transform: none;
 }
 
-.home-hero__cases.is-materials-pbr-ready .material-card--glass {
+.home-hero__cases.is-materials-pbr-ready
+  .home-hero__case[data-material-pbr-ready] .material-card--glass {
   transform: none;
   transition: none;
 }
@@ -987,9 +992,9 @@ body:has(.home-main) {
 
   .home-hero__materials-canvas {
     z-index: 3;
-    inset: -72px;
-    width: calc(100% + 144px);
-    height: calc(100% + 144px);
+    inset: -48px;
+    width: calc(100% + 96px);
+    height: calc(100% + 96px);
   }
 
   .home-hero__case-track {

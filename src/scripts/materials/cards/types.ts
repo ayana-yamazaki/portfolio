@@ -1,10 +1,18 @@
-import type * as THREE from 'three';
+import type { BufferGeometry } from 'three';
 import type { MaterialKind } from '../config';
 
 export type CardMeshMaterialKind = 'gem' | 'sea-glass' | 'glass' | 'body';
 export type CardSurfaceKind = 'rough-glass' | null;
 export type CardCausticKind = 'gem' | 'rough-glass' | null;
 export type CardShadowProfileKind = 'gem' | 'sea-glass' | 'rough-glass' | 'glass';
+
+export type CardGeometryFactory = (
+  width: number,
+  height: number,
+  depth: number,
+  radius: number,
+  shoulderWidth: number,
+) => BufferGeometry;
 
 export type CardDefinition = {
   kind: MaterialKind;
@@ -17,11 +25,9 @@ export type CardDefinition = {
   shadowProfile: CardShadowProfileKind;
   shadowFollowsLift: boolean;
   cacheDuringMotion: boolean;
-  createGeometry: (
-    width: number,
-    height: number,
-    depth: number,
-    radius: number,
-    shoulderWidth: number,
-  ) => THREE.BufferGeometry;
+  createGeometry?: CardGeometryFactory;
+};
+
+export type PreparedCardDefinition = CardDefinition & {
+  createGeometry: CardGeometryFactory;
 };

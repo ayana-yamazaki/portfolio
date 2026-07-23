@@ -1,7 +1,7 @@
-import { makeSeaGlassGeometry } from '../geometry';
-import type { CardDefinition } from './types';
+import { makeSeaGlassGeometry } from '../geometry?card=sea-glass';
+import type { PreparedCardDefinition } from './types';
 
-export const seaGlassCardDefinition: CardDefinition = {
+export const seaGlassCardDefinition: PreparedCardDefinition = {
   kind: 'sea-glass',
   meshMaterial: 'sea-glass',
   surface: null,

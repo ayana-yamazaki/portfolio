@@ -30,6 +30,7 @@ const ogDescription = locale === 'ja'
 const canonicalUrl = getLocaleUrl('/', locale);
 const japaneseUrl = getLocaleUrl('/', 'ja');
 const englishUrl = getLocaleUrl('/', 'en');
+const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 ---
 
 <!doctype html>
@@ -50,8 +51,8 @@ const englishUrl = getLocaleUrl('/', 'en');
     <link rel="alternate" hreflang="ja" href={japaneseUrl} />
     <link rel="alternate" hreflang="en" href={englishUrl} />
     <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
-    <link rel="preload" as="image" href={roughGlassBumpUrl} fetchpriority="high" />
-    <link rel="preload" as="image" href={roughGlassCausticUrl} fetchpriority="high" />
+    <link rel="preload" as="image" href={roughGlassBumpUrl} fetchpriority="high" media="(min-width: 721px)" />
+    <link rel="preload" as="image" href={roughGlassCausticUrl} fetchpriority="high" media="(min-width: 721px)" />
     <LocaleRedirect locale={locale} />
     <title>Ayana Yamazaki — Product Builder</title>
     <script>
@@ -104,14 +105,21 @@ const englishUrl = getLocaleUrl('/', 'en');
         </header>
 
         <div class="home-hero__cases" aria-label="Case studies">
-          <img
-            class="home-hero__backdrop-image"
-            src={nanakamadoImage.src}
-            alt=""
-            aria-hidden="true"
-            data-glass-backdrop-image-source
-            fetchpriority="high"
-          />
+          <picture>
+            <source
+              media="(min-width: 721px)"
+              srcset={nanakamadoImage.src}
+              type="image/png"
+            />
+            <img
+              class="home-hero__backdrop-image"
+              src={transparentPixel}
+              alt=""
+              aria-hidden="true"
+              data-glass-backdrop-image-source
+              fetchpriority="high"
+            />
+          </picture>
           {/* <h1 class="home-hero__title" id="home-title" data-glass-refraction-source>
             <span>THE WAY <br />I BUILD</span>
           </h1> */}

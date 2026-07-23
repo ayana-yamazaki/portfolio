@@ -1,4 +1,12 @@
-import * as THREE from 'three';
+import {
+  CanvasTexture,
+  ClampToEdgeWrapping,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  SRGBColorSpace,
+  TextureLoader,
+  type Texture,
+} from 'three';
 import roughGlassBumpUrl from '../../assets/materials/rough-glass-bump.png?url';
 import roughGlassCausticUrl from '../../assets/materials/rough-glass-caustic.png?url';
 import {
@@ -9,14 +17,14 @@ import {
 } from './config';
 import { makeSeaGlassOutline } from './geometry';
 
-const staticTextureLoader = new THREE.TextureLoader();
+const staticTextureLoader = new TextureLoader();
 
 const loadStaticTexture = (
   url: string,
-  configure: (texture: THREE.Texture) => void,
+  configure: (texture: Texture) => void,
 ) => {
-  let texture!: THREE.Texture;
-  const ready = new Promise<THREE.Texture>((resolve, reject) => {
+  let texture!: Texture;
+  const ready = new Promise<Texture>((resolve, reject) => {
     texture = staticTextureLoader.load(url, resolve, undefined, reject);
   });
   configure(texture);
@@ -25,15 +33,15 @@ const loadStaticTexture = (
 
 export const loadRoughGlassTextures = () => {
   const bump = loadStaticTexture(roughGlassBumpUrl, (texture) => {
-    texture.wrapS = THREE.ClampToEdgeWrapping;
-    texture.wrapT = THREE.ClampToEdgeWrapping;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
+    texture.wrapS = ClampToEdgeWrapping;
+    texture.wrapT = ClampToEdgeWrapping;
+    texture.minFilter = LinearMipmapLinearFilter;
+    texture.magFilter = LinearFilter;
     texture.anisotropy = 2;
   });
   const caustic = loadStaticTexture(roughGlassCausticUrl, (texture) => {
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = LinearFilter;
+    texture.magFilter = LinearFilter;
     texture.generateMipmaps = false;
   });
 
@@ -190,10 +198,10 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     context.restore();
   }
 
-  const texture = new THREE.CanvasTexture(source);
-  if (kind === 'glass') texture.colorSpace = THREE.SRGBColorSpace;
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
+  const texture = new CanvasTexture(source);
+  if (kind === 'glass') texture.colorSpace = SRGBColorSpace;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
   texture.generateMipmaps = false;
   return texture;
 };
@@ -258,9 +266,9 @@ export const makeGemFloorCausticTexture = () => {
     traceFacet(compactPoints, color, blur * .72);
   });
 
-  const texture = new THREE.CanvasTexture(source);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
+  const texture = new CanvasTexture(source);
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
   texture.generateMipmaps = false;
   return texture;
 };
@@ -321,9 +329,9 @@ export const makeGemPrismTexture = () => {
     trace([startA, startB, sharpTip], color, .7);
   });
 
-  const texture = new THREE.CanvasTexture(source);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
+  const texture = new CanvasTexture(source);
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
   texture.generateMipmaps = false;
   return texture;
 };

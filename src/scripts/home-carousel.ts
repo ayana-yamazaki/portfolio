@@ -55,12 +55,21 @@ carousels.forEach((carousel) => {
     requestAnimationFrame(updateActiveCard);
   };
 
+  const prepareAdjacentCards = () => {
+    if (!window.matchMedia('(max-width: 720px)').matches) return;
+    [activeIndex - 1, activeIndex + 1].forEach((index) => {
+      cards[index]?.dispatchEvent(new CustomEvent('case-carousel-prepare'));
+    });
+  };
+
   carousel.addEventListener('scroll', requestUpdate, { passive: true });
+  carousel.addEventListener('pointerdown', prepareAdjacentCards, { passive: true });
   carousel.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
     const direction = event.key === 'ArrowRight' ? 1 : -1;
     const nextIndex = Math.min(cards.length - 1, Math.max(0, activeIndex + direction));
+    cards[nextIndex]?.dispatchEvent(new CustomEvent('case-carousel-prepare'));
     cards[nextIndex]?.scrollIntoView({
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 'auto'

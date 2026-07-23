@@ -1,7 +1,7 @@
-import { makeGlassPanelGeometry } from '../geometry';
-import type { CardDefinition } from './types';
+import { makeGlassPanelGeometry } from '../geometry?card=glass';
+import type { PreparedCardDefinition } from './types';
 
-export const glassCardDefinition: CardDefinition = {
+export const glassCardDefinition: PreparedCardDefinition = {
   kind: 'glass',
   meshMaterial: 'glass',
   surface: null,

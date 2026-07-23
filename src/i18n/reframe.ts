@@ -1,6 +1,7 @@
 export const reframeTranslations = {
   'UX・UI': `UX / UI`,
   '複数の農業車両と走行軌跡を可視化するレポサク': `Reposaku visualizing multiple farm vehicles and their routes`,
+  '現場を理解し、プロダクトの前提を変える': `Understand the field, then reframe the product`,
   '現場を理解し、': `Understand the field,`,
   'プロダクトの前提を変える': `then reframe the product`,
   'シードスタートアップの一人目プロダクトデザイナーとして、現場調査からUX・UIまでを担当。車両のUSBに端末を挿すだけで、全員のデータが集まる体験を設計した。': `As the first product designer at a seed-stage startup, I led work from field research through UX and UI. I designed an experience that collects data from every operator as soon as a device is plugged into a vehicle's USB port.`,
@@ -34,6 +35,7 @@ export const reframeTranslations = {
   '使えない体験は、操作を妨げるだけでなく、「自分にはできない」という認識まで作っていた。': `A failed interaction did more than block a task. It taught people to believe they were incapable.`,
   '「ITが苦手」は原因ではない。': `“Bad with technology” was not the cause.`,
   '現場を前提にしない設計と、失敗体験の積み重ねによって生まれた結果だった。': `It was the result of design that ignored the field, compounded by repeated experiences of failure.`,
+  '「シニアも使える」で終わらせない。誇りを持って使える体験を': `Go beyond “accessible to older users” and create an experience people are proud to use`,
   '「シニアも使える」で終わらせない': `Go beyond “accessible to older users”`,
   '誇りを持って使える体験を': `Create an experience people are proud to use`,
   '画面が本当に必要かを問い、': `Question whether a screen is needed,`,
@@ -50,6 +52,7 @@ export const reframeTranslations = {
   'そこで、現実の車両とリアルタイムに同期するマップを、動きを眺めること自体が楽しく、思わず人に見せたくなる体験へ設計した。': `I designed the live map, synchronized with real vehicles, to make watching movement enjoyable and worth showing to others.`,
   '結果、農家さん自身が近隣の人にレポサクを自慢してくれるようになり、「何それ、かっこいい」と口コミが広がり、導入が拡大した。': `Farmers began proudly showing Reposaku to neighbors. “What is that? It looks great,” spread by word of mouth and helped adoption grow.`,
   '農作業車両の走行軌跡を表示したレポサクのライブマップ画面': `Reposaku live map showing the routes of farm vehicles`,
+  '「俺らはIT無理だから」が、「これ、かっこいいだろ」に': `From “technology isn't for us” to “look how good this is”`,
   '「俺らはIT無理だから」が、': `From “technology isn't for us”`,
   '「これ、かっこいいだろ」に': `to “look how good this is”`,
   'この変化は、プロダクトへの印象だけにとどまらなかった。現場の働き方も変化した。': `The change went beyond how people felt about the product. It changed how teams worked in the field.`,

@@ -8,6 +8,7 @@
     }
 
     document.documentElement.classList.add('reveal-enabled');
+    const revealThreshold = window.matchMedia('(max-width: 720px)').matches ? 0.01 : 0.12;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -19,12 +20,14 @@
         });
       },
       {
-        threshold: 0.12,
+        threshold: revealThreshold,
         rootMargin: '0px 0px -8% 0px',
       },
     );
 
-    elements.forEach((element) => observer.observe(element));
+    requestAnimationFrame(() => {
+      elements.forEach((element) => observer.observe(element));
+    });
   };
 
   revealElements();

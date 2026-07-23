@@ -1,7 +1,7 @@
-import { makeGemGeometry } from '../geometry';
-import type { CardDefinition } from './types';
+import { makeGemGeometry } from '../geometry?card=gem';
+import type { PreparedCardDefinition } from './types';
 
-export const gemCardDefinition: CardDefinition = {
+export const gemCardDefinition: PreparedCardDefinition = {
   kind: 'gem',
   meshMaterial: 'gem',
   surface: null,

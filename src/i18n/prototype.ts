@@ -1,4 +1,5 @@
 export const prototypeTranslations = {
+  '歯科医師と試作を重ね、紙より速い操作を実現': `Iterate with dentists to build an interface faster than paper`,
   '歯科医師と試作を重ね、': `Iterate with dentists`,
   '紙より速い操作を実現': `to build an interface faster than paper`,
   '最大192項目を5分以内に入力する、歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、プロトタイプを作るたびに歯科医師と検証。実際に入力を担う歯科衛生士の評価も反映しながら、手と視線の移動を削り、紙と比べて検査速度を24％向上させた。': `I designed a tablet interface for recording up to 192 periodontal measurements in under five minutes. “Faster than paper” was the adoption requirement. Each prototype was tested with dentists and refined with feedback from the dental hygienists who perform the input, reducing hand and eye movement and improving examination speed by 24%.`,

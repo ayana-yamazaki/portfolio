@@ -1,4 +1,25 @@
-import * as THREE from 'three';
+import {
+  ACESFilmicToneMapping,
+  BufferGeometry,
+  CanvasTexture,
+  ClampToEdgeWrapping,
+  FrontSide,
+  LinearFilter,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  OrthographicCamera,
+  PlaneGeometry,
+  SRGBColorSpace,
+  Scene,
+  ShaderMaterial,
+  UniformsUtils,
+  UnsignedByteType,
+  Vector2,
+  Vector4,
+  WebGLRenderTarget,
+  WebGLRenderer,
+} from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { HorizontalBlurShader } from 'three/addons/shaders/HorizontalBlurShader.js';
 import { VerticalBlurShader } from 'three/addons/shaders/VerticalBlurShader.js';
@@ -24,8 +45,8 @@ const createShadowTexture = () => {
     context.fillRect(0, 0, 256, 64);
   }
 
-  const texture = new THREE.CanvasTexture(shadowCanvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  const texture = new CanvasTexture(shadowCanvas);
+  texture.colorSpace = SRGBColorSpace;
   return texture;
 };
 
@@ -33,59 +54,59 @@ if (canvas && backdrop && glassCard && textureSrc) {
   canvas.dataset.rendererState = 'initializing';
 
   try {
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.outputColorSpace = SRGBColorSpace;
+    renderer.toneMapping = ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.88;
     renderer.setClearColor(0xf3f0ec, 1);
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    const scene = new Scene();
+    const camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
     camera.position.z = 3;
 
-    const backdropTarget = new THREE.WebGLRenderTarget(1, 1, {
-      type: THREE.UnsignedByteType,
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
+    const backdropTarget = new WebGLRenderTarget(1, 1, {
+      type: UnsignedByteType,
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
       depthBuffer: false,
     });
     const horizontalBlurTarget = backdropTarget.clone();
     const blurredBackdropTarget = backdropTarget.clone();
 
-    const postCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const horizontalBlurMaterial = new THREE.ShaderMaterial({
+    const postCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const horizontalBlurMaterial = new ShaderMaterial({
       ...HorizontalBlurShader,
-      uniforms: THREE.UniformsUtils.clone(HorizontalBlurShader.uniforms),
+      uniforms: UniformsUtils.clone(HorizontalBlurShader.uniforms),
       depthTest: false,
       depthWrite: false,
       toneMapped: false,
     });
-    const verticalBlurMaterial = new THREE.ShaderMaterial({
+    const verticalBlurMaterial = new ShaderMaterial({
       ...VerticalBlurShader,
-      uniforms: THREE.UniformsUtils.clone(VerticalBlurShader.uniforms),
+      uniforms: UniformsUtils.clone(VerticalBlurShader.uniforms),
       depthTest: false,
       depthWrite: false,
       toneMapped: false,
     });
-    const horizontalBlurScene = new THREE.Scene();
-    horizontalBlurScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), horizontalBlurMaterial));
-    const verticalBlurScene = new THREE.Scene();
-    verticalBlurScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), verticalBlurMaterial));
+    const horizontalBlurScene = new Scene();
+    horizontalBlurScene.add(new Mesh(new PlaneGeometry(2, 2), horizontalBlurMaterial));
+    const verticalBlurScene = new Scene();
+    verticalBlurScene.add(new Mesh(new PlaneGeometry(2, 2), verticalBlurMaterial));
 
-    const colorTarget = new THREE.WebGLRenderTarget(1, 1, {
+    const colorTarget = new WebGLRenderTarget(1, 1, {
       depthBuffer: true,
       stencilBuffer: false,
     });
     colorTarget.samples = 4;
-    const maskTarget = new THREE.WebGLRenderTarget(1, 1, {
+    const maskTarget = new WebGLRenderTarget(1, 1, {
       depthBuffer: true,
       stencilBuffer: false,
     });
     maskTarget.samples = 4;
 
-    const compositeScene = new THREE.Scene();
-    const compositeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const compositeMaterial = new THREE.ShaderMaterial({
+    const compositeScene = new Scene();
+    const compositeCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const compositeMaterial = new ShaderMaterial({
       uniforms: {
         uColor: { value: colorTarget.texture },
         uMask: { value: maskTarget.texture },
@@ -116,8 +137,8 @@ if (canvas && backdrop && glassCard && textureSrc) {
       depthWrite: false,
       toneMapped: false,
     });
-    compositeScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), compositeMaterial));
-    const maskMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    compositeScene.add(new Mesh(new PlaneGeometry(2, 2), compositeMaterial));
+    const maskMaterial = new MeshBasicMaterial({ color: 0xffffff });
 
     let textureReady = false;
     const textureCanvas = document.createElement('canvas');
@@ -125,7 +146,7 @@ if (canvas && backdrop && glassCard && textureSrc) {
     textureCanvas.height = 2;
     const textureContext = textureCanvas.getContext('2d');
     if (!textureContext) throw new Error('Unable to create the backdrop texture canvas');
-    const texture = new THREE.CanvasTexture(textureCanvas);
+    const texture = new CanvasTexture(textureCanvas);
     const markTextureReady = () => {
       textureCanvas.width = backdrop.naturalWidth;
       textureCanvas.height = backdrop.naturalHeight;
@@ -159,18 +180,18 @@ if (canvas && backdrop && glassCard && textureSrc) {
       backdrop.addEventListener('error', markTextureError, { once: true });
     }
 
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.wrapS = THREE.ClampToEdgeWrapping;
-    texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.colorSpace = SRGBColorSpace;
+    texture.minFilter = LinearFilter;
+    texture.magFilter = LinearFilter;
+    texture.wrapS = ClampToEdgeWrapping;
+    texture.wrapT = ClampToEdgeWrapping;
 
     const backgroundUniforms = {
       uTexture: { value: texture },
-      uUvOffset: { value: new THREE.Vector2() },
-      uUvScale: { value: new THREE.Vector2(1, 1) },
+      uUvOffset: { value: new Vector2() },
+      uUvScale: { value: new Vector2(1, 1) },
     };
-    const backgroundMaterial = new THREE.ShaderMaterial({
+    const backgroundMaterial = new ShaderMaterial({
       uniforms: backgroundUniforms,
       vertexShader: `
         varying vec2 vUv;
@@ -201,24 +222,24 @@ if (canvas && backdrop && glassCard && textureSrc) {
       depthWrite: false,
       toneMapped: false,
     });
-    const backgroundPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), backgroundMaterial);
+    const backgroundPlane = new Mesh(new PlaneGeometry(2, 2), backgroundMaterial);
     backgroundPlane.position.z = -1.8;
-    const backdropScene = new THREE.Scene();
+    const backdropScene = new Scene();
     backdropScene.add(backgroundPlane);
 
-    const glassMaterial = new THREE.ShaderMaterial({
+    const glassMaterial = new ShaderMaterial({
       uniforms: {
         uSharpBackdrop: { value: backdropTarget.texture },
         uBlurredBackdrop: { value: blurredBackdropTarget.texture },
-        uCardBounds: { value: new THREE.Vector4(0, 0, 1, 1) },
-        uCardSize: { value: new THREE.Vector2(1, 1) },
-        uCanvasSize: { value: new THREE.Vector2(1, 1) },
+        uCardBounds: { value: new Vector4(0, 0, 1, 1) },
+        uCardSize: { value: new Vector2(1, 1) },
+        uCanvasSize: { value: new Vector2(1, 1) },
         uCornerRadius: { value: 38 },
         uRimWidth: { value: 30 },
         uRimDisplacement: { value: 50 },
         uScatterStrength: { value: 3.2 },
         uFrostAmount: { value: 0.8 },
-        uLightDirection: { value: new THREE.Vector2(-0.68, 0.74) },
+        uLightDirection: { value: new Vector2(-0.68, 0.74) },
         uDebugMode: { value: glassDebugModes.final },
       },
       vertexShader: `
@@ -371,22 +392,22 @@ if (canvas && backdrop && glassCard && textureSrc) {
           gl_FragColor = vec4(color, alpha);
         }
       `,
-      side: THREE.FrontSide,
+      side: FrontSide,
       depthWrite: true,
       toneMapped: false,
     });
 
-    const glassMesh = new THREE.Mesh(new THREE.BufferGeometry(), glassMaterial);
+    const glassMesh = new Mesh(new BufferGeometry(), glassMaterial);
     glassMesh.layers.set(1);
     scene.add(glassMesh);
 
-    const shadowMaterial = new THREE.MeshBasicMaterial({
+    const shadowMaterial = new MeshBasicMaterial({
       map: createShadowTexture(),
       transparent: true,
       depthWrite: false,
       toneMapped: false,
     });
-    const contactShadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMaterial);
+    const contactShadow = new Mesh(new PlaneGeometry(1, 1), shadowMaterial);
     contactShadow.position.z = -0.9;
     scene.add(contactShadow);
 
@@ -538,14 +559,14 @@ if (canvas && backdrop && glassCard && textureSrc) {
       syncScene();
       const config = applyRuntimeConfig();
       hoverAmount += (hoverTarget - hoverAmount) * 0.08;
-      glassMesh.rotation.x = THREE.MathUtils.degToRad(
-        THREE.MathUtils.lerp(config.baseTilt, config.hoverTilt, hoverAmount),
+      glassMesh.rotation.x = MathUtils.degToRad(
+        MathUtils.lerp(config.baseTilt, config.hoverTilt, hoverAmount),
       );
-      glassMesh.rotation.y = THREE.MathUtils.degToRad(
-        THREE.MathUtils.lerp(config.baseYaw, config.hoverYaw, hoverAmount),
+      glassMesh.rotation.y = MathUtils.degToRad(
+        MathUtils.lerp(config.baseYaw, config.hoverYaw, hoverAmount),
       );
-      glassMesh.position.z = THREE.MathUtils.lerp(0.055, 0.004, hoverAmount);
-      contactShadow.material.opacity = THREE.MathUtils.lerp(0.4, 0.64, hoverAmount);
+      glassMesh.position.z = MathUtils.lerp(0.055, 0.004, hoverAmount);
+      contactShadow.material.opacity = MathUtils.lerp(0.4, 0.64, hoverAmount);
 
       renderer.setRenderTarget(backdropTarget);
       renderer.setClearColor(0xf3f0ec, 1);

@@ -1,10 +1,20 @@
-import * as THREE from 'three';
+import {
+  BufferAttribute,
+  BufferGeometry,
+  ExtrudeGeometry,
+  Float32BufferAttribute,
+  Shape,
+  ShapeGeometry,
+  ShapeUtils,
+  Vector2,
+  Vector3,
+} from 'three';
 
 const makeRoundedShape = (width: number, height: number, radius: number) => {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
   const safeRadius = Math.min(radius, halfWidth, halfHeight);
-  const shape = new THREE.Shape();
+  const shape = new Shape();
   shape.moveTo(-halfWidth + safeRadius, -halfHeight);
   shape.lineTo(halfWidth - safeRadius, -halfHeight);
   shape.quadraticCurveTo(halfWidth, -halfHeight, halfWidth, -halfHeight + safeRadius);
@@ -21,17 +31,17 @@ const makeGemPoints = (width: number, height: number) => {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
   return [
-    new THREE.Vector2(-halfWidth * 0.52, -halfHeight),
-    new THREE.Vector2(halfWidth * 0.72, -halfHeight * 0.9),
-    new THREE.Vector2(halfWidth, -halfHeight * 0.48),
-    new THREE.Vector2(halfWidth * 0.86, halfHeight * 0.8),
-    new THREE.Vector2(halfWidth * 0.22, halfHeight),
-    new THREE.Vector2(-halfWidth * 0.88, halfHeight * 0.84),
-    new THREE.Vector2(-halfWidth, -halfHeight * 0.54),
+    new Vector2(-halfWidth * 0.52, -halfHeight),
+    new Vector2(halfWidth * 0.72, -halfHeight * 0.9),
+    new Vector2(halfWidth, -halfHeight * 0.48),
+    new Vector2(halfWidth * 0.86, halfHeight * 0.8),
+    new Vector2(halfWidth * 0.22, halfHeight),
+    new Vector2(-halfWidth * 0.88, halfHeight * 0.84),
+    new Vector2(-halfWidth, -halfHeight * 0.54),
   ];
 };
 
-const makeGemShape = (width: number, height: number) => new THREE.Shape(
+const makeGemShape = (width: number, height: number) => new Shape(
   makeGemPoints(width, height),
 );
 
@@ -39,8 +49,8 @@ export const makeSeaGlassOutline = (width: number, height: number, segments = 96
   const points = makeGemPoints(width, height);
   const wear = Math.min(width, height);
   const cornerRadii = [.16, .13, .18, .15, .2, .13, .17].map((ratio) => wear * ratio);
-  const entries: THREE.Vector2[] = [];
-  const exits: THREE.Vector2[] = [];
+  const entries: Vector2[] = [];
+  const exits: Vector2[] = [];
 
   points.forEach((point, index) => {
     const previous = points[(index - 1 + points.length) % points.length];
@@ -54,7 +64,7 @@ export const makeSeaGlassOutline = (width: number, height: number, segments = 96
     exits.push(point.clone().add(next.clone().sub(point).normalize().multiplyScalar(radius)));
   });
 
-  const shape = new THREE.Shape();
+  const shape = new Shape();
   shape.moveTo(entries[0].x, entries[0].y);
   points.forEach((point, index) => {
     shape.lineTo(entries[index].x, entries[index].y);
@@ -65,7 +75,7 @@ export const makeSeaGlassOutline = (width: number, height: number, segments = 96
 };
 
 export const makePanelGeometry = (width: number, height: number, depth: number, radius: number) => {
-  const geometry = new THREE.ExtrudeGeometry(makeRoundedShape(width, height, radius), {
+  const geometry = new ExtrudeGeometry(makeRoundedShape(width, height, radius), {
     depth,
     steps: 1,
     curveSegments: 14,
@@ -184,18 +194,18 @@ export const makeRoughGlassGeometry = (
   addQuad(frontTopLeft, frontTopRight, chamferTopRight, chamferTopLeft);
   const edgeVertexCount = positions.length / 3 - bodyVertexCount - sideVertexCount;
 
-  const geometry = new THREE.BufferGeometry();
+  const geometry = new BufferGeometry();
   geometry.setAttribute(
     'position',
-    new THREE.Float32BufferAttribute(positions, 3),
+    new Float32BufferAttribute(positions, 3),
   );
   geometry.setAttribute(
     'uv',
-    new THREE.Float32BufferAttribute(uvs, 2),
+    new Float32BufferAttribute(uvs, 2),
   );
   geometry.setAttribute(
     'aEdgeProgress',
-    new THREE.Float32BufferAttribute(edgeProgress, 1),
+    new Float32BufferAttribute(edgeProgress, 1),
   );
   geometry.addGroup(0, bodyVertexCount, 0);
   geometry.addGroup(bodyVertexCount, sideVertexCount, 1);
@@ -249,15 +259,15 @@ export const makeGlassPanelGeometry = (
     const halfWidth = outlineWidth / 2;
     const halfHeight = outlineHeight / 2;
     const centers = [
-      new THREE.Vector2(halfWidth - outlineRadius, halfHeight - outlineRadius),
-      new THREE.Vector2(-halfWidth + outlineRadius, halfHeight - outlineRadius),
-      new THREE.Vector2(-halfWidth + outlineRadius, -halfHeight + outlineRadius),
-      new THREE.Vector2(halfWidth - outlineRadius, -halfHeight + outlineRadius),
+      new Vector2(halfWidth - outlineRadius, halfHeight - outlineRadius),
+      new Vector2(-halfWidth + outlineRadius, halfHeight - outlineRadius),
+      new Vector2(-halfWidth + outlineRadius, -halfHeight + outlineRadius),
+      new Vector2(halfWidth - outlineRadius, -halfHeight + outlineRadius),
     ];
     return centers.flatMap((center, corner) => (
       Array.from({ length: cornerSegments }, (_, segment) => {
         const angle = (corner + segment / cornerSegments) * Math.PI / 2;
-        return new THREE.Vector2(
+        return new Vector2(
           center.x + Math.cos(angle) * outlineRadius,
           center.y + Math.sin(angle) * outlineRadius,
         );
@@ -270,7 +280,7 @@ export const makeGlassPanelGeometry = (
   const surfaceRegions: number[] = [];
   const opticalThickness: number[] = [];
   const ringStarts: number[] = [];
-  const outlines: THREE.Vector2[][] = [];
+  const outlines: Vector2[][] = [];
 
   profile.forEach(({ inset, z, region }) => {
     const outline = makeOutline(inset);
@@ -297,14 +307,14 @@ export const makeGlassPanelGeometry = (
     }
   }
 
-  const addCap = (outline: THREE.Vector2[], z: number, front: boolean) => {
+  const addCap = (outline: Vector2[], z: number, front: boolean) => {
     const capStart = positions.length / 3;
     outline.forEach((point) => {
       positions.push(point.x, point.y, z);
       surfaceRegions.push(front ? 0 : 1);
       opticalThickness.push(1);
     });
-    THREE.ShapeUtils.triangulateShape(outline, []).forEach(([a, b, c]) => {
+    ShapeUtils.triangulateShape(outline, []).forEach(([a, b, c]) => {
       indices.push(
         capStart + a,
         capStart + (front ? b : c),
@@ -316,10 +326,10 @@ export const makeGlassPanelGeometry = (
   addCap(outlines[0], halfDepth, true);
   addCap(outlines[outlines.length - 1], -halfDepth, false);
 
-  const geometry = new THREE.BufferGeometry();
+  const geometry = new BufferGeometry();
   geometry.setAttribute(
     'position',
-    new THREE.Float32BufferAttribute(positions, 3),
+    new Float32BufferAttribute(positions, 3),
   );
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
@@ -335,15 +345,15 @@ export const makeGlassPanelGeometry = (
 
   geometry.setAttribute(
     'aSurfaceRegion',
-    new THREE.Float32BufferAttribute(surfaceRegions, 1),
+    new Float32BufferAttribute(surfaceRegions, 1),
   );
   geometry.setAttribute(
     'aBevelProgress',
-    new THREE.BufferAttribute(bevelProgress, 1),
+    new BufferAttribute(bevelProgress, 1),
   );
   geometry.setAttribute(
     'aOpticalThickness',
-    new THREE.Float32BufferAttribute(opticalThickness, 1),
+    new Float32BufferAttribute(opticalThickness, 1),
   );
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
@@ -355,23 +365,23 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   const innerScale = [.83, .8, .84, .81, .835, .795, .82];
   const innerDepth = [.47, .47, .47, .47, .47, .47, .47];
   const edgeDepth = [.12, .08, .15, .1, .14, .07, .13];
-  const inner = outline.map((point, index) => new THREE.Vector3(
+  const inner = outline.map((point, index) => new Vector3(
     point.x * innerScale[index],
     point.y * innerScale[(index + 2) % innerScale.length],
     depth * innerDepth[index],
   ));
-  const frontEdge = outline.map((point, index) => new THREE.Vector3(
+  const frontEdge = outline.map((point, index) => new Vector3(
     point.x,
     point.y,
     depth * edgeDepth[index],
   ));
-  const tableCenter = new THREE.Vector3(-width * .035, height * .025, depth * .47);
-  const backEdge = outline.map((point) => new THREE.Vector3(
+  const tableCenter = new Vector3(-width * .035, height * .025, depth * .47);
+  const backEdge = outline.map((point) => new Vector3(
     point.x * .92,
     point.y * .92,
     -depth * .5,
   ));
-  const backCenter = new THREE.Vector3(0, 0, -depth * .5);
+  const backCenter = new Vector3(0, 0, -depth * .5);
   const facetScale = Math.min(width, height);
   const rimBulge = [.018, -.012, .024, -.016, .02, -.01, .014];
   const rimSkew = [-.014, .018, -.01, .016, -.018, .012, -.008];
@@ -385,7 +395,7 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   const sideBridgeLift = [-.024, .028, -.018, .032, -.026, .022, -.016];
   const sideBridge = frontEdge.map((point, index) => {
     const bridge = point.clone().lerp(backEdge[index], sideBridgeRatio[index]);
-    const outward = new THREE.Vector3(bridge.x, bridge.y, 0).normalize();
+    const outward = new Vector3(bridge.x, bridge.y, 0).normalize();
     bridge.addScaledVector(outward, facetScale * sideBulge[index] * .28);
     bridge.z += depth * sideBridgeLift[index];
     return bridge;
@@ -393,7 +403,7 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   const positions: number[] = [];
   const uvs: number[] = [];
 
-  const addTriangle = (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) => {
+  const addTriangle = (a: Vector3, b: Vector3, c: Vector3) => {
     [a, b, c].forEach((point) => {
       positions.push(point.x, point.y, point.z);
       uvs.push(point.x / width + .5, point.y / height + .5);
@@ -401,10 +411,10 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   };
 
   const makeFacetCenter = (
-    a: THREE.Vector3,
-    b: THREE.Vector3,
-    c: THREE.Vector3,
-    d: THREE.Vector3,
+    a: Vector3,
+    b: Vector3,
+    c: Vector3,
+    d: Vector3,
     index: number,
     bulge: number[],
     skew: number[],
@@ -412,7 +422,7 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   ) => {
     const center = a.clone().add(b).add(c).add(d).multiplyScalar(.25);
     const tangent = b.clone().sub(a).setZ(0).normalize();
-    const outward = new THREE.Vector3(center.x, center.y, 0).normalize();
+    const outward = new Vector3(center.x, center.y, 0).normalize();
     center.addScaledVector(outward, facetScale * bulge[index]);
     center.addScaledVector(tangent, facetScale * skew[index]);
     center.z += depth * lift[index];
@@ -420,11 +430,11 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   };
 
   const addFacetQuad = (
-    a: THREE.Vector3,
-    b: THREE.Vector3,
-    c: THREE.Vector3,
-    d: THREE.Vector3,
-    center: THREE.Vector3,
+    a: Vector3,
+    b: Vector3,
+    c: Vector3,
+    d: Vector3,
+    center: Vector3,
   ) => {
     addTriangle(a, d, center);
     addTriangle(d, c, center);
@@ -433,8 +443,8 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   };
 
   const makeRadialEdge = (
-    start: THREE.Vector3,
-    end: THREE.Vector3,
+    start: Vector3,
+    end: Vector3,
     segments: number,
     edgeIndex: number,
     depthJitter: number,
@@ -516,9 +526,9 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
     addTriangle(backCenter, backEdge[next], backEdge[index]);
   });
 
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
   const facetCenters: number[] = [];
   const facetBarycentrics: number[] = [];
   for (let index = 0; index < positions.length; index += 9) {
@@ -548,11 +558,11 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   }
   geometry.setAttribute(
     'aFacetCenter',
-    new THREE.Float32BufferAttribute(facetCenters, 3),
+    new Float32BufferAttribute(facetCenters, 3),
   );
   geometry.setAttribute(
     'aFacetBarycentric',
-    new THREE.Float32BufferAttribute(facetBarycentrics, 3),
+    new Float32BufferAttribute(facetBarycentrics, 3),
   );
   geometry.addGroup(frontStart, frontCount, 0);
   geometry.addGroup(frontCount, positions.length / 3 - frontCount, 1);
@@ -617,11 +627,11 @@ export const makeSeaGlassGeometry = (width: number, height: number, depth: numbe
   }
 
   const addCap = (ring: number[], front: boolean) => {
-    const contour = ring.map((index) => new THREE.Vector2(
+    const contour = ring.map((index) => new Vector2(
       positions[index * 3],
       positions[index * 3 + 1],
     ));
-    THREE.ShapeUtils.triangulateShape(contour, []).forEach((face) => {
+    ShapeUtils.triangulateShape(contour, []).forEach((face) => {
       let a = ring[face[0]];
       let b = ring[face[1]];
       let c = ring[face[2]];
@@ -640,10 +650,10 @@ export const makeSeaGlassGeometry = (width: number, height: number, depth: numbe
   addCap(frontRings[ringCount], true);
   addCap(backRings[ringCount], false);
 
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-  geometry.setAttribute('aOpticalThickness', new THREE.Float32BufferAttribute(opticalThickness, 1));
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
+  geometry.setAttribute('aOpticalThickness', new Float32BufferAttribute(opticalThickness, 1));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
@@ -652,7 +662,7 @@ export const makeSeaGlassGeometry = (width: number, height: number, depth: numbe
 };
 
 export const makeRoundedFaceGeometry = (width: number, height: number, radius: number) => {
-  const geometry = new THREE.ShapeGeometry(makeRoundedShape(width, height, radius), 14);
+  const geometry = new ShapeGeometry(makeRoundedShape(width, height, radius), 14);
   const positions = geometry.getAttribute('position');
   const uvs = geometry.getAttribute('uv');
   for (let index = 0; index < positions.count; index += 1) {
