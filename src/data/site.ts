@@ -15,6 +15,7 @@ export interface CaseStudy {
   alt: string;
   footerDescription: string;
   footerImage?: string;
+  footerCardImage?: string;
 }
 
 export const hero = {
@@ -35,6 +36,7 @@ export const caseStudies = [
     alt: 'Working with soil in the field',
     footerDescription: '前提を疑い、現場から解くべき問題を定める。',
     footerImage: panel01.src,
+    footerCardImage: '/images/materials/footer-gem.webp',
   },
   {
     number: '02',
@@ -87,9 +89,10 @@ export const getCaseStudy = (href: string) => {
 export const about = {
   label: 'About',
   description: [
-    '山崎文菜（やまざき あやな）。複雑な現場を理解し、作るべきものを決め、触れる形まで持っていくプロダクトデザイナーです。',
-    '農業やカスタマーサクセスのプロダクトの立ち上げから参画。画面を作るだけでなく、ユーザーリサーチ、課題定義、ロードマップ、プロトタイピングまで担います。現在はAIとコードを使い、仕様そのものを触れる形で設計しています。',
-    '2021年に東京から北海道へ移住。製造業、農業、医療、鉄道など、現場の制約が大きいBtoB領域を中心に活動しています。',
+    '山崎 文菜　Ayana Yamazaki',
+    '複雑な現場を翻訳し、動くプロダクトへと落とし込むプロダクトデザイナーです。',
+    '農業やカスタマーサクセス領域のプロダクトに、立ち上げ期から携わってきました。現場に入り、業務や制約を理解するところから、課題の定義、ロードマップの検討、プロトタイピング、UI設計までを横断して担います。現在はAIとコードを活用し、画面だけでなく仕様そのものを、触れて検証できる形で設計しています。',
+    '2021年に東京から北海道へ移住。製造業、農業、医療、鉄道など、複雑な業務と現場固有の制約を持つBtoBプロダクトを中心に活動しています。',
   ],
   profileImage: '/images/ayana-yamazaki.jpg',
   experience: [

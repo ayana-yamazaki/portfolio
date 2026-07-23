@@ -100,6 +100,7 @@ export const createGlassMaterial = (
     uAbsorptionStrength: { value: glassTuning.absorptionStrength },
     uDispersionStrength: { value: glassTuning.dispersionStrength },
     uFloorY: { value: 0.1 },
+    uBandBottomY: { value: 0.1 },
     uWallColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
     uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
     ...createGlintUniforms(
@@ -128,9 +129,9 @@ export const createRoughGlassFaceMaterial = (
     uTexel: { value: new THREE.Vector2(1 / 384, 1 / 576) },
     uRefractionStrength: { value: roughGlassTuning.refractionStrength },
     uFloorY: { value: 0.1 },
+    uBandBottomY: { value: 0.1 },
     uWallColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
     uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
-    ...createBackgroundReflectionUniforms('rough-glass'),
   },
   vertexShader: roughGlassVertexShader,
   fragmentShader: roughGlassFragmentShader,

@@ -174,7 +174,9 @@ const caseStudy = getCaseStudy('/decide-what-to-build');
 
   @media (max-width: 720px) {
     .decision-comparison, .decision-exceptions { grid-template-columns: 1fr; }
-    .decision-comparison::after { content: '↓'; }
+    .decision-comparison::after { display: none; }
+    .decision-comparison > div:last-child { position: relative; }
+    .decision-comparison > div:last-child::before { content: '↓'; position: absolute; top: 0; left: 50%; z-index: 1; display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid var(--divider-color); border-radius: 50%; background: #fff; color: var(--accent-color); font-size: 24px; transform: translate(-50%, -50%); }
     .decision-comparison > div, .decision-exceptions article { gap: 12px; padding: 18px; }
     .decision-comparison strong { font-size: 21px; }
     .decision-comparison span, .decision-exceptions article > p:last-child { font-size: 14px; }

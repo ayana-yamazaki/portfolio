@@ -11,25 +11,22 @@ if (currentCaseIndex === -1 && !isHome) {
 
 const nextCase = isHome ? caseStudies[0] : caseStudies[currentCaseIndex + 1];
 const footer: {
-  label: string;
-  number?: string;
   title: string;
   description: string;
   href: string;
   action: string;
   image?: string;
+  cardImage?: string;
 } = nextCase
   ? {
-    label: isHome ? 'Selected Case' : 'Next Case',
-    number: nextCase.number,
     title: nextCase.title,
-    description: nextCase.footerDescription,
+    description: nextCase.text,
     href: nextCase.href,
     action: 'View next case',
     image: nextCase.footerImage,
+    cardImage: nextCase.footerCardImage,
   }
   : {
-    label: 'Selected Cases',
     title: 'How I Build',
     description: '現場を理解し、作るべきものを決め、触れる形まで持っていく。',
     href: '/',
@@ -38,24 +35,37 @@ const footer: {
 ---
 
 <footer class="case-footer">
-  <a class="case-footer__feature" href={footer.href}>
+  <a
+    class:list={[
+      'case-footer__feature',
+      { 'case-footer__feature--with-material': footer.cardImage },
+    ]}
+    href={footer.href}
+  >
     {footer.image && <img class="case-footer__image" src={footer.image} alt="" aria-hidden="true" />}
+    {footer.cardImage && (
+      <img
+        class="case-footer__material"
+        src={footer.cardImage}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        fetchpriority="low"
+      />
+    )}
     <div class="case-footer__feature-inner">
-      <div class="case-footer__eyebrow">
-        <span>{footer.label}</span>
-        {footer.number && <span>{footer.number}</span>}
-      </div>
       <div class="case-footer__title-row">
         <h2>{footer.title}</h2>
         <span class="case-footer__arrow" aria-hidden="true">→</span>
       </div>
-      <p>{footer.description}</p>
+      <p>{footer.description.split('\n').map((line, index, lines) => <>{line}{index < lines.length - 1 && <br />}</>)}</p>
       <span class="case-footer__action">{footer.action} <span aria-hidden="true">↗</span></span>
     </div>
   </a>
 
   <div class="case-footer__utility">
-    <p>Ayana Yamazaki — Product Builder</p>
+    <p>Ayana Yamazaki - Product Builder / Product Designer</p>
     <nav aria-label="Footer navigation">
       <a href="/">Home</a>
       <a href="https://x.com/ayana_yamazaki" target="_blank" rel="noreferrer">X / Twitter</a>

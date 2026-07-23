@@ -11,6 +11,15 @@ const caseStudy = getCaseStudy('/prototype-and-iterate');
       <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
       <h1>歯科医師と試作を重ね、<br />紙より速い操作を実現</h1>
       <p>最大192項目を5分以内に入力する、歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、プロトタイプを作るたびに歯科医師と検証。実際に入力を担う歯科衛生士の評価も反映しながら、手と視線の移動を削り、紙と比べて検査速度を24％向上させた。</p>
+    </div>
+
+    <div class="case-hero-media">
+      <figure class="case-figure">
+        <img src="/images/medical-ui/hero-interaction.gif" alt="歯周病検査の数値を連続入力するタブレットUI" />
+      </figure>
+    </div>
+
+    <div class="case-hero-details">
       <dl class="case-meta-grid">
         <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
         <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Dentist / Dental Hygienist</dd></div>
@@ -23,12 +32,6 @@ const caseStudy = getCaseStudy('/prototype-and-iterate');
         <div><small>検査速度</small><strong>24%</strong><span>向上</span></div>
       </div>
       <p class="case-evidence-note">※紙による入力と、プロトタイプを用いた同一検査項目の入力時間を比較</p>
-    </div>
-
-    <div class="case-hero-media">
-      <figure class="case-figure">
-        <img src="/images/medical-ui/hero-interaction.gif" alt="歯周病検査の数値を連続入力するタブレットUI" />
-      </figure>
     </div>
 
   </section>
@@ -137,6 +140,8 @@ const caseStudy = getCaseStudy('/prototype-and-iterate');
 </CaseStudyLayout>
 
 <style>
+  .case-hero-media { grid-column: 2; grid-row: 1 / span 2; }
+  .case-hero-details { display: flex; grid-column: 1; flex-direction: column; gap: 32px; }
   .prototype-iterations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
   .prototype-iterations article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 3vw, 36px); background: #fff; }
   .prototype-iterations article:nth-child(odd) { border-right: 1px solid var(--divider-color); }
@@ -189,6 +194,8 @@ const caseStudy = getCaseStudy('/prototype-and-iterate');
   }
 
   @media (max-width: 720px) {
+    .case-hero-media, .case-hero-details { grid-column: auto; grid-row: auto; }
+    .case-hero-details { gap: 22px; }
     .prototype-iterations, .prototype-feedback-list {
       grid-template-columns: none;
       grid-auto-flow: column;
@@ -216,6 +223,7 @@ const caseStudy = getCaseStudy('/prototype-and-iterate');
     .prototype-feedback-list article > p:not(.case-label) { font-size: 14px; }
     .prototype-iterations .case-figure img,
     .prototype-feedback-list .case-figure img { max-height: 220px; }
+    .prototype-iterations .case-figure { flex: 1; align-items: center; margin-top: 0; }
     .prototype-feedback-list article:nth-child(5) { grid-column: auto; }
     .prototype-feedback-list article:nth-child(5) .case-figure { width: 100%; max-width: none; }
   }

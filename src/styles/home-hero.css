@@ -10,6 +10,7 @@ body:has(.home-main) {
   --home-hero-case-gap: clamp(12px, 2vw, 32px);
   --home-hero-stage-ratio: 2584 / 958;
   --home-hero-band-height: 65.35%;
+  --home-hero-band-start: calc(var(--home-hero-card-top) - 5%);
   --home-hero-stage-padding: 8%;
   --home-hero-card-top: 5.5%;
   --home-hero-card-width: 90%;
@@ -21,7 +22,7 @@ body:has(.home-main) {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 100svh;
+  min-height: 80svh;
   padding: clamp(32px, 5vw, 72px) clamp(24px, 7vw, 112px);
   overflow: hidden;
   background: #f9f3f0;
@@ -51,6 +52,7 @@ body:has(.home-main) {
 
 .home-hero__heading {
   display: grid;
+  margin-top: 24px;
 }
 
 .home-hero__heading > * {
@@ -60,7 +62,7 @@ body:has(.home-main) {
 .home-hero__name {
   margin: 0;
   color: #000;
-  font-size: clamp(32px, 3vw, 44px);
+  font-size: clamp(38px, 3.6vw, 52px);
   font-weight: 300;
   line-height: 1;
 }
@@ -68,7 +70,7 @@ body:has(.home-main) {
 .home-hero__role {
   margin: 0;
   color: #000;
-  font-size: clamp(24px, 2vw, 32px);
+  font-size: clamp(28px, 2.4vw, 38px);
   font-weight: 700;
   line-height: 1.4;
 }
@@ -125,7 +127,7 @@ body:has(.home-main) {
   align-self: center;
   flex: 1;
   width: 90%;
-  margin-top: clamp(48px, 5vw, 72px);
+  margin-top: clamp(24px, calc(5vw - 24px), 48px);
   padding: 0 0 clamp(48px, 7vh, 88px);
 }
 
@@ -763,11 +765,11 @@ body:has(.home-main) {
   }
 
   .home-hero__cases::before {
-    top: 0;
+    top: var(--home-hero-band-start);
     bottom: auto;
     left: 0;
     width: 100%;
-    height: var(--home-hero-band-height);
+    height: calc(var(--home-hero-band-height) - var(--home-hero-band-start));
     border-radius: clamp(24px, 2.7vw, 70px);
     transform: none;
   }
@@ -792,11 +794,20 @@ body:has(.home-main) {
 @media (max-width: 720px) {
   .home-hero {
     --blue-band-overhang: 64px;
+    padding-left: 24px;
     padding-right: 0;
   }
 
   .home-hero__heading {
     padding-right: 24px;
+  }
+
+  .home-hero__role {
+    line-height: 1;
+  }
+
+  .home-hero__name {
+    margin-bottom: 8px;
   }
 
   .home-hero__description {
@@ -809,22 +820,46 @@ body:has(.home-main) {
   }
 
   .home-hero__cases {
-    grid-template-columns: repeat(4, minmax(162px, 52vw));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 28px;
     align-self: stretch;
-    width: 100%;
-    overflow-x: auto;
+    width: calc(100% + 24px);
+    margin-left: -24px;
+    overflow: visible;
     padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .home-hero__cases::before,
+  .home-hero__backdrop-image {
+    top: 10%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: 100%;
+    height: 80%;
+    border-radius: 0;
+    transform: translateX(-50%);
+  }
+
+  .home-hero__backdrop-image {
+    display: none;
+    transform-origin: center;
   }
 
   .home-hero__case-title {
-    font-size: 28px;
+    font-size: clamp(18px, 7vw, 28px);
+  }
+
+  .home-hero__case-text {
+    display: none;
   }
 
   .home-hero__case[data-material='gem'] .home-hero__case-title,
   .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
   .home-hero__case[data-material='rough-glass'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
-    font-size: 31px;
+    font-size: clamp(18px, 7.8vw, 31px);
   }
 }
 

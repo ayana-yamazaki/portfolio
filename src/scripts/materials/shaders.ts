@@ -367,6 +367,7 @@ export const glassFragmentShader = `
   uniform float uAbsorptionStrength;
   uniform float uDispersionStrength;
   uniform float uFloorY;
+  uniform float uBandBottomY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
   uniform vec2 uLightDirection;
@@ -475,6 +476,19 @@ export const glassFragmentShader = `
     vec2 blueBend=(
       raySlope(glassRay(incident,worldNormal,uIor+iorSpread))-incidentSlope
     )*uRefraction*opticalPath*opticalRegion;
+    float bandBoundaryProximity=1.0-smoothstep(
+      .018,
+      .11,
+      abs(vScreenUv.y-uBandBottomY)
+    );
+    float centerLens=1.0-smoothstep(.08,.5,abs(local.x-.5));
+    vec2 boundaryBend=vec2(
+      0.0,
+      -bandBoundaryProximity*centerLens*uRefraction*.34
+    );
+    redBend+=boundaryBend*1.025;
+    greenBend+=boundaryBend;
+    blueBend+=boundaryBend*.975;
     vec3 transmitted=vec3(
       sceneAt(vScreenUv+redBend/uCanvasSize).r,
       sceneAt(vScreenUv+greenBend/uCanvasSize).g,
@@ -725,12 +739,9 @@ export const roughGlassFragmentShader = `
   uniform vec2 uTexel;
   uniform float uRefractionStrength;
   uniform float uFloorY;
+  uniform float uBandBottomY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
-  uniform vec3 uBackgroundReflectionFallback;
-  uniform float uBandTopY;
-  uniform float uBackgroundReflectionStrength;
-  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vUv;
   varying vec2 vScreenUv;
 
@@ -770,6 +781,16 @@ export const roughGlassFragmentShader = `
     float crestLight=smoothstep(.025,.14,centerHeight-neighborHeight);
 
     vec2 refractionOffset=slope*vec2(.0075,.006)*uRefractionStrength;
+    float bandBoundaryProximity=1.0-smoothstep(
+      .018,
+      .105,
+      abs(vScreenUv.y-uBandBottomY)
+    );
+    float bandBoundaryWave=sin(vUv.x*6.2+.4)*.006
+      +sin(vUv.x*13.0-.7)*.0022;
+    refractionOffset.y+=bandBoundaryWave
+      *bandBoundaryProximity
+      *uRefractionStrength;
     float relief=centerHeight-.5;
     vec2 irregularBend=vec2(
       slope.y-slope.x*.35,
@@ -804,63 +825,6 @@ export const roughGlassFragmentShader = `
     float blueBackdrop=smoothstep(.06,.28,color.b-max(color.r,color.g));
     float cavityStrength=mix(.19,.3,blueBackdrop);
     color*=1.0-waveShadow*.16-cavityShadow*cavityStrength;
-    float reflectionWaveA=sin(vUv.x*6.4+.35)*.018
-      +sin(vUv.x*13.5-.8)*.005;
-    float reflectionWaveB=sin(vUv.x*5.2-1.1)*.014
-      +sin(vUv.x*11.0+.5)*.004;
-    float reflectionWaveC=sin(vUv.x*7.1+1.4)*.01
-      +sin(vUv.x*15.0-.2)*.003;
-    float reflectionBandA=exp(-pow(
-      (vUv.y-(.93+reflectionWaveA))/.026,
-      2.0
-    ));
-    float reflectionBandB=exp(-pow(
-      (vUv.y-(.865+reflectionWaveB))/.019,
-      2.0
-    ));
-    float reflectionBandC=exp(-pow(
-      (vUv.y-(.81+reflectionWaveC))/.014,
-      2.0
-    ));
-    float roughReflectionBands=max(
-      reflectionBandA,
-      max(reflectionBandB*.72,reflectionBandC*.44)
-    );
-    roughReflectionBands*=smoothstep(.72,.82,vUv.y);
-    vec2 reflectedBackgroundUv=vec2(
-      vScreenUv.x+slope.x*.004,
-      uBandTopY+uBackgroundReflectionRayDistance*.08
-    );
-    float reflectedBackgroundOutside=clamp(
-      step(reflectedBackgroundUv.x,0.0)
-        +step(1.0,reflectedBackgroundUv.x)
-        +step(reflectedBackgroundUv.y,0.0)
-        +step(1.0,reflectedBackgroundUv.y),
-      0.0,
-      1.0
-    );
-    vec4 reflectedBackgroundSample=texture2D(
-      uBackdrop,
-      clamp(reflectedBackgroundUv,vec2(.002),vec2(.998))
-    );
-    vec3 reflectedBackground=mix(
-      uBackgroundReflectionFallback,
-      reflectedBackgroundSample.rgb,
-      reflectedBackgroundSample.a
-    );
-    reflectedBackground=mix(
-      reflectedBackground,
-      uBackgroundReflectionFallback,
-      reflectedBackgroundOutside
-    );
-    float roughBackgroundReflection=roughReflectionBands
-      *mix(.82,1.0,crestLight)
-      *uBackgroundReflectionStrength;
-    color=mix(
-      color,
-      reflectedBackground,
-      clamp(roughBackgroundReflection,0.0,.68)
-    );
     float microSurfaceHighlight=waveHighlight*.028
       +waveSpecular*.075
       +crestLight*.016;

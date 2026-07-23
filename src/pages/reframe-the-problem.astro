@@ -45,7 +45,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
             <div><small>無線連絡</small><strong>84%</strong><span>削減</span></div>
             <div><small>作業効率</small><strong>18%</strong><span>向上</span></div>
             <div><small>導入</small><strong>200</strong><span>社規模</span></div>
-            <div>
+            <div class="reposaku-award-fact-cell">
               <div class="reposaku-award-fact" aria-label="GOOD DESIGN AWARD 2025 グッドデザイン金賞">
                 <span class="reposaku-award-fact-en">GOOD DESIGN AWARD 2025</span>
                 <span class="reposaku-award-fact-ja">グッドデザイン金賞</span>
@@ -558,7 +558,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
   }
 
   @media (max-width: 760px) {
-    .reposaku-hero { gap: 22px; padding-bottom: 32px; }
+    .reposaku-hero { gap: 22px; margin-top: 0; padding-bottom: 32px; }
     .reposaku-hero-heading { margin-top: 32px; }
     .reposaku-hero-heading,
     .reposaku-hero-summary {
@@ -584,6 +584,16 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
       gap: 12px;
     }
 
+    .reposaku-award-fact-cell {
+      display: block;
+    }
+
+    .reposaku-award-fact-en,
+    .reposaku-award-fact-ja {
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+
     .reposaku-cover-awards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -597,7 +607,23 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
     }
 
     .field-research-gallery {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .field-research-gallery img {
+      grid-column: span 2;
+    }
+
+    .field-research-gallery .field-research-image--large {
+      grid-column: span 3;
+    }
+
+    .field-research-gallery .field-research-image--large:first-child {
+      order: -2;
+    }
+
+    .field-research-gallery .field-research-image--large:last-child {
+      order: -1;
     }
 
     .reposaku-live-map-row {
@@ -618,5 +644,12 @@ const caseStudy = getCaseStudy('/reframe-the-problem');
 
     .reposaku-recognition { margin-top: 22px; }
     .reposaku-recognition h3 { font-size: 22px; line-height: 1.35; }
+  }
+
+  @media (max-width: 720px) {
+    .reposaku-cover {
+      margin-right: -24px;
+      margin-left: -24px;
+    }
   }
 </style>

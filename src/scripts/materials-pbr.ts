@@ -787,6 +787,7 @@ if (canvas && cases && hero) {
       const bandLeft = Number.parseFloat(bandStyle.left);
       const bandTop = Number.parseFloat(bandStyle.top);
       let bandTopScreenY = 1;
+      let bandBottomScreenY = 0;
       if (
         Number.isFinite(bandWidth)
         && Number.isFinite(bandHeight)
@@ -799,6 +800,7 @@ if (canvas && cases && hero) {
         const x = casesRect.left - canvasRect.left + bandLeft + transform.e;
         const y = casesRect.top - canvasRect.top + bandTop + transform.f;
         bandTopScreenY = 1 - y / canvasRect.height;
+        bandBottomScreenY = 1 - (y + bandHeight) / canvasRect.height;
         const radius = Number.parseFloat(bandStyle.borderTopLeftRadius) || 0;
         glassBackdropContext.save();
         glassBackdropContext.beginPath();
@@ -810,8 +812,9 @@ if (canvas && cases && hero) {
       }
       gemFaceMaterial.uniforms.uBandTopY.value = bandTopScreenY;
       seaGlassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
-      roughGlassFaceMaterial.uniforms.uBandTopY.value = bandTopScreenY;
       glassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
+      roughGlassFaceMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;
+      glassMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;
 
       if (!backdropImage || !rect || !style) {
         glassBackdropTexture.needsUpdate = true;

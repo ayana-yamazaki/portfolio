@@ -3,7 +3,6 @@ import { about } from '../data/site';
 ---
 
 <section id="about" class="about" aria-labelledby="about-title">
-  <div class="rule"></div>
   <h2 id="about-title">{about.label}</h2>
   <div class="about-intro">
     <div class="case-prose case-prose--full">{about.description.map((line) => <p>{line}</p>)}</div>
