@@ -9,7 +9,7 @@ const caseStudy = getCaseStudy('/build-ai-native');
   <section class="case-hero case-hero--split case-hero--wide-first case-hero--ai-native">
     <div class="case-hero-copy">
       <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
-      <h1>Figmaでは見えない仕様の穴を、<br />コードで潰す</h1>
+      <h1>Figmaでは<span class="nowrap">見えない</span>仕様の穴を、コードで潰す</h1>
       <p class="ai-hero-lead">Claude Codeでプロトタイプを作り、Storybook上で画面と仕様を定義。PdM・エンジニアと触れるものを囲んで検証し、131件の仕様課題とUX改善を実装前に解決した。</p>
       <div class="ai-hero-article">
         <p>詳しいプロセス、131件の内訳、導入条件はCADDi Tech Blogへ</p>
@@ -125,7 +125,7 @@ const caseStudy = getCaseStudy('/build-ai-native');
         <li><span>02</span>実務を再現したUX検証</li>
         <li><span>03</span>テスト・既存実装の観点をデザイン工程へ前倒し</li>
       </ul>
-      <p class="ai-storybook-note" data-reveal>Storybookは、仕様と操作を検証する中間成果物であり、フロントエンド実装そのものを置き換えるものではありません。</p>
+      <p class="ai-storybook-note" data-reveal>Storybookは本番フロントエンドの代替ではなく、実装前の仕様とUX判断を揃えるための中間成果物として運用しました。</p>
     </section>
 
     <section class="case-section ai-closing-section">
@@ -147,6 +147,12 @@ const caseStudy = getCaseStudy('/build-ai-native');
 </CaseStudyLayout>
 
 <style>
+  .nowrap {
+    display: inline-block;
+    white-space: nowrap;
+    word-break: keep-all;
+  }
+
   .ai-native-content {
     --case-section-padding: clamp(56px, 6.5vw, 92px);
     --case-block-gap: clamp(30px, 4vw, 48px);
