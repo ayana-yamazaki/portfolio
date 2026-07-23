@@ -13,19 +13,19 @@ const caseStudy = getCaseStudy('/build-ai-native');
       <p class="ai-hero-lead">Claude Codeでプロトタイプを作り、Storybook上で画面と仕様を定義。PdM・エンジニアと触れるものを囲んで検証し、131件の仕様課題とUX改善を実装前に解決した。</p>
       <div class="ai-hero-article">
         <p>詳しいプロセス、131件の内訳、導入条件はCADDi Tech Blogへ</p>
-        <a class="external-article-button" href="https://caddi.tech/figmaless_design" target="_blank" rel="noreferrer">CADDi Tech Blogで全文を読む <span aria-hidden="true">↗</span></a>
+        <a class="external-article-button" href="https://caddi.tech/figmaless_design" target="_blank" rel="noopener noreferrer">CADDi Tech Blogで全文を読む <span aria-hidden="true">↗</span></a>
       </div>
     </div>
 
     <div class="case-hero-media">
-      <a class="ai-hero-image-link" href="https://caddi.tech/figmaless_design" target="_blank" rel="noreferrer" aria-label="CADDi Tech Blogで全文を読む">
+      <a class="ai-hero-image-link" href="https://caddi.tech/figmaless_design" target="_blank" rel="noopener noreferrer" aria-label="CADDi Tech Blogで全文を読む">
         <figure class="case-figure">
           <img src="/images/build-ai-native-hero.png" alt="Figmaを使わずClaude CodeとStorybookで131件の検討漏れを発見した取り組み" />
         </figure>
       </a>
       <dl class="case-meta-grid">
         <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
-        <div><dt class="meta-label">Core Collaboration</dt><dd class="text-xs">PdM / Engineer</dd></div>
+        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Engineer</dd></div>
         <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Prototype / Storybook / UX Specification</dd></div>
         <div><dt class="meta-label">Duration</dt><dd class="text-xs">Approx. 1.5 months</dd></div>
       </dl>
@@ -37,75 +37,540 @@ const caseStudy = getCaseStudy('/build-ai-native');
     </div>
   </section>
 
-  <!-- <div class="case-content">
+  <div class="case-content ai-native-content">
     <section class="case-section case-section--no-divider">
       <header class="case-section-header" data-reveal>
-        <p class="section-title">01 — Why Code</p>
-        <h2>Figmaは画面を完成させる<br />コードは意思決定を完了させる</h2>
+        <p class="section-title">01 — The Problem</p>
+        <h2>画面は完成しても、<br />意思決定は終わっていなかった</h2>
+        <p>静的なデザインファイルでは、エラーの発火タイミング、Empty State、長い文字列、デフォルトの並び順などを決めなくても、完成した画面を作れます。未定義の仕様や既存実装との不整合が、実装フェーズまで持ち越されることが課題でした。</p>
       </header>
-      <div class="case-two-column" data-reveal>
-        <div class="case-prose">
-          <p class="case-label">Problem</p>
-          <p>静的なデザインファイルでは、エラーを出すタイミング、Empty State、Loading、長い文字列が入った場合の表現などを決めなくても、画面を完成させられる。見た目が整っていても、UXの意思決定は終わっていなかった。</p>
-        </div>
-        <div class="case-prose">
-          <p class="case-label">Decision</p>
-          <p>画面仕様をコードで定義し、実際に操作できる状態で検証することにした。コードは未定義の状態を許さない。動かすために必要な判断を一つずつ表面化させ、実装前に決め切るプロセスへ変えた。</p>
-        </div>
-      </div>
-      <div class="case-prose case-insight" data-reveal>
-        <p><strong>手段をFigmaからコードへ変えたのではない。曖昧なまま残っていた意思決定を、デザインの責任として引き取った。</strong></p>
-      </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header" data-reveal>
-        <p class="section-title">02 — AI-Native Workflow</p>
-        <h2>触れる仕様を、<br />多職種で磨く</h2>
-        <p>大枠は軽量なコードベースプロトタイプで素早く検証し、方向性が固まってから本番のデザインシステムを使ったStorybookへ移行した。</p>
+        <p class="section-title">02 — The Approach</p>
+        <h2>コードで仕様を定義し、<br />触れるものを囲んで検証する</h2>
       </header>
-      <div class="phase-list ai-native-workflow" data-reveal>
-        <div class="phase-item"><h4>01 — Prototype</h4><p>Claude CodeでHTMLプロトタイプを作り、画面構成と情報の優先度をPdMと検証する。</p></div>
-        <div class="phase-item"><h4>02 — Move to Storybook</h4><p>Reactと社内デザインシステムを使い、実際に操作できる画面とコンポーネントへ移行する。</p></div>
-        <div class="phase-item"><h4>03 — Define Every State</h4><p>Default、Empty、Loading、エラー、長文など、画面に起こり得る状態と挙動をStoryと仕様書に定義する。</p></div>
-        <div class="phase-item"><h4>04 — Walk Through</h4><p>PdM・エンジニアと実務を再現しながら操作し、仕様の矛盾、UXの違和感、実装上の不整合を前工程で解決する。</p></div>
-      </div>
-      <div class="case-prose case-insight" data-reveal>
-        <p><strong>完成した画面をレビューするのではなく、触れる仕様を囲んで、1〜3日単位で改善を回した。</strong></p>
-      </div>
+      <ol class="ai-process" data-reveal aria-label="HTMLプロトタイプからウォークスルーまでの設計プロセス">
+        <li>
+          <span>01</span>
+          <h3>HTML Prototype</h3>
+          <p>画面構成と情報の優先度を検証</p>
+        </li>
+        <li>
+          <span>02</span>
+          <h3>Storybook</h3>
+          <p>Reactと社内デザインシステムで、状態と操作を定義</p>
+        </li>
+        <li>
+          <span>03</span>
+          <h3>UX Specification</h3>
+          <p>MDXでカラム、ステータス、フィルター、スクロール、i18nなどを記述</p>
+        </li>
+        <li>
+          <span>04</span>
+          <h3>Walkthrough</h3>
+          <p>PdM・エンジニアと実務を再現し、実装前に判断を完了</p>
+        </li>
+      </ol>
     </section>
 
     <section class="case-section">
       <header class="case-section-header" data-reveal>
-        <p class="section-title">03 — Impact</p>
+        <p class="section-title">03 — The Result</p>
         <h2>131件を、<br />実装前に解決</h2>
-        <p>約1.5か月で6回のウォークスルーを実施。実装後では修正コストが高くなる問題を、デザインの段階で発見し、すべて解決した。</p>
+        <p>約1.5か月で6回のウォークスルーを実施。31画面、49件のStory、39件のMDX画面仕様書を作成し、静的な画面では残っていた判断を実装前に完了させました。</p>
       </header>
-      <div class="ai-impact-grid" data-reveal>
-        <article><p class="case-label">Specification</p><strong>60</strong><span>仕様の検討漏れ・矛盾</span></article>
-        <article><p class="case-label">UX Improvement</p><strong>45</strong><span>操作して見つけたUX改善</span></article>
-        <article><p class="case-label">Implementation</p><strong>26</strong><span>実装誤り・既存仕様との不整合</span></article>
+      <div class="ai-result-overview" data-reveal>
+        <div class="ai-result-total">
+          <p class="case-label">Resolved before implementation</p>
+          <p><strong>131</strong><span>件</span></p>
+          <small>仕様課題とUX改善を実装前に解決</small>
+        </div>
+        <dl class="ai-result-metrics">
+          <div><dt>Duration</dt><dd><strong>約1.5</strong><span>か月</span></dd></div>
+          <div><dt>Walkthrough</dt><dd><strong>6</strong><span>回</span></dd></div>
+          <div><dt>Screens</dt><dd><strong>31</strong><span>画面</span></dd></div>
+          <div><dt>Story</dt><dd><strong>49</strong><span>件</span></dd></div>
+          <div><dt>MDX Specification</dt><dd><strong>39</strong><span>件</span></dd></div>
+        </dl>
       </div>
-      <div class="case-prose case-insight" data-reveal>
-        <p><strong>問題を後工程で見つけるのではなく、デザインプロセスそのものに検証を組み込んだ。</strong></p>
+      <div class="ai-result-cards" data-reveal>
+        <article>
+          <p class="case-label">Specification</p>
+          <p class="ai-result-card-title">仕様の検討漏れ・未定義・矛盾 <strong>60</strong></p>
+          <p>コードでは定義しないと画面が動かないため、未決定の項目が露出した。</p>
+        </article>
+        <article>
+          <p class="case-label">UX Improvement</p>
+          <p class="ai-result-card-title">UX改善 <strong>45</strong></p>
+          <p>実際に操作しながら業務を再現し、静止画では気づけない違和感を検出した。</p>
+        </article>
+        <article>
+          <p class="case-label">Implementation</p>
+          <p class="ai-result-card-title">実装誤り・既存実装との不整合 <strong>26</strong></p>
+          <p>本番コードを参照することで、意図しない乖離を実装前に発見した。</p>
+        </article>
       </div>
-      <p><a class="external-article-button" href="https://caddi.tech/figmaless_design" target="_blank" rel="noreferrer">CADDi Tech Blogで全文を読む <span aria-hidden="true">↗</span></a></p>
     </section>
 
-  </div> -->
+    <section class="case-section">
+      <header class="case-section-header" data-reveal>
+        <p class="section-title">04 — What Changed</p>
+        <h2>デザインの成果物ではなく、<br />意思決定の完了度を変えた</h2>
+        <p>コードを書くこと自体が目的ではありません。画面・状態・操作・仕様を同じ場所で扱い、PdMとエンジニアが触れるものを囲んで検証することで、これまで実装フェーズまで残っていた判断を前工程へ移しました。</p>
+      </header>
+      <ul class="ai-change-list" data-reveal>
+        <li><span>01</span>曖昧な仕様を実装前に露出</li>
+        <li><span>02</span>実務を再現したUX検証</li>
+        <li><span>03</span>テスト・既存実装の観点をデザイン工程へ前倒し</li>
+      </ul>
+      <p class="ai-storybook-note" data-reveal>Storybookは、仕様と操作を検証する中間成果物であり、フロントエンド実装そのものを置き換えるものではありません。</p>
+    </section>
+
+    <section class="case-section ai-closing-section">
+      <div class="ai-closing-grid">
+        <div class="ai-starting-point" data-reveal>
+          <p class="section-title">05 — Starting Point</p>
+          <h2>境界を越えて、<br />作業範囲を広げる</h2>
+          <p>Gitもほぼ未経験の状態から、エンジニアの伴走とClaude Codeを活用し、コードベースの仕様設計へ移行。2か月で251 commits・177 filesまで作業範囲を広げました。</p>
+        </div>
+        <aside class="ai-article-cta" data-reveal aria-labelledby="ai-article-title">
+          <p class="case-label">External Article</p>
+          <h3 id="ai-article-title">詳しいプロセスと導入条件を読む</h3>
+          <p>具体的な仕様例、PdMとの6回の検証、プロセスを成立させた条件をCADDi Tech Blogで紹介しています。</p>
+          <a class="external-article-button" href="https://caddi.tech/figmaless_design" target="_blank" rel="noopener noreferrer">詳しいプロセスと導入条件を読む <span aria-hidden="true">↗</span></a>
+        </aside>
+      </div>
+    </section>
+  </div>
 </CaseStudyLayout>
 
 <style>
-  .ai-native-workflow { margin-bottom: 0; }
-  .ai-impact-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
-  .ai-impact-grid article { display: flex; flex-direction: column; gap: 20px; min-height: 260px; padding: clamp(24px, 3vw, 40px); border-right: 1px solid var(--divider-color); }
-  .ai-impact-grid article:last-child { border-right: 0; }
-  .ai-impact-grid strong { margin-top: auto; font-size: clamp(64px, 9vw, 128px); font-weight: 500; line-height: .85; letter-spacing: -.07em; }
-  .ai-impact-grid span { font-size: clamp(14px, 1.2vw, 17px); line-height: 1.6; }
+  .ai-native-content {
+    --case-section-padding: clamp(56px, 6.5vw, 92px);
+    --case-block-gap: clamp(30px, 4vw, 48px);
+    --case-heading-gap: clamp(22px, 3vw, 34px);
+  }
+
+  .ai-native-content .case-section-header {
+    max-width: 1080px;
+  }
+
+  .ai-process {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #181818;
+    border-bottom: 1px solid #181818;
+    list-style: none;
+  }
+
+  .ai-process li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 230px;
+    padding: clamp(22px, 2.5vw, 34px);
+    border-right: 1px solid var(--divider-color);
+  }
+
+  .ai-process li:last-child {
+    border-right: 0;
+  }
+
+  .ai-process li:not(:last-child)::after {
+    position: absolute;
+    z-index: 1;
+    top: 30px;
+    right: -15px;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    background: #fff;
+    color: var(--text-color-secondary);
+    font-size: 18px;
+    content: '→';
+  }
+
+  .ai-process li > span {
+    color: var(--text-color-secondary);
+    font-size: 11px;
+    letter-spacing: .08em;
+  }
+
+  .ai-process h3 {
+    margin-top: 34px;
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(18px, 1.7vw, 24px);
+    line-height: 1.15;
+  }
+
+  .ai-process p {
+    min-height: 0;
+    margin: 14px 0 0;
+    font-size: clamp(13px, 1.1vw, 16px);
+    line-height: 1.7;
+  }
+
+  .ai-result-overview {
+    display: grid;
+    grid-template-columns: minmax(220px, .5fr) minmax(0, 1.5fr);
+    border: 1px solid #181818;
+  }
+
+  .ai-result-total {
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+    padding: clamp(16px, 1.8vw, 24px);
+    border-right: 1px solid #181818;
+  }
+
+  .ai-result-total .case-label {
+    font-size: 11px;
+  }
+
+  .ai-result-total > p:nth-child(2) {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: auto 0 6px;
+  }
+
+  .ai-result-total strong {
+    font-size: clamp(64px, 6.5vw, 88px);
+    font-weight: 500;
+    line-height: .75;
+    letter-spacing: -.08em;
+  }
+
+  .ai-result-total span {
+    font-size: 14px;
+  }
+
+  .ai-result-total small {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .ai-result-metrics {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 0;
+  }
+
+  .ai-result-metrics > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+    padding: clamp(16px, 1.8vw, 24px);
+    border-right: 1px solid var(--divider-color);
+  }
+
+  .ai-result-metrics > div:last-child {
+    border-right: 0;
+  }
+
+  .ai-result-metrics dt {
+    color: var(--text-color-secondary);
+    font-size: 9px;
+    line-height: 1.4;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .ai-result-metrics dd {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 24px 0 0;
+    white-space: nowrap;
+  }
+
+  .ai-result-metrics strong {
+    font-size: clamp(26px, 2.7vw, 38px);
+    font-weight: 500;
+    line-height: .9;
+    letter-spacing: -.06em;
+  }
+
+  .ai-result-metrics span {
+    font-size: 12px;
+  }
+
+  .ai-result-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--divider-color);
+    border-bottom: 1px solid var(--divider-color);
+  }
+
+  .ai-result-cards article {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-height: 270px;
+    padding: clamp(22px, 2.6vw, 36px);
+    border-right: 1px solid var(--divider-color);
+  }
+
+  .ai-result-cards article:last-child {
+    border-right: 0;
+  }
+
+  .ai-result-cards article > p {
+    margin: 0;
+    font-size: clamp(13px, 1.1vw, 16px);
+    line-height: 1.7;
+  }
+
+  .ai-result-cards .ai-result-card-title {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+    font-size: clamp(15px, 1.25vw, 18px);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .ai-result-card-title strong {
+    font-size: clamp(56px, 6.5vw, 94px);
+    font-weight: 500;
+    line-height: .85;
+    letter-spacing: -.07em;
+  }
+
+  .ai-change-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #181818;
+    border-bottom: 1px solid #181818;
+    list-style: none;
+  }
+
+  .ai-change-list li {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(32px, 4vw, 56px);
+    padding: clamp(22px, 2.8vw, 38px);
+    border-right: 1px solid var(--divider-color);
+    font-size: clamp(15px, 1.4vw, 20px);
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .ai-change-list li:last-child {
+    border-right: 0;
+  }
+
+  .ai-change-list span {
+    color: var(--text-color-secondary);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: .08em;
+  }
+
+  .ai-storybook-note {
+    max-width: 760px;
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .ai-closing-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, .72fr);
+    gap: clamp(48px, 8vw, 120px);
+    align-items: start;
+  }
+
+  .ai-starting-point {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(22px, 3vw, 34px);
+  }
+
+  .ai-starting-point h2 {
+    font-size: clamp(36px, 4.5vw, 60px);
+  }
+
+  .ai-starting-point > p:last-child,
+  .ai-article-cta > p {
+    margin: 0;
+    font-size: clamp(14px, 1.2vw, 17px);
+    line-height: 1.7;
+  }
+
+  .ai-article-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding-top: 2px;
+  }
+
+  .ai-article-cta h3 {
+    font-size: clamp(24px, 2.6vw, 36px);
+    line-height: 1.35;
+  }
+
+  .ai-article-cta .external-article-button {
+    margin-top: 8px;
+    font-size: 15px;
+  }
+
+  @media (max-width: 960px) {
+    .ai-process {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ai-process li {
+      min-height: 190px;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .ai-process li:nth-child(even) {
+      border-right: 0;
+    }
+
+    .ai-process li:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+
+    .ai-process li::after {
+      display: none !important;
+    }
+
+    .ai-result-overview {
+      grid-template-columns: minmax(210px, .65fr) minmax(0, 1.35fr);
+    }
+
+    .ai-result-metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ai-result-metrics > div {
+      min-height: 140px;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .ai-result-metrics > div:nth-child(3) {
+      border-right: 1px solid var(--divider-color);
+    }
+
+    .ai-result-metrics > div:nth-child(even) {
+      border-right: 0;
+    }
+
+    .ai-result-metrics > div:last-child {
+      grid-column: 1 / -1;
+      min-height: 130px;
+      border-right: 0;
+      border-bottom: 0;
+    }
+
+    .ai-result-cards article {
+      min-height: 250px;
+    }
+
+    .ai-closing-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   @media (max-width: 720px) {
     .ai-hero-article .external-article-button { font-size: 14px; }
-    .ai-impact-grid { grid-template-columns: 1fr; }
-    .ai-impact-grid article { min-height: 210px; border-right: 0; border-bottom: 1px solid var(--divider-color); }
-    .ai-impact-grid article:last-child { border-bottom: 0; }
+
+    .ai-native-content {
+      --case-section-padding: 40px;
+    }
+
+    .ai-process {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-process li {
+      min-height: 0;
+      padding-inline: 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .ai-process li:nth-last-child(2) {
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .ai-process h3 {
+      margin-top: 16px;
+    }
+
+    .ai-process p {
+      min-height: 0;
+      margin-top: 8px;
+    }
+
+    .ai-result-overview {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-result-total {
+      min-height: 180px;
+      border-right: 0;
+      border-bottom: 1px solid #181818;
+    }
+
+    .ai-result-total strong {
+      font-size: clamp(72px, 24vw, 96px);
+    }
+
+    .ai-result-metrics > div {
+      min-height: 110px;
+      padding: 18px;
+    }
+
+    .ai-result-cards,
+    .ai-change-list {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-result-cards article,
+    .ai-change-list li {
+      min-height: 0;
+      padding-inline: 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .ai-result-cards article:last-child,
+    .ai-change-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .ai-result-cards .ai-result-card-title {
+      margin-top: 12px;
+    }
+
+    .ai-change-list li {
+      gap: 18px;
+    }
+
+    .ai-starting-point h2 {
+      font-size: 32px;
+    }
+
+    .ai-article-cta .external-article-button {
+      width: 100%;
+      justify-content: space-between;
+      font-size: 14px;
+    }
   }
 </style>

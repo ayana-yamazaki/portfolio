@@ -11,6 +11,8 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+const ogTitle = `${title} — Ayana Yamazaki`;
+const canonicalUrl = new URL(Astro.url.pathname, 'https://ayana-works.com');
 ---
 
 <!doctype html>
@@ -19,6 +21,12 @@ const { title, description } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content={canonicalUrl} />
     <title>{title} — Ayana Yamazaki</title>
   </head>
   <body id="top">

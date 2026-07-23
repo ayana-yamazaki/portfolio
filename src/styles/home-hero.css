@@ -85,6 +85,15 @@ body:has(.home-main) {
   white-space: nowrap;
 }
 
+.home-hero__capability {
+  max-width: 56ch;
+  margin: 8px 0 0;
+  color: #181818;
+  font-size: clamp(12px, .9vw, 14px);
+  font-weight: 500;
+  line-height: 1.65;
+}
+
 .home-hero__title {
   position: absolute;
   z-index: 2;
@@ -231,6 +240,12 @@ body:has(.home-main) {
     translate 360ms cubic-bezier(.45, 0, .55, 1);
 }
 
+.home-hero__materials-canvas[data-renderer-state='initializing']
+  ~ .home-hero__case .material-card__front,
+.home-hero__materials-canvas[data-renderer-state='initializing']
+  ~ .home-hero__case .material-card__side,
+.home-hero__materials-canvas[data-renderer-state='initializing']
+  ~ .home-hero__case .material-card__shadow,
 .home-hero__cases.is-materials-pbr-ready .material-card__front,
 .home-hero__cases.is-materials-pbr-ready .material-card__side,
 .home-hero__cases.is-materials-pbr-ready .material-card__shadow {
@@ -822,6 +837,10 @@ body:has(.home-main) {
 
   .home-hero__description {
     white-space: normal;
+  }
+
+  .home-hero__capability {
+    max-width: 38em;
   }
 
   .home-hero__title {
