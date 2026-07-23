@@ -6,24 +6,10 @@ import '../styles/case-study.css';
 import About from '../components/About.astro';
 import CaseFooter from '../components/CaseFooter.astro';
 import { caseStudies } from '../data/site';
-import { getImage } from 'astro:assets';
-import stoneLimestoneAlbedo from '../assets/stone-limestone-albedo.png';
-import stoneMicrodetailOverlay from '../assets/stone-microdetail-overlay.png';
+import nanakamadoImage from '../../img/nanakamado.png';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
-const materials = ['stone', 'milk-resin', 'resin', 'glass'] as const;
-const stoneLimestoneTexture = await getImage({
-  src: stoneLimestoneAlbedo,
-  width: 1024,
-  format: 'webp',
-  quality: 95,
-});
-const stoneMicrodetailTexture = await getImage({
-  src: stoneMicrodetailOverlay,
-  width: 1024,
-  format: 'webp',
-  quality: 92,
-});
+const materials = ['gem', 'sea-glass', 'resin', 'glass'] as const;
 ---
 
 <!doctype html>
@@ -37,11 +23,6 @@ const stoneMicrodetailTexture = await getImage({
   <body id="top">
     <main class="home-main">
       <section class="home-hero" aria-labelledby="home-title">
-        <div class="home-hero__stage" aria-hidden="true">
-          <div class="home-hero__stage-wall"></div>
-          <div class="home-hero__stage-floor"></div>
-        </div>
-
         <svg class="material-filters" aria-hidden="true">
           <defs>
             <filter id="material-paper-grain" x="-10%" y="-10%" width="120%" height="120%">
@@ -75,29 +56,6 @@ const stoneMicrodetailTexture = await getImage({
               <feBlend in="clouded" in2="resin-specular-clipped" mode="screen" />
             </filter>
 
-            <filter id="material-frosted-glass" x="-10%" y="-10%" width="120%" height="120%">
-              <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="4" seed="47" result="frost" />
-              <feColorMatrix in="frost" type="saturate" values="0" result="frost-mono" />
-              <feComponentTransfer in="frost-mono" result="frost-grain">
-                <feFuncR type="linear" slope=".54" intercept=".42" />
-                <feFuncG type="linear" slope=".58" intercept=".44" />
-                <feFuncB type="linear" slope=".62" intercept=".46" />
-                <feFuncA type="table" tableValues="0 .14" />
-              </feComponentTransfer>
-              <feBlend in="SourceGraphic" in2="frost-grain" mode="screen" result="frosted" />
-              <feDiffuseLighting in="frost" surfaceScale=".7" diffuseConstant=".75" lighting-color="#f5ffff" result="frost-light">
-                <feDistantLight azimuth="220" elevation="62" />
-              </feDiffuseLighting>
-              <feComposite in="frost-light" in2="SourceAlpha" operator="in" result="frost-light-clipped" />
-              <feBlend in="frosted" in2="frost-light-clipped" mode="soft-light" />
-            </filter>
-
-            <filter id="stone-wet-letter" x="-12%" y="-18%" width="124%" height="136%" color-interpolation-filters="sRGB">
-              <feTurbulence type="fractalNoise" baseFrequency=".018 .085" numOctaves="3" seed="29" result="letter-noise" />
-              <feDisplacementMap in="SourceGraphic" in2="letter-noise" scale="2.8" xChannelSelector="R" yChannelSelector="G" result="warped-letter" />
-              <feMorphology in="warped-letter" operator="dilate" radius=".18" result="soaked-letter" />
-              <feGaussianBlur in="soaked-letter" stdDeviation=".12" />
-            </filter>
           </defs>
         </svg>
 
@@ -110,13 +68,20 @@ const stoneMicrodetailTexture = await getImage({
         </header>
 
         <div class="home-hero__cases" aria-label="Case studies">
-          <h1 class="home-hero__title" id="home-title" data-glass-refraction-source>THE WAY<br />I BUILD</h1>
+          <img
+            class="home-hero__backdrop-image"
+            src={nanakamadoImage.src}
+            alt=""
+            aria-hidden="true"
+            data-glass-backdrop-image-source
+          />
+          {/* <h1 class="home-hero__title" id="home-title" data-glass-refraction-source>
+            <span>THE WAY <br />I BUILD</span>
+          </h1> */}
           <canvas
             class="home-hero__materials-canvas"
             aria-hidden="true"
             data-materials-pbr
-            data-stone-albedo-src={stoneLimestoneTexture.src}
-            data-stone-detail-src={stoneMicrodetailTexture.src}
           ></canvas>
           {caseStudies.map((caseStudy, index) => (
             <a class="home-hero__case" href={caseStudy.href} data-material={materials[index]}>
@@ -136,25 +101,21 @@ const stoneMicrodetailTexture = await getImage({
                 )} */}
                 </span>
                 <span class="home-hero__case-copy">
-                  <span
-                    class={`home-hero__case-title${materials[index] === 'stone' ? ' home-hero__case-title--stone-main' : ''}`}
-                    data-stone-wet-source={materials[index] === 'stone' ? '' : undefined}
-                    data-resin-refraction-source={materials[index] === 'resin' ? '' : undefined}
-                    data-glass-title-refraction-source={materials[index] === 'glass' ? '' : undefined}
-                  >
-                    {materials[index] === 'stone'
+                  <span class="home-hero__case-title">
+                    {materials[index] === 'gem'
                       ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
-                      : materials[index] === 'milk-resin'
-                        ? <>Decide<br />What to<br /><span class="home-hero__embedded-title-strong">Build</span></>
+                      : materials[index] === 'sea-glass'
+                        ? <>Decide<br />What to<br />Build</>
                       : materials[index] === 'resin'
                         ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />and<br /><span class="home-hero__embedded-title-strong">Iterate</span></>
                         : materials[index] === 'glass'
                           ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
                           : caseStudy.title}
                   </span>
+                  <span class="home-hero__case-text">{caseStudy.text.replace(/。$/, '')}</span>
+                  <span class="home-hero__case-link">View case study ↗</span>
                 </span>
               </span>
-              <span class="home-hero__case-text">{caseStudy.text.replace(/。$/, '')}</span>
             </a>
           ))}
         </div>

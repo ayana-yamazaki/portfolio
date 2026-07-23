@@ -7,9 +7,9 @@ body:has(.home-main) {
 }
 
 .home-hero {
-  --stage-floor-y: 90%;
   --home-hero-case-gap: clamp(12px, 2vw, 32px);
   --build-title-size: clamp(66.4px, 10.4vw, 161.6px);
+  --blue-band-overhang: clamp(72px, 7vw, 108px);
   --build-title-x: 0px;
   --build-title-y: 0px;
   --build-title-overlap: 20%;
@@ -19,7 +19,7 @@ body:has(.home-main) {
   min-height: 100svh;
   padding: clamp(32px, 5vw, 72px) clamp(24px, 7vw, 112px);
   overflow: hidden;
-  background: #f1f0f0;
+  background: #f9f3f0;
 }
 
 .home-hero::before {
@@ -54,41 +54,61 @@ body:has(.home-main) {
 
 .home-hero__name {
   margin: 0;
-  color: #f9f3f0;
-  font-size: clamp(24px, 2vw, 30px);
-  line-height: 1.4;
+  color: #000;
+  font-size: clamp(32px, 3vw, 44px);
+  font-weight: 300;
+  line-height: 1;
 }
 
 .home-hero__role {
-  margin: 2px 0 0;
-  color: #f9f3f0;
-  font-size: clamp(18px, 1.5vw, 24px);
-  font-weight: 600;
+  margin: 0;
+  color: #000;
+  font-size: clamp(24px, 2vw, 32px);
+  font-weight: 700;
   line-height: 1.4;
 }
 
 .home-hero__description {
-  max-width: 420px;
+  width: 100%;
+  max-width: none;
   margin: 10px 0 0;
-  color: #f9f3f0;
+  color: var(--text-color-secondary);
   font-size: clamp(13px, 1vw, 16px);
   line-height: 1.65;
+  white-space: nowrap;
 }
 
 .home-hero__title {
   position: absolute;
   z-index: 2;
-  top: var(--build-title-y);
-  left: calc(50% + var(--home-hero-case-gap) / 2);
-  width: calc(50% - var(--home-hero-case-gap) / 2);
+  top: calc(var(--blue-band-overhang) * -1);
+  bottom: 50%;
+  left: 50%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: calc(100vw - clamp(24px, 7vw, 112px));
   margin: 0;
-  translate: var(--build-title-x) calc(-100% + var(--build-title-overlap));
-  font-size: var(--build-title-size);
+  overflow: hidden;
+  border-radius: 30px;
+  color: #f9f3f0;
+  font-size: clamp(36px, 11vw, 220px);
   font-weight: 500;
-  line-height: .88;
+  line-height: .82;
   letter-spacing: -.075em;
-  text-align: right;
+  text-align: center;
+  transform: translateX(-50%);
+  white-space: nowrap;
   pointer-events: none;
+}
+
+.home-hero__title br {
+  display: none;
+}
+
+.home-hero__title > span {
+  display: block;
+  transform: translateY(-.07em);
 }
 
 .home-hero__cases {
@@ -97,48 +117,67 @@ body:has(.home-main) {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--home-hero-case-gap);
   align-items: start;
+  align-self: center;
   flex: 1;
-  margin-top: clamp(24px, 3vw, 48px);
+  width: 90%;
+  margin-top: clamp(48px, 5vw, 72px);
   padding: 0 0 clamp(48px, 7vh, 88px);
 }
 
-.home-hero__stage {
+.home-hero__cases::before {
   position: absolute;
   z-index: 0;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.home-hero__stage-wall,
-.home-hero__stage-floor {
-  position: absolute;
-  right: 0;
-  left: 0;
-}
-
-.home-hero__stage-wall {
-  top: 0;
-  height: var(--stage-floor-y);
+  top: calc(var(--blue-band-overhang) * -1);
+  right: auto;
+  bottom: 50%;
+  left: 50%;
+  width: calc(100vw - clamp(24px, 7vw, 112px));
+  border-radius: 70px;
+  corner-shape: squircle;
+  /* background:
+    radial-gradient(
+      ellipse 42% 110% at 0% 0%,
+      #1686e4 0%,
+      rgba(28, 126, 222, .92) 48%,
+      rgba(42, 133, 223, .7) 60%,
+      transparent 74%
+    ),
+    radial-gradient(
+      ellipse 90% 82% at 100% 0%,
+      rgba(101, 140, 226, .78) 0%,
+      rgba(153, 151, 216, .48) 56%,
+      transparent 84%
+    ),
+    linear-gradient(
+      180deg,
+      #3488e5 0%,
+      #7196df 34%,
+      #c7abd4 56%,
+      rgba(240, 191, 208, .7) 69%,
+      rgba(255, 210, 202, .7) 100%
+    ); */
   background: #1f5dcd;
-}
-
-.home-hero__stage-wall::after {
-  position: absolute;
-  right: 0;
-  bottom: -1px;
-  left: 0;
-  height: 20px;
-  background: linear-gradient(to bottom, rgba(63, 59, 54, .08), transparent);
-  filter: blur(5px);
+  transform: translate(-50%, clamp(32px, 4vw, 56px));
+  pointer-events: none;
   content: '';
 }
 
-.home-hero__stage-floor {
-  top: var(--stage-floor-y);
-  bottom: 0;
-  border-top: 1px solid rgba(89, 85, 80, .12);
-  background: #f9f3f0;
+.home-hero__backdrop-image {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--blue-band-overhang) * -1);
+  bottom: 50%;
+  left: 50%;
+  width: calc(100vw - clamp(24px, 7vw, 112px));
+  height: calc(50% + var(--blue-band-overhang));
+  max-width: none;
+  border-radius: 70px;
+  corner-shape: squircle;
+  object-fit: cover;
+  object-position: left 45%;
+  transform: translate(-50%, clamp(32px, 4vw, 56px)) scale(.9);
+  transform-origin: left top;
+  pointer-events: none;
 }
 
 .home-hero__materials-canvas {
@@ -185,7 +224,7 @@ body:has(.home-main) {
 .home-hero__card {
   --card-edge: #77736d;
   --card-edge-dark: #4d4944;
-  --card-thickness: 10px;
+  --card-thickness: 100px;
   position: relative;
   display: block;
   width: 100%;
@@ -195,16 +234,31 @@ body:has(.home-main) {
 .material-card__shadow {
   position: absolute;
   z-index: 0;
-  right: -7%;
-  bottom: -5%;
-  left: 5%;
-  height: 13%;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(43, 36, 30, .28), rgba(43, 36, 30, .08) 48%, transparent 74%);
-  filter: blur(8px);
-  transform: rotate(-1.5deg);
+  inset: 1.5% -3% -3% 1.5%;
+  border-radius: 18px;
+  background: rgba(35, 32, 30, .19);
+  box-shadow:
+    5px 1px 2px rgba(29, 27, 25, .2),
+    15px 5px 20px rgba(38, 34, 31, .14);
+  filter: blur(1.4px);
+  transform: translate3d(7px, 2px, 0);
   transform-origin: center;
   transition: opacity 550ms ease, transform 550ms cubic-bezier(.2, .75, .2, 1);
+}
+
+.material-card--gem .material-card__shadow {
+  border-radius: 0;
+  clip-path: var(--gem-outline);
+}
+
+.material-card--sea-glass .material-card__shadow {
+  border-radius: 0;
+  clip-path: var(--sea-glass-outline);
+}
+
+.material-card--resin .material-card__shadow,
+.material-card--glass .material-card__shadow {
+  border-radius: 4px;
 }
 
 .material-card__volume {
@@ -289,60 +343,55 @@ body:has(.home-main) {
   pointer-events: none;
 }
 
-/* Stone — compact mineral grain, matte highlights, and an irregular cut edge. */
-.material-card--stone {
-  --card-edge: #becfdd;
-  --card-edge-dark: #7f929f;
-  --card-thickness: 35px;
-  --stone-outline: polygon(
-    .1% .1%, 17% .1%, 31% .05%, 49% .15%, 65% .05%, 83% .1%, 99.8% .1%,
-    99.7% 14%, 99.9% 28%, 99.5% 43%, 99.8% 57%, 99.6% 72%, 99.9% 87%, 99.7% 99.8%,
-    82% 99.7%, 67% 99.9%, 51% 99.6%, 34% 99.9%, 18% 99.6%, .1% 99.8%,
-    .15% 84%, .05% 69%, .2% 54%, .05% 39%, .15% 23%, .05% 10%
+/* Frosted gem — clipped shoulders, a broad table, and a deep faceted rim. */
+.material-card--gem {
+  --card-edge: rgba(221, 226, 226, .9);
+  --card-edge-dark: rgba(137, 145, 145, .92);
+  --card-thickness: 350px;
+  --gem-outline: polygon(
+    24% 0, 86% 5%, 100% 26%, 93% 90%, 61% 100%, 6% 92%, 0 23%
   );
 }
 
-.material-card--stone .material-card__front,
-.material-card--stone .material-card__front::after {
+.material-card--gem .material-card__front,
+.material-card--gem .material-card__front::after {
   border-radius: 0;
-  clip-path: var(--stone-outline);
+  clip-path: var(--gem-outline);
 }
 
-.material-card--stone .material-card__side--right {
-  border-radius: 0;
-}
-
-.material-card--stone .material-card__side--bottom {
+.material-card--gem .material-card__side--right {
   border-radius: 0;
 }
 
-.material-card--stone .material-card__surface {
+.material-card--gem .material-card__side--bottom {
+  border-radius: 0;
+}
+
+.material-card--gem .material-card__surface {
   background:
-    radial-gradient(ellipse at 21% 18%, rgba(57, 61, 61, .2) 0 1px, transparent 2.5px),
-    radial-gradient(ellipse at 73% 62%, rgba(69, 73, 72, .18) 0 1.4px, transparent 3px),
-    radial-gradient(ellipse at 42% 81%, rgba(235, 237, 234, .32) 0 1px, transparent 2.6px),
-    linear-gradient(145deg, #dbeaf5, #c6d8e5);
-  background-size: 17px 19px, 29px 31px, 23px 27px, auto;
-  filter: none;
+    linear-gradient(145deg, rgba(255, 255, 255, .24), rgba(222, 228, 228, .08)),
+    rgba(255, 255, 255, .05);
+  box-shadow:
+    inset 8px 10px 18px rgba(255, 255, 255, .26),
+    inset -10px -14px 22px rgba(87, 94, 94, .08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
-.material-card--stone .material-card__surface::before {
-  display: none;
+.material-card--gem .material-card__surface::before {
+  inset: 13%;
+  border: 1px solid rgba(255, 255, 255, .5);
+  clip-path: var(--gem-outline);
+  box-shadow: 0 0 22px rgba(255, 255, 255, .38);
 }
 
-.material-card--stone .material-card__sheen {
-  display: none;
+.material-card--gem .material-card__sheen {
+  background: linear-gradient(132deg, rgba(255, 255, 255, .58), transparent 32% 72%, rgba(107, 114, 114, .18));
 }
 
-.material-card--stone .material-card__side {
-  background:
-    radial-gradient(circle at 18% 24%, rgba(75, 69, 61, .5) 0 .7px, transparent 1.3px),
-    radial-gradient(circle at 72% 66%, rgba(93, 85, 74, .38) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 44% 84%, rgba(205, 205, 201, .3) 0 1px, transparent 2px),
-    linear-gradient(90deg, #9b9a97, #696866 76%);
-  background-size: 11px 13px, 19px 17px, 23px 21px, auto;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .28), inset -2px 0 3px rgba(35, 32, 29, .24);
-  clip-path: none;
+.material-card--gem .material-card__side {
+  background: linear-gradient(90deg, rgba(224, 229, 229, .9), rgba(120, 128, 128, .92));
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .42), inset -2px 0 4px rgba(52, 58, 58, .24);
 }
 
 /* Paper — warm cotton stock with directional fibres and layered thickness. */
@@ -401,68 +450,55 @@ body:has(.home-main) {
   opacity: .58;
 }
 
-/* Orange milk glass — smooth, softly translucent color with a warm highlight. */
-.material-card--milk-resin {
-  --card-edge: #ff9200;
-  --card-edge-dark: #b94f00;
+/* Sea glass — softly translucent with a worn gem silhouette. */
+.material-card--sea-glass {
+  --card-edge: rgba(255, 255, 255, .76);
+  --card-edge-dark: rgba(181, 185, 184, .72);
+  --sea-glass-outline: polygon(
+    24% 0, 86% 5%, 100% 26%, 93% 90%, 61% 100%, 6% 92%, 0 23%
+  );
 }
 
-.material-card--milk-resin .material-card__front,
-.material-card--milk-resin .material-card__front::after {
-  border-radius: 8px;
+.material-card--sea-glass .material-card__front,
+.material-card--sea-glass .material-card__front::after {
+  border-radius: 0;
+  clip-path: var(--sea-glass-outline);
 }
 
-.material-card--milk-resin .material-card__front::after {
-  border-top-color: rgba(255, 225, 188, .72);
+.material-card--sea-glass .material-card__front::after {
+  border-top-color: rgba(255, 255, 255, .82);
   box-shadow:
-    inset 0 1px 0 rgba(255, 237, 214, .5),
-    inset -1px -1px 0 rgba(150, 48, 0, .16);
+    inset 0 1px 0 rgba(255, 255, 255, .62),
+    inset -1px -1px 0 rgba(113, 120, 119, .12);
 }
 
-.material-card--milk-resin .material-card__side--right {
+.material-card--sea-glass .material-card__side--right {
   border-radius: 0 4px 4px 0;
-  background: linear-gradient(90deg, #ff9200, #b34d00 88%);
-  box-shadow: inset 1px 0 2px rgba(255, 211, 174, .5), 2px 0 7px rgba(79, 32, 16, .18);
+  background: linear-gradient(90deg, rgba(255, 255, 255, .72), rgba(174, 179, 178, .68) 88%);
+  box-shadow: inset 1px 0 2px rgba(255, 255, 255, .72), 2px 0 7px rgba(57, 62, 61, .14);
 }
 
-.material-card--milk-resin .material-card__side--bottom {
+.material-card--sea-glass .material-card__side--bottom {
   border-radius: 0 0 8px 8px;
-  background: linear-gradient(180deg, #f17b00, #a54400 92%);
-  box-shadow: inset 0 1px 2px rgba(255, 203, 162, .42), 0 2px 7px rgba(68, 27, 15, .2);
+  background: linear-gradient(180deg, rgba(240, 242, 241, .72), rgba(158, 163, 162, .68) 92%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .68), 0 2px 7px rgba(54, 59, 58, .16);
 }
 
-.material-card--milk-resin .material-card__shadow {
+.material-card--sea-glass .material-card__shadow {
   background: radial-gradient(ellipse, rgba(54, 51, 47, .24), rgba(86, 82, 76, .06) 54%, transparent 76%);
 }
 
-.material-card--milk-resin .material-card__surface {
-  background: linear-gradient(180deg, #ffa126 0%, #ff9200 28% 72%, #f48600 100%);
+.material-card--sea-glass .material-card__surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .7) 0%, rgba(250, 252, 251, .58) 28% 72%, rgba(228, 232, 231, .64) 100%);
   box-shadow:
-    inset 4px 3px 12px rgba(255, 218, 172, .1),
-    inset -6px -8px 18px rgba(109, 43, 0, .1);
-  -webkit-mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
-  mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
+    inset 4px 3px 12px rgba(255, 255, 255, .28),
+    inset -6px -8px 18px rgba(79, 86, 84, .09);
 }
 
-.material-card--milk-resin .material-card__surface::before {
-  top: 16px;
-  left: 16px;
-  display: block;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  box-shadow:
-    0 -1px 0 rgba(255, 239, 219, .72),
-    2px -2px 4px rgba(255, 194, 119, .28),
-    -2px 3px 5px rgba(123, 43, 0, .28);
-}
-
-.material-card--milk-resin .material-card__sheen {
-  background: radial-gradient(ellipse at 50% 10%, rgba(255, 222, 180, .1), transparent 44%);
+.material-card--sea-glass .material-card__sheen {
+  background: radial-gradient(ellipse at 50% 10%, rgba(255, 255, 255, .24), transparent 44%);
   mix-blend-mode: screen;
   opacity: .22;
-  -webkit-mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
-  mask: radial-gradient(circle 10.5px at 26px 26px, transparent 0 9px, rgba(0, 0, 0, .5) 9.7px, #000 10.5px);
 }
 
 /* Resin — glossy, softly translucent milk-white plastic. */
@@ -527,13 +563,12 @@ body:has(.home-main) {
   transition: transform 700ms cubic-bezier(.2, .75, .2, 1);
 }
 
-/* Glass — refractive backdrop, cool dense edges, internal reflection and glare. */
+/* Clear glass fallback — WebGL replaces it once the material renderer is ready. */
 .material-card--glass {
-  --card-thickness: 10px;
-  --glass-blur: 32px;
-  --glass-veil-opacity: .35;
-  --card-edge: rgba(220, 220, 218, .78);
-  --card-edge-dark: rgba(92, 90, 87, .62);
+  --card-thickness: 24px;
+  --glass-radius: clamp(34px, 3.8vw, 54px);
+  --card-edge: rgba(220, 242, 246, .42);
+  --card-edge-dark: rgba(70, 102, 112, .34);
   transform: none;
   transition: transform 420ms cubic-bezier(.2, .78, .2, 1);
 }
@@ -543,39 +578,39 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__front {
-  border-radius: 20px;
-  background: rgba(248, 248, 246, var(--glass-veil-opacity));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(.98) brightness(1.03);
-  backdrop-filter: blur(var(--glass-blur)) saturate(.98) brightness(1.03);
+  border-radius: var(--glass-radius);
+  background: rgba(255, 255, 255, .035);
+  -webkit-backdrop-filter: saturate(1.12) contrast(1.02) brightness(1.02);
+  backdrop-filter: saturate(1.12) contrast(1.02) brightness(1.02);
 }
 
 .material-card--glass .material-card__front::after {
   border-radius: inherit;
+  border-color: rgba(255, 255, 255, .58);
+  box-shadow:
+    inset 2px 2px 3px rgba(255, 255, 255, .58),
+    inset -3px -4px 7px rgba(32, 71, 82, .18);
 }
 
 .material-card--glass .material-card__side--right {
-  border-radius: 0 10px 10px 0;
-  border-right: 1px solid rgba(42, 79, 85, .54);
-  background:
-    linear-gradient(90deg, rgba(233, 252, 253, .86), rgba(64, 108, 115, .76)),
-    rgba(139, 178, 182, .7);
-  box-shadow: inset 1px 0 1px rgba(255, 255, 255, .82);
+  border-radius: 0 calc(var(--glass-radius) / 2) calc(var(--glass-radius) / 2) 0;
+  background: linear-gradient(90deg, rgba(234, 253, 255, .5), rgba(67, 104, 114, .34));
+  box-shadow: inset 1px 0 2px rgba(255, 255, 255, .7);
 }
 
 .material-card--glass .material-card__side--bottom {
-  border-radius: 0 0 20px 20px;
-  border-bottom: 1px solid rgba(42, 79, 85, .6);
-  background:
-    linear-gradient(180deg, rgba(196, 231, 234, .76), rgba(48, 91, 98, .82)),
-    rgba(112, 155, 160, .76);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .7);
+  border-radius: 0 0 var(--glass-radius) var(--glass-radius);
+  background: linear-gradient(180deg, rgba(221, 248, 249, .44), rgba(53, 92, 103, .32));
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .65);
 }
 
 .material-card--glass .material-card__shadow {
-  background: radial-gradient(ellipse, rgba(42, 40, 38, .25), rgba(82, 79, 75, .07) 50%, transparent 75%);
-  filter: blur(14px);
-  opacity: .5;
-  transform: translate3d(8px, 12px, 0) rotate(-1.5deg) scale(1.08);
+  inset: 2% -2% -2% 2%;
+  border-radius: var(--glass-radius);
+  background: rgba(35, 52, 57, .16);
+  filter: blur(16px);
+  opacity: .38;
+  transform: translate3d(7px, 11px, 0) scale(1.02);
   transition:
     filter 420ms ease,
     opacity 420ms ease,
@@ -599,12 +634,12 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__surface {
-  border: 1px solid rgba(255, 255, 255, .76);
-  background:
-    linear-gradient(132deg, rgba(80, 137, 235, .16), rgba(84, 194, 137, .13) 25%, rgba(236, 207, 86, .14) 49%, rgba(229, 118, 91, .14) 73%, rgba(194, 97, 180, .15)),
-    linear-gradient(118deg, rgba(250, 255, 255, .14), rgba(214, 234, 233, .06) 38%, rgba(144, 181, 182, .04) 78%, rgba(245, 255, 255, .11)),
-    rgba(221, 236, 235, .06);
-  box-shadow: inset 0 0 0 1px rgba(221, 243, 242, .18);
+  border-radius: var(--glass-radius);
+  background: linear-gradient(132deg, rgba(89, 151, 255, .045), rgba(73, 220, 156, .035) 28%, rgba(255, 218, 78, .045) 51%, rgba(255, 118, 80, .04) 73%, rgba(218, 102, 228, .045));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .54),
+    inset 10px 12px 24px rgba(255, 255, 255, .1),
+    inset -12px -14px 28px rgba(37, 78, 90, .08);
 }
 
 .material-card__glass-icon {
@@ -659,24 +694,30 @@ body:has(.home-main) {
 }
 
 .material-card--glass .material-card__surface::before {
-  display: none;
+  inset: 0;
+  padding: clamp(8px, 1.2vw, 16px);
+  border-radius: inherit;
+  background: conic-gradient(from 215deg at 50% 50%, rgba(103, 165, 255, .62), rgba(89, 230, 175, .48), rgba(255, 224, 97, .58), rgba(255, 125, 82, .58), rgba(220, 110, 235, .54), rgba(103, 165, 255, .62));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: .55;
 }
 
 .material-card--glass .material-card__surface::after {
-  top: 13%;
-  right: 8%;
-  width: 1px;
-  height: 66%;
-  background: linear-gradient(transparent, rgba(255, 255, 255, .9), transparent);
-  box-shadow: none;
+  inset: clamp(8px, 1.2vw, 16px);
+  border: 1px solid rgba(255, 255, 255, .34);
+  border-radius: calc(var(--glass-radius) - clamp(8px, 1.2vw, 16px));
+  box-shadow: 0 0 10px rgba(255, 255, 255, .12), inset 0 0 12px rgba(34, 76, 88, .08);
 }
 
 .material-card--glass .material-card__sheen {
   background:
-    linear-gradient(111deg, rgba(255, 255, 255, .66), rgba(255, 255, 255, .12) 17%, transparent 38%),
-    radial-gradient(ellipse at 72% 82%, rgba(221, 249, 247, .28), transparent 36%);
+    linear-gradient(116deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .08) 15%, transparent 33%),
+    radial-gradient(ellipse at 75% 84%, rgba(222, 251, 250, .2), transparent 34%);
+  border-radius: var(--glass-radius);
   mix-blend-mode: screen;
-  opacity: .5;
+  opacity: .4;
   transition: transform 720ms cubic-bezier(.2, .75, .2, 1);
 }
 
@@ -698,58 +739,16 @@ body:has(.home-main) {
 .home-hero__case-title {
   display: block;
   margin-top: 0;
-  color: var(--text-color-secondary);
-  font-size: clamp(26px, 2.6vw, 34px);
-  font-weight: 500;
+  color: #fff;
+  font-size: clamp(26px, 2.6vw, 31px);
+  font-weight: 400;
   line-height: 1.05;
   letter-spacing: -.045em;
-}
-
-.home-hero__case[data-material='milk-resin'] .home-hero__case-title {
-  color: #fff;
-  background: linear-gradient(180deg, #fff 0%, #fff 68%, #fffdfb 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  font-weight: 600;
-  -webkit-text-fill-color: transparent;
-  text-shadow:
-    0 -1px 2px rgba(255, 208, 151, .56),
-    0 1px 2px rgba(244, 102, 0, .72),
-    -1px 3px 5px rgba(177, 58, 0, .45),
-    -3px 6px 10px rgba(102, 34, 0, .2);
-}
-
-.home-hero__case[data-material='resin'] .home-hero__case-title,
-.home-hero__case[data-material='glass'] .home-hero__case-title {
-  color: #fff;
-  font-size: clamp(26px, 2.6vw, 31px);
-  font-weight: 400;
-  text-align: center;
-  text-shadow: 0 0 8px rgba(255, 255, 255, .34);
-}
-
-.home-hero__case[data-material='milk-resin'] .home-hero__case-title {
-  font-size: clamp(26px, 2.6vw, 31px);
-  font-weight: 400;
   text-align: center;
 }
 
-.home-hero__case[data-material='stone'] .home-hero__case-title {
-  color: rgba(38, 45, 50, .6);
-  font-size: clamp(26px, 2.6vw, 31px);
-  font-weight: 400;
-  mix-blend-mode: multiply;
-  text-align: center;
-}
-
-.home-hero__case[data-material='stone'] .home-hero__case-title--stone-main {
-  position: relative;
-  z-index: 2;
-  filter: url('#stone-wet-letter');
-}
-
-.home-hero__case[data-material='stone'] .home-hero__case-copy,
-.home-hero__case[data-material='milk-resin'] .home-hero__case-copy,
+.home-hero__case[data-material='gem'] .home-hero__case-copy,
+.home-hero__case[data-material='sea-glass'] .home-hero__case-copy,
 .home-hero__case[data-material='resin'] .home-hero__case-copy,
 .home-hero__case[data-material='glass'] .home-hero__case-copy {
   top: 50%;
@@ -760,28 +759,27 @@ body:has(.home-main) {
   font-weight: 700;
 }
 
-.home-hero__case[data-material='glass'] .home-hero__embedded-title-strong {
-  font-weight: 600;
-}
-
-.home-hero__case[data-material='glass'] .home-hero__case-title {
-  opacity: .92;
-}
-
-.home-hero__cases.is-materials-pbr-ready .home-hero__case[data-material='resin'] .home-hero__case-title {
-  visibility: hidden;
-}
-
 .home-hero__case-text {
   display: block;
   margin-top: 32px;
-  color: var(--text-color-secondary);
+  color: #fff;
   font-size: clamp(11px, .9vw, 13px);
   line-height: 1.55;
 }
 
+.home-hero__case-link {
+  display: block;
+  margin-top: 12px;
+  color: #fff;
+  font-size: clamp(11px, .9vw, 13px);
+  line-height: 1.55;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 @media (max-width: 720px) {
   .home-hero {
+    --blue-band-overhang: 64px;
     padding-right: 0;
   }
 
@@ -789,16 +787,19 @@ body:has(.home-main) {
     padding-right: 24px;
   }
 
+  .home-hero__description {
+    white-space: normal;
+  }
+
   .home-hero__title {
-    right: 24px;
-    left: auto;
-    width: calc(100% - 48px);
-    font-size: clamp(64px, 21.6vw, 96px);
+    font-size: clamp(36px, 11vw, 48px);
     white-space: nowrap;
   }
 
   .home-hero__cases {
-    grid-template-columns: repeat(4, minmax(180px, 58vw));
+    grid-template-columns: repeat(4, minmax(162px, 52vw));
+    align-self: stretch;
+    width: 100%;
     overflow-x: auto;
     padding-right: 24px;
   }
@@ -807,8 +808,8 @@ body:has(.home-main) {
     font-size: 28px;
   }
 
-  .home-hero__case[data-material='stone'] .home-hero__case-title,
-  .home-hero__case[data-material='milk-resin'] .home-hero__case-title,
+  .home-hero__case[data-material='gem'] .home-hero__case-title,
+  .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
   .home-hero__case[data-material='resin'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
     font-size: 31px;
@@ -821,10 +822,6 @@ body:has(.home-main) {
     padding-bottom: 24px;
   }
 
-  .home-hero__title {
-    font-size: clamp(96px, 9.8vw, 148.8px);
-  }
-
   .home-hero__cases {
     padding-top: 0;
     padding-bottom: 20px;
@@ -835,8 +832,8 @@ body:has(.home-main) {
     font-size: 30px;
   }
 
-  .home-hero__case[data-material='stone'] .home-hero__case-title,
-  .home-hero__case[data-material='milk-resin'] .home-hero__case-title,
+  .home-hero__case[data-material='gem'] .home-hero__case-title,
+  .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
   .home-hero__case[data-material='resin'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
     font-size: 31px;

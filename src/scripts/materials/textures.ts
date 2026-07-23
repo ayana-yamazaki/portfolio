@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { lightingTuning, type MaterialKind } from './config';
 
-export const makeNoiseTexture = (kind: 'paper' | 'stone') => {
+export const makeNoiseTexture = () => {
   const size = 512;
   const source = document.createElement('canvas');
   source.width = size;
@@ -13,10 +14,8 @@ export const makeNoiseTexture = (kind: 'paper' | 'stone') => {
     for (let x = 0; x < size; x += 1) {
       const index = (y * size + x) * 4;
       const fine = Math.sin(x * 0.83 + y * 1.91) * 5 + Math.sin(x * 2.7 - y * 1.13) * 3;
-      const wrinkles = kind === 'paper'
-        ? Math.sin(x * 0.026 + Math.sin(y * 0.018) * 3.5) * 20
-          + Math.sin(y * 0.021 + Math.cos(x * 0.015) * 4) * 13
-        : 0;
+      const wrinkles = Math.sin(x * 0.026 + Math.sin(y * 0.018) * 3.5) * 20
+        + Math.sin(y * 0.021 + Math.cos(x * 0.015) * 4) * 13;
       const value = Math.max(0, Math.min(255, 128 + fine + wrinkles));
       image.data[index] = value;
       image.data[index + 1] = value;
@@ -30,7 +29,7 @@ export const makeNoiseTexture = (kind: 'paper' | 'stone') => {
   texture.anisotropy = 1;
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(kind === 'paper' ? 1.4 : 2.4, kind === 'paper' ? 2.1 : 3.6);
+  texture.repeat.set(1.4, 2.1);
   return texture;
 };
 
@@ -49,7 +48,7 @@ export const makeCastGlassBumpTexture = () => {
       const index = (y * width + x) * 4;
       const u = x / width;
       const v = y / height;
-      const ribPhase = u * 28 * Math.PI * 2;
+      const ribPhase = u * 18 * Math.PI * 2;
       const cylindricalRib = Math.cos(ribPhase) * 0.86
         + Math.cos(ribPhase * 2) * 0.14;
       const manufacturingVariation = Math.sin(v * Math.PI * 2 + u * 3.2) * 0.012;
@@ -117,52 +116,6 @@ export const makePaperAlbedoTexture = () => {
   return texture;
 };
 
-export const makeStoneSideTexture = () => {
-  const size = 384;
-  const source = document.createElement('canvas');
-  source.width = size;
-  source.height = size;
-  const context = source.getContext('2d');
-  if (!context) throw new Error('Unable to create stone side texture');
-
-  context.fillStyle = '#becfdd';
-  context.fillRect(0, 0, size, size);
-
-  let seed = 1979;
-  const random = () => {
-    seed = (seed * 16807) % 2147483647;
-    return (seed - 1) / 2147483646;
-  };
-
-  for (let index = 0; index < 1050; index += 1) {
-    const x = random() * size;
-    const y = random() * size;
-    const radius = .55 + random() * (random() > .88 ? 4.2 : 1.8);
-    const depth = .13 + random() * .34;
-    context.fillStyle = `rgba(28, 28, 27, ${depth})`;
-    context.beginPath();
-    context.ellipse(x, y, radius, radius * (.65 + random() * .65), random() * Math.PI, 0, Math.PI * 2);
-    context.fill();
-
-    if (radius > 1.25) {
-      context.strokeStyle = `rgba(205, 205, 201, ${.14 + random() * .2})`;
-      context.lineWidth = .45;
-      context.stroke();
-    }
-  }
-
-  const texture = new THREE.CanvasTexture(source);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(2.2, 1);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.generateMipmaps = false;
-  texture.anisotropy = 1;
-  return texture;
-};
-
 export const makeRoundedMaskTexture = () => {
   const source = document.createElement('canvas');
   source.width = 512;
@@ -182,83 +135,128 @@ export const makeRoundedMaskTexture = () => {
   return texture;
 };
 
-export const makeShadowTexture = () => {
-  const source = document.createElement('canvas');
-  source.width = 512;
-  source.height = 192;
-  const context = source.getContext('2d');
-  if (!context) throw new Error('Unable to create shadow texture');
-
-  const drawDirectionalLayer = (
-    blur: number,
-    opacity: number,
-    farY: number,
-    farLeft: number,
-    farRight: number,
-  ) => {
-    context.save();
-    context.filter = `blur(${blur}px)`;
-    context.fillStyle = `rgba(31, 29, 27, ${opacity})`;
-    context.beginPath();
-    context.moveTo(116, 24);
-    context.lineTo(474, 24);
-    context.bezierCurveTo(448, 58, farRight + 42, farY - 24, farRight, farY);
-    context.lineTo(farLeft, farY);
-    context.bezierCurveTo(farLeft + 34, farY - 32, 92, 60, 116, 24);
-    context.closePath();
-    context.fill();
-    context.restore();
-  };
-
-  drawDirectionalLayer(22, 0.11, 174, 10, 308);
-  drawDirectionalLayer(11, 0.13, 132, 34, 350);
-  drawDirectionalLayer(5, 0.15, 82, 72, 410);
-
-  context.save();
-  context.filter = 'blur(1.5px)';
-  const contact = context.createLinearGradient(0, 18, 0, 48);
-  contact.addColorStop(0, 'rgba(22, 21, 20, .58)');
-  contact.addColorStop(0.28, 'rgba(28, 26, 24, .4)');
-  contact.addColorStop(1, 'rgba(35, 32, 29, 0)');
-  context.fillStyle = contact;
-  context.beginPath();
-  context.roundRect(112, 18, 362, 28, 8);
-  context.fill();
-  context.restore();
-
-  const texture = new THREE.CanvasTexture(source);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.generateMipmaps = false;
-  return texture;
-};
-
-export const makeStoneCastShadowTexture = () => {
+export const makeCardShadowTexture = (kind: MaterialKind) => {
   const source = document.createElement('canvas');
   source.width = 512;
   source.height = 768;
   const context = source.getContext('2d');
-  if (!context) throw new Error('Unable to create stone cast shadow');
+  if (!context) throw new Error('Unable to create shadow texture');
 
-  const drawLayer = (blur: number, opacity: number, inset: number) => {
+  const traceCardShape = (offsetX = 0, offsetY = 0) => {
+    const left = 42 + offsetX;
+    const top = 44 + offsetY;
+    const width = 384;
+    const height = 640;
+    context.beginPath();
+    if (kind === 'gem' || kind === 'sea-glass') {
+      const points = [
+        { x: left + width * .24, y: top },
+        { x: left + width * .86, y: top + height * .05 },
+        { x: left + width, y: top + height * .26 },
+        { x: left + width * .93, y: top + height * .9 },
+        { x: left + width * .61, y: top + height },
+        { x: left + width * .06, y: top + height * .92 },
+        { x: left, y: top + height * .23 },
+      ];
+      if (kind === 'gem') {
+        context.moveTo(points[0].x, points[0].y);
+        points.slice(1).forEach((point) => context.lineTo(point.x, point.y));
+      } else {
+        const radii = [44, 36, 48, 38, 52, 37, 46];
+        const entries = points.map((point, index) => {
+          const previous = points[(index - 1 + points.length) % points.length];
+          const distance = Math.hypot(previous.x - point.x, previous.y - point.y);
+          const ratio = Math.min(.38, radii[index] / distance);
+          return {
+            x: point.x + (previous.x - point.x) * ratio,
+            y: point.y + (previous.y - point.y) * ratio,
+          };
+        });
+        const exits = points.map((point, index) => {
+          const next = points[(index + 1) % points.length];
+          const distance = Math.hypot(next.x - point.x, next.y - point.y);
+          const ratio = Math.min(.38, radii[index] / distance);
+          return {
+            x: point.x + (next.x - point.x) * ratio,
+            y: point.y + (next.y - point.y) * ratio,
+          };
+        });
+        context.moveTo(entries[0].x, entries[0].y);
+        points.forEach((point, index) => {
+          context.lineTo(entries[index].x, entries[index].y);
+          context.quadraticCurveTo(point.x, point.y, exits[index].x, exits[index].y);
+        });
+      }
+      context.closePath();
+      return;
+    }
+
+    const radius = kind === 'glass' ? 8 : kind === 'resin' ? 14 : 22;
+    context.roundRect(left, top, width, height, radius);
+  };
+
+  const drawLayer = (
+    blur: number,
+    opacity: number,
+    offsetX: number,
+    offsetY: number,
+    strokeWidth = 0,
+  ) => {
     context.save();
     context.filter = `blur(${blur}px)`;
-    context.fillStyle = `rgba(28, 25, 22, ${opacity})`;
-    context.beginPath();
-    context.roundRect(
-      46 + inset,
-      38 + inset,
-      420 - inset * 2,
-      692 - inset * 2,
-      5,
-    );
+    context.fillStyle = `rgba(24, 28, 27, ${opacity})`;
+    traceCardShape(offsetX, offsetY);
     context.fill();
+    if (strokeWidth > 0) {
+      context.strokeStyle = `rgba(18, 22, 21, ${Math.min(.72, opacity * 1.7)})`;
+      context.lineWidth = strokeWidth;
+      context.stroke();
+    }
     context.restore();
   };
 
-  drawLayer(28, 0.22, 0);
-  drawLayer(11, 0.28, 7);
-  drawLayer(3, 0.2, 13);
+  drawLayer(
+    28,
+    .13,
+    lightingTuning.shadowLayers.soft.x,
+    lightingTuning.shadowLayers.soft.y,
+  );
+  drawLayer(
+    9,
+    .18,
+    lightingTuning.shadowLayers.middle.x,
+    lightingTuning.shadowLayers.middle.y,
+  );
+  drawLayer(
+    1.2,
+    .23,
+    lightingTuning.shadowLayers.contact.x,
+    lightingTuning.shadowLayers.contact.y,
+    1.4,
+  );
+
+  if (kind === 'gem') {
+    context.save();
+    context.globalCompositeOperation = 'screen';
+    context.filter = 'blur(8px)';
+    context.fillStyle = 'rgba(232, 239, 239, .3)';
+    context.beginPath();
+    context.moveTo(166, 218);
+    context.lineTo(356, 166);
+    context.lineTo(405, 532);
+    context.lineTo(238, 592);
+    context.closePath();
+    context.fill();
+    context.filter = 'blur(1.4px)';
+    context.strokeStyle = 'rgba(255, 255, 255, .52)';
+    context.lineWidth = 2.5;
+    context.beginPath();
+    context.moveTo(207, 278);
+    context.lineTo(348, 236);
+    context.lineTo(296, 546);
+    context.stroke();
+    context.restore();
+  }
 
   const texture = new THREE.CanvasTexture(source);
   texture.minFilter = THREE.LinearFilter;
