@@ -211,7 +211,7 @@
   .case-prose ul:not(.case-observation-list),
   .outcome-list--bulleted { padding-left: 1.25em; list-style-position: outside; }
   .image-placeholder { min-height: 300px; margin-right: -24px; }
-  .case-page { --case-section-padding: 32px; --case-block-gap: 28px; --case-heading-gap: 18px; --case-subblock-gap: 22px; }
+  .case-page { --case-section-padding: 32px; --case-block-gap: 28px; --case-heading-gap: 18px; --case-subblock-gap: 22px; padding-top: 56px; }
   .case-header { padding: 18px 24px; }
   .case-hero { min-height: 0; padding-top: 40px; }
   .case-hero--split { grid-template-columns: 1fr; row-gap: 28px; min-height: 0; }

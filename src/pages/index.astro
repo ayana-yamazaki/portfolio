@@ -10,6 +10,8 @@ import LocaleRedirect from '../components/LocaleRedirect.astro';
 import { getCaseStudies } from '../data/site';
 import { getLocaleUrl, getLocalizedPath, type Locale } from '../i18n/locale';
 import nanakamadoImage from '../../img/nanakamado.png';
+import roughGlassBumpUrl from '../assets/materials/rough-glass-bump.png?url';
+import roughGlassCausticUrl from '../assets/materials/rough-glass-caustic.png?url';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
 interface Props {
@@ -48,8 +50,14 @@ const englishUrl = getLocaleUrl('/', 'en');
     <link rel="alternate" hreflang="ja" href={japaneseUrl} />
     <link rel="alternate" hreflang="en" href={englishUrl} />
     <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
+    <link rel="preload" as="image" href={roughGlassBumpUrl} fetchpriority="high" />
+    <link rel="preload" as="image" href={roughGlassCausticUrl} fetchpriority="high" />
     <LocaleRedirect locale={locale} />
     <title>Ayana Yamazaki — Product Builder</title>
+    <script>
+      import '../scripts/materials-pbr';
+      import '../scripts/home-carousel';
+    </script>
   </head>
   <body id="top">
     <SiteHeader locale={locale} />
@@ -79,7 +87,9 @@ const englishUrl = getLocaleUrl('/', 'en');
         <header class="home-hero__heading">
           <div class="home-hero__intro">
             <p class="home-hero__name">Ayana Yamazaki</p>
-            <p class="home-hero__role">Product Builder / Product Designer</p>
+            <p class="home-hero__role">
+              Product Builder /<br class="home-hero__role-break" />Product Designer
+            </p>
             <p class="home-hero__description">
               {locale === 'ja'
                 ? '複雑な現場を、動くプロダクトへ翻訳する'
@@ -100,6 +110,7 @@ const englishUrl = getLocaleUrl('/', 'en');
             alt=""
             aria-hidden="true"
             data-glass-backdrop-image-source
+            fetchpriority="high"
           />
           {/* <h1 class="home-hero__title" id="home-title" data-glass-refraction-source>
             <span>THE WAY <br />I BUILD</span>
@@ -110,53 +121,59 @@ const englishUrl = getLocaleUrl('/', 'en');
             data-materials-pbr
             data-renderer-state="initializing"
           ></canvas>
-          {caseStudies.map((caseStudy, index) => (
-            <a class="home-hero__case" href={getLocalizedPath(caseStudy.href, locale)} data-material={materials[index]}>
-              <span class="home-hero__card-wrap">
-                <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
-                <span class="material-card__shadow" hidden></span>
-                <span class="material-card__volume" hidden>
-                  <span class="material-card__front">
-                    <span class="material-card__surface"></span>
-                    <span class="material-card__sheen"></span>
+          <div class="home-hero__case-track" data-case-carousel>
+            {caseStudies.map((caseStudy, index) => (
+              <a class="home-hero__case" href={getLocalizedPath(caseStudy.href, locale)} data-material={materials[index]}>
+                <span class="home-hero__card-wrap">
+                  <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
+                  <span class="material-card__shadow" hidden></span>
+                  <span class="material-card__volume" hidden>
+                    <span class="material-card__front">
+                      <span class="material-card__surface"></span>
+                      <span class="material-card__sheen"></span>
+                    </span>
+                    <span class="material-card__side material-card__side--right"></span>
+                    <span class="material-card__side material-card__side--bottom"></span>
                   </span>
-                  <span class="material-card__side material-card__side--right"></span>
-                  <span class="material-card__side material-card__side--bottom"></span>
-                </span>
-                {/* {materials[index] === 'glass' && (
-                  <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />
-                )} */}
-                </span>
-                <span class="home-hero__case-copy">
-                  <span class="home-hero__case-title">
-                    {materials[index] === 'gem'
-                      ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
-                      : materials[index] === 'sea-glass'
-                        ? <><span class="home-hero__embedded-title-strong">Decide</span><br />What to Build</>
-                      : materials[index] === 'rough-glass'
-                        ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />&amp; <span class="home-hero__embedded-title-strong">Iterate</span></>
-                        : materials[index] === 'glass'
-                          ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
-                          : caseStudy.title}
+                  {/* {materials[index] === 'glass' && (
+                    <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />
+                  )} */}
                   </span>
-                  <span class={`home-hero__case-text${index === 0 ? ' home-hero__case-text--strong' : ''}`}>
-                    {caseStudy.text.split('\n').map((line, lineIndex, lines) => (
-                      <>{line}{lineIndex < lines.length - 1 && <br />}</>
-                    ))}
+                  <span class="home-hero__case-copy">
+                    <span class="home-hero__case-title">
+                      {materials[index] === 'gem'
+                        ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
+                        : materials[index] === 'sea-glass'
+                          ? <><span class="home-hero__embedded-title-strong">Decide</span><br />What to Build</>
+                        : materials[index] === 'rough-glass'
+                          ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />&amp; <span class="home-hero__embedded-title-strong">Iterate</span></>
+                          : materials[index] === 'glass'
+                            ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
+                            : caseStudy.title}
+                    </span>
+                    <span class={`home-hero__case-text${index === 0 ? ' home-hero__case-text--strong' : ''}`}>
+                      {caseStudy.text.split('\n').map((line, lineIndex, lines) => (
+                        <>{line}{lineIndex < lines.length - 1 && <br />}</>
+                      ))}
+                    </span>
+                    <span class="home-hero__case-link">Case study ↗</span>
                   </span>
-                  <span class="home-hero__case-link">Case study ↗</span>
                 </span>
-              </span>
-            </a>
-          ))}
+              </a>
+            ))}
+          </div>
+          <div class="home-hero__case-progress" aria-hidden="true">
+            <span class="home-hero__case-progress-current" data-case-current>01</span>
+            <span class="home-hero__case-progress-bar">
+              <span data-case-progress></span>
+            </span>
+            <span>{String(caseStudies.length).padStart(2, '0')}</span>
+          </div>
         </div>
       </section>
       <About locale={locale} />
     </main>
     <CaseFooter locale={locale} />
 
-    <script>
-      import '../scripts/materials-pbr';
-    </script>
   </body>
 </html>

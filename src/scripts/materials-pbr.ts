@@ -73,6 +73,8 @@ type CardState = {
   tiltYRad: number;
   tiltTargetXRad: number;
   tiltTargetYRad: number;
+  lightStartX: number;
+  lightEndX: number;
   hovered: boolean;
   pressed: boolean;
   keyboardFocused: boolean;
@@ -83,11 +85,13 @@ const cases = canvas?.closest<HTMLElement>('.home-hero__cases');
 const hero = cases?.closest<HTMLElement>('.home-hero');
 
 if (canvas && cases && hero) {
+  const carousel = cases.querySelector<HTMLElement>('[data-case-carousel]');
   canvas.materialsPbrCleanup?.();
   canvas.hidden = false;
   canvas.dataset.rendererState = 'initializing';
   delete canvas.dataset.rendererError;
 
+  const isSmallViewport = window.matchMedia('(max-width: 720px)').matches;
   let disposed = false;
   let renderer: THREE.WebGLRenderer | undefined;
   let renderHarness: RenderHarness | undefined;
@@ -152,7 +156,13 @@ if (canvas && cases && hero) {
   canvas.materialsPbrCleanup = cleanup;
 
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: !isSmallViewport,
+      powerPreference: 'high-performance',
+      stencil: false,
+    });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = sceneTuning.exposure;
@@ -160,8 +170,12 @@ if (canvas && cases && hero) {
     renderHarness = createRenderHarness({
       canvas,
       renderer,
-      maxPixelRatio: sceneTuning.maxPixelRatio,
-      maxPixelCount: sceneTuning.maxPixelCount,
+      maxPixelRatio: isSmallViewport
+        ? Math.min(1, sceneTuning.maxPixelRatio)
+        : sceneTuning.maxPixelRatio,
+      maxPixelCount: isSmallViewport
+        ? Math.min(800_000, sceneTuning.maxPixelCount)
+        : sceneTuning.maxPixelCount,
       maxContinuousFrames: sceneTuning.maxContinuousFrames,
       maxDrawCalls: sceneTuning.maxDrawCalls,
       maxTriangles: sceneTuning.maxTriangles,
@@ -199,7 +213,13 @@ if (canvas && cases && hero) {
     addEnvironmentPanel(lightingTuning.environment.fillPanel);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
-    environmentTarget = pmrem.fromScene(environmentScene, 0.008);
+    environmentTarget = pmrem.fromScene(
+      environmentScene,
+      0.008,
+      0.1,
+      100,
+      { size: isSmallViewport ? 64 : 128 },
+    );
     scene.environment = environmentTarget.texture;
     pmrem.dispose();
 
@@ -219,7 +239,7 @@ if (canvas && cases && hero) {
       size: [6, 7],
       intensity: 1.8,
     });
-    gemEnvironmentTarget = new THREE.WebGLCubeRenderTarget(128, {
+    gemEnvironmentTarget = new THREE.WebGLCubeRenderTarget(isSmallViewport ? 64 : 128, {
       type: THREE.HalfFloatType,
       generateMipmaps: true,
       minFilter: THREE.LinearMipmapLinearFilter,
@@ -495,6 +515,7 @@ if (canvas && cases && hero) {
     const cardLiftDurationMs = 360;
     const introLightDelayMs = 80;
     const introLightDurationMs = 900;
+    const hoverLightDurationMs = 400;
     const introLightStrengthByMaterial = {
       gem: .3,
       'sea-glass': .8,
@@ -510,6 +531,9 @@ if (canvas && cases && hero) {
     let introLightComplete = reducedMotionQuery.matches;
     let settleLightPosition = 0;
     let settleLightStrength = 0;
+    let settleLightTarget: MaterialKind | 'all' | null = null;
+    let hoverLightState: CardState | null = null;
+    let hoverLightStartedAt: number | null = null;
     let activeInteractionState: CardState | null = null;
     let lightX = defaultLightX;
     let lightY = defaultLightY;
@@ -537,6 +561,14 @@ if (canvas && cases && hero) {
       cancelMotionCacheWarm = undefined;
       renderHarness?.resetAnimationBudget();
       invalidate(RenderDirtyFlag.transform);
+    };
+
+    const startHoverLight = (state: CardState) => {
+      if (reducedMotionQuery.matches) return;
+      cancelIntroLight();
+      hoverLightState = state;
+      hoverLightStartedAt = performance.now();
+      requestMotionFrame();
     };
 
     const setLightTarget = (x: number, y: number) => {
@@ -709,6 +741,8 @@ if (canvas && cases && hero) {
         tiltYRad: 0,
         tiltTargetXRad: 0,
         tiltTargetYRad: 0,
+        lightStartX: 0,
+        lightEndX: 1,
         hovered: false,
         pressed: false,
         keyboardFocused: false,
@@ -717,10 +751,12 @@ if (canvas && cases && hero) {
 
       element.addEventListener('pointerenter', (event) => {
         if (!hoverQuery.matches || event.pointerType === 'touch') return;
-        cancelIntroLight();
+        startHoverLight(state);
         state.hovered = true;
-        requestMotionFrame();
         updateLiftTarget(state);
+      }, { signal: eventController.signal });
+      element.addEventListener('case-carousel-activate', () => {
+        startHoverLight(state);
       }, { signal: eventController.signal });
       element.addEventListener('pointerleave', (event) => {
         if (event.pointerType === 'touch') return;
@@ -797,11 +833,16 @@ if (canvas && cases && hero) {
       passive: true,
       signal: eventController.signal,
     });
-
+    carousel?.addEventListener('scroll', markLayoutDirty, {
+      passive: true,
+      signal: eventController.signal,
+    });
     reducedMotionQuery.addEventListener('change', () => {
       if (!reducedMotionQuery.matches) return;
       cancelIntroLight();
       introLightComplete = true;
+      hoverLightState = null;
+      hoverLightStartedAt = null;
       activeInteractionState = null;
       cardStates.forEach((state) => {
         state.hovered = false;
@@ -1226,6 +1267,8 @@ if (canvas && cases && hero) {
         }
         const centerX = (((rect.left + rect.width / 2) - canvasRect.left) / canvasRect.width * 2 - 1) * aspect;
         const centerY = 1 - (((rect.top + rect.height / 2) - canvasRect.top) / canvasRect.height * 2);
+        state.lightStartX = (rect.left - canvasRect.left) / canvasRect.width;
+        state.lightEndX = (rect.right - canvasRect.left) / canvasRect.width;
         state.baseGroupY = centerY;
         state.group.position.set(
           centerX,
@@ -1366,26 +1409,43 @@ if (canvas && cases && hero) {
     const applyIntroLight = (
       position: number,
       strength: number,
+      target: MaterialKind | 'all' | null,
     ) => {
       settleLightPosition = position;
       settleLightStrength = strength;
-      const introLightMaterials: Array<[THREE.ShaderMaterial, number]> = [
-        [gemFaceMaterial, introLightStrengthByMaterial.gem],
-        [seaGlassMaterial, introLightStrengthByMaterial['sea-glass']],
-        [roughGlassFaceMaterial, introLightStrengthByMaterial['rough-glass']],
-        [glassMaterial, introLightStrengthByMaterial.glass],
+      settleLightTarget = target;
+      const introLightMaterials: Array<[
+        MaterialKind,
+        THREE.ShaderMaterial,
+        number,
+      ]> = [
+        ['gem', gemFaceMaterial, introLightStrengthByMaterial.gem],
+        [
+          'sea-glass',
+          seaGlassMaterial,
+          introLightStrengthByMaterial['sea-glass'],
+        ],
+        [
+          'rough-glass',
+          roughGlassFaceMaterial,
+          introLightStrengthByMaterial['rough-glass'],
+        ],
+        ['glass', glassMaterial, introLightStrengthByMaterial.glass],
       ];
-      introLightMaterials.forEach(([material, materialStrength]) => {
+      introLightMaterials.forEach(([kind, material, materialStrength]) => {
+        const isTarget = target === 'all' || target === kind;
         material.uniforms.uSettleLightPosition.value = position;
         material.uniforms.uSettleLightStrength.value = (
-          strength * materialStrength
+          isTarget ? strength * materialStrength : 0
         );
       });
       const roughGlassEdgeSettleLight = sideMaterials['rough-glass-edge']
         .userData.settleLightStrength as { value: number } | undefined;
       if (roughGlassEdgeSettleLight) {
         roughGlassEdgeSettleLight.value = (
-          strength * introLightStrengthByMaterial['rough-glass']
+          target === 'all' || target === 'rough-glass'
+            ? strength * introLightStrengthByMaterial['rough-glass']
+            : 0
         );
       }
       const roughGlassEdgeLightPosition = sideMaterials['rough-glass-edge']
@@ -1395,7 +1455,6 @@ if (canvas && cases && hero) {
       }
       cancelMotionCacheWarm?.();
       cancelMotionCacheWarm = undefined;
-      motionCache?.invalidate();
     };
 
     const updateSceneMotion = (now: number) => {
@@ -1419,6 +1478,22 @@ if (canvas && cases && hero) {
           introLightComplete = true;
         }
       }
+      const hoverLightStateForFrame = hoverLightState;
+      let hoverLightProgress: number | null = null;
+      if (
+        hoverLightStartedAt !== null
+        && hoverLightStateForFrame
+      ) {
+        hoverLightProgress = THREE.MathUtils.clamp(
+          (now - hoverLightStartedAt) / hoverLightDurationMs,
+          0,
+          1,
+        );
+        if (hoverLightProgress >= 1) {
+          hoverLightStartedAt = null;
+          hoverLightState = null;
+        }
+      }
 
       const nextLightX = lightTargetX;
       const nextLightY = lightTargetY;
@@ -1435,6 +1510,7 @@ if (canvas && cases && hero) {
 
       let nextSettleLightPosition = settleLightPosition;
       let nextSettleLightStrength = 0;
+      let nextSettleLightTarget: MaterialKind | 'all' | null = null;
       if (introProgress !== null) {
         const easedIntroProgress = fastEndsSlowMiddle(introProgress);
         nextSettleLightPosition = THREE.MathUtils.lerp(
@@ -1453,15 +1529,40 @@ if (canvas && cases && hero) {
           1,
         ));
         nextSettleLightStrength = fadeIn * fadeOut;
+        nextSettleLightTarget = 'all';
+      } else if (
+        hoverLightProgress !== null
+        && hoverLightStateForFrame
+      ) {
+        const easedHoverProgress = fastEndsSlowMiddle(hoverLightProgress);
+        nextSettleLightPosition = THREE.MathUtils.lerp(
+          hoverLightStateForFrame.lightStartX,
+          hoverLightStateForFrame.lightEndX,
+          easedHoverProgress,
+        );
+        const fadeIn = smoothstep(THREE.MathUtils.clamp(
+          easedHoverProgress / .08,
+          0,
+          1,
+        ));
+        const fadeOut = smoothstep(THREE.MathUtils.clamp(
+          (1 - easedHoverProgress) / .08,
+          0,
+          1,
+        ));
+        nextSettleLightStrength = fadeIn * fadeOut;
+        nextSettleLightTarget = hoverLightStateForFrame.kind;
       }
       const introLightChanged = (
         Math.abs(settleLightPosition - nextSettleLightPosition) > .001
         || Math.abs(settleLightStrength - nextSettleLightStrength) > .001
+        || settleLightTarget !== nextSettleLightTarget
       );
       if (introLightChanged) {
         applyIntroLight(
           nextSettleLightPosition,
           nextSettleLightStrength,
+          nextSettleLightTarget,
         );
       }
 
@@ -1534,15 +1635,22 @@ if (canvas && cases && hero) {
       });
       if (
         lightChanged
-        || introLightChanged
         || lightAnimating
         || activeInteractionState
         || introLightStartedAt !== null
       ) {
         cardStates.forEach(({ kind }) => dynamicIds.add(kind));
       }
+      if (hoverLightStateForFrame) {
+        dynamicIds.add(hoverLightStateForFrame.kind);
+      }
       return {
-        isAnimating: isAnimating || lightAnimating || introLightStartedAt !== null,
+        isAnimating: (
+          isAnimating
+          || lightAnimating
+          || introLightStartedAt !== null
+          || hoverLightStartedAt !== null
+        ),
         dynamicIds,
       };
     };
@@ -1564,6 +1672,7 @@ if (canvas && cases && hero) {
           || !isVisible
           || dirty.has(RenderDirtyFlag.layout)
           || introLightStartedAt !== null
+          || hoverLightStartedAt !== null
           || activeInteractionState !== null
           || cardStates.some(({ liftPx, liftToPx }) => (
             Math.abs(liftPx) > 0.01 || Math.abs(liftToPx) > 0.01
@@ -1618,8 +1727,7 @@ if (canvas && cases && hero) {
     };
 
     const finishInitialization = async () => {
-      await roughGlassTextures.ready;
-      if (disposed) return;
+      const texturesReady = roughGlassTextures.ready;
       if (!syncLayout(true)) {
         await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
         if (disposed) return;
@@ -1632,7 +1740,10 @@ if (canvas && cases && hero) {
       if (!activeRenderer || !activeScene) {
         throw new Error('Unable to initialize material renderer');
       }
-      await activeRenderer.compileAsync(activeScene, camera);
+      await Promise.all([
+        texturesReady,
+        activeRenderer.compileAsync(activeScene, camera),
+      ]);
       if (disposed) return;
       markTextureReady();
       if (introLightAllowed && !reducedMotionQuery.matches) {
