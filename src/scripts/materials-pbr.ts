@@ -812,6 +812,7 @@ if (canvas && cases && hero) {
       }
       gemFaceMaterial.uniforms.uBandTopY.value = bandTopScreenY;
       seaGlassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
+      roughGlassFaceMaterial.uniforms.uBandTopY.value = bandTopScreenY;
       glassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
       roughGlassFaceMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;
       glassMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;

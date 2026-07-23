@@ -372,6 +372,10 @@ export const glassFragmentShader = `
   uniform vec3 uFloorColor;
   uniform vec2 uLightDirection;
   uniform float uGlintStrength;
+  uniform vec3 uBackgroundReflectionFallback;
+  uniform float uBandTopY;
+  uniform float uBackgroundReflectionStrength;
+  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vScreenUv;
   varying vec3 vLocalPosition;
   varying vec3 vLocalNormal;
@@ -555,6 +559,34 @@ export const glassFragmentShader = `
       .12
     );
     color=mix(color,spectralColor,spectralStrength);
+
+    float distanceToUpperBackground=max(uBandTopY-vScreenUv.y,0.0);
+    float upperBackgroundReach=uBackgroundReflectionRayDistance
+      *(1.0+rightSurface*2.45+max(reflectionRay.y,0.0)*.22);
+    float upperBackgroundBand=1.0-smoothstep(
+      upperBackgroundReach*.7,
+      upperBackgroundReach,
+      distanceToUpperBackground
+    );
+    float upperPosition=smoothstep(.48,.96,local.y);
+    float topReflector=topSurface*(
+      .58+innerShoulder*.28+outerShoulder*.36+sideMask*.22
+    );
+    float rightReflector=rightSurface*(
+      innerShoulder*.22+outerShoulder*.56+sideMask*.86
+    )*(.42+upperPosition*.58);
+    float upperBackgroundReflection=clamp(
+      upperBackgroundBand
+        *(topReflector+rightReflector)
+        *uBackgroundReflectionStrength,
+      0.0,
+      .68
+    );
+    color=mix(
+      color,
+      uBackgroundReflectionFallback,
+      upperBackgroundReflection
+    );
 
     gl_FragColor=vec4(clamp(color,vec3(0.0),vec3(1.0)),1.0);
     #include <colorspace_fragment>
@@ -742,6 +774,10 @@ export const roughGlassFragmentShader = `
   uniform float uBandBottomY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
+  uniform vec3 uBackgroundReflectionFallback;
+  uniform float uBandTopY;
+  uniform float uBackgroundReflectionStrength;
+  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vUv;
   varying vec2 vScreenUv;
 
@@ -832,6 +868,29 @@ export const roughGlassFragmentShader = `
       color,
       vec3(1.0,.998,.99),
       clamp(microSurfaceHighlight,0.0,.12)
+    );
+    float distanceToUpperBackground=max(uBandTopY-vScreenUv.y,0.0);
+    float upperBackgroundReach=uBackgroundReflectionRayDistance
+      *(.9+max(surfaceNormal.y,0.0)*.18);
+    float upperBackgroundBand=1.0-smoothstep(
+      upperBackgroundReach*.62,
+      upperBackgroundReach,
+      distanceToUpperBackground
+    );
+    float upwardFacet=smoothstep(-.42,.28,surfaceNormal.y);
+    float upperFaceBias=.68+.32*smoothstep(.42,.96,vUv.y);
+    float roughUpperReflection=clamp(
+      upperBackgroundBand
+        *upwardFacet
+        *upperFaceBias
+        *uBackgroundReflectionStrength,
+      0.0,
+      .56
+    );
+    color=mix(
+      color,
+      uBackgroundReflectionFallback,
+      roughUpperReflection
     );
     gl_FragColor=vec4(color,1.0);
     #include <tonemapping_fragment>

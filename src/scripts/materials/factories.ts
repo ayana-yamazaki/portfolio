@@ -132,6 +132,7 @@ export const createRoughGlassFaceMaterial = (
     uBandBottomY: { value: 0.1 },
     uWallColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
     uFloorColor: { value: new THREE.Vector3(249 / 255, 243 / 255, 240 / 255) },
+    ...createBackgroundReflectionUniforms('rough-glass'),
   },
   vertexShader: roughGlassVertexShader,
   fragmentShader: roughGlassFragmentShader,

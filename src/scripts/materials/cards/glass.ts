@@ -8,9 +8,9 @@ export const glassCardDefinition: CardDefinition = {
   hasBottomSurface: false,
   caustic: null,
   hasPrism: false,
-  shadowColor: 0xffffff,
+  shadowColor: 0x000000,
   shadowProfile: 'glass',
-  shadowFollowsLift: false,
+  shadowFollowsLift: true,
   cacheDuringMotion: true,
   createGeometry: makeGlassPanelGeometry,
 };

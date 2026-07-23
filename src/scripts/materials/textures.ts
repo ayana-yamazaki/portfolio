@@ -85,9 +85,8 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
       return;
     }
 
-    const radius = kind === 'rough-glass'
-      ? materialProfiles['rough-glass'].radiusPx
-      : 22;
+    const radius = materialProfiles[kind].radiusPx
+      * (kind === 'glass' ? 1.2 : 1);
     context.roundRect(left, top, width, height, radius);
   };
 
@@ -118,68 +117,18 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     context.restore();
   };
 
-  if (kind === 'glass') {
-    context.save();
-    context.translate(source.width / 2, source.height / 2);
-    context.scale(1, .28);
-    const gradient = context.createRadialGradient(0, 0, 0, 0, 0, source.width * .42);
-    gradient.addColorStop(0, 'rgba(0, 0, 0, .14)');
-    gradient.addColorStop(.42, 'rgba(0, 0, 0, .07)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    context.fillStyle = gradient;
-    context.beginPath();
-    context.arc(0, 0, source.width * .42, 0, Math.PI * 2);
-    context.fill();
-    context.restore();
-
-    context.save();
-    context.translate(source.width / 2, source.height / 2 + 4);
-    context.scale(.82, .075);
-    const contact = context.createRadialGradient(0, 0, 0, 0, 0, source.width * .32);
-    contact.addColorStop(0, 'rgba(0, 0, 0, .24)');
-    contact.addColorStop(.48, 'rgba(0, 0, 0, .11)');
-    contact.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    context.fillStyle = contact;
-    context.beginPath();
-    context.arc(0, 0, source.width * .32, 0, Math.PI * 2);
-    context.fill();
-    context.restore();
-
-    const drawSpectralCaustic = (
-      offsetX: number,
-      red: number,
-      green: number,
-      blue: number,
-      opacity: number,
-    ) => {
-      context.save();
-      context.translate(source.width / 2 + offsetX, source.height / 2 - 6);
-      context.scale(.72, .11);
-      const caustic = context.createRadialGradient(0, 0, 0, 0, 0, source.width * .28);
-      caustic.addColorStop(0, `rgba(${red}, ${green}, ${blue}, ${opacity})`);
-      caustic.addColorStop(
-        .52,
-        `rgba(${red}, ${green}, ${blue}, ${opacity * .36})`,
-      );
-      caustic.addColorStop(1, `rgba(${red}, ${green}, ${blue}, 0)`);
-      context.fillStyle = caustic;
-      context.beginPath();
-      context.arc(0, 0, source.width * .28, 0, Math.PI * 2);
-      context.fill();
-      context.restore();
-    };
-    drawSpectralCaustic(-44, 78, 214, 226, .12);
-    drawSpectralCaustic(18, 244, 218, 92, .1);
-    drawSpectralCaustic(58, 232, 92, 176, .085);
-  } else if (kind === 'gem') {
+  if (kind === 'gem') {
     drawLayer(34, .105, 54, 42);
     drawLayer(11, .175, 31, 24);
     drawLayer(1.2, .098, 11, 8, 1.2);
   } else if (
     kind === 'sea-glass'
     || kind === 'rough-glass'
+    || kind === 'glass'
   ) {
-    const profile = simpleShadowProfiles[kind];
+    const profile = kind === 'glass'
+      ? simpleShadowProfiles['rough-glass']
+      : simpleShadowProfiles[kind];
     drawLayer(
       profile.layers.soft.blur,
       profile.layers.soft.opacity,
@@ -218,6 +167,27 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
       lightingTuning.shadowLayers.contact.y,
       1.4,
     );
+  }
+
+  if (kind === 'glass') {
+    context.save();
+    context.globalCompositeOperation = 'destination-in';
+    const horizontalFade = context.createLinearGradient(0, 0, source.width, 0);
+    horizontalFade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    horizontalFade.addColorStop(.07, 'rgba(0, 0, 0, 1)');
+    horizontalFade.addColorStop(.93, 'rgba(0, 0, 0, 1)');
+    horizontalFade.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    context.fillStyle = horizontalFade;
+    context.fillRect(0, 0, source.width, source.height);
+
+    const verticalFade = context.createLinearGradient(0, 0, 0, source.height);
+    verticalFade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    verticalFade.addColorStop(.05, 'rgba(0, 0, 0, 1)');
+    verticalFade.addColorStop(.95, 'rgba(0, 0, 0, 1)');
+    verticalFade.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    context.fillStyle = verticalFade;
+    context.fillRect(0, 0, source.width, source.height);
+    context.restore();
   }
 
   const texture = new THREE.CanvasTexture(source);

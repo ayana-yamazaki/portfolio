@@ -122,8 +122,8 @@ export const simpleShadowProfiles: Record<
 };
 
 export const glassContactShadowProfile = {
-  scale: [1.02, .14],
-  offset: { xRatio: 0, yRatio: -.5 },
+  scale: [1.3, 1.18],
+  offset: { xRatio: .08, yRatio: -.012 },
 } as const;
 
 type BackgroundReflectionProfile = {
