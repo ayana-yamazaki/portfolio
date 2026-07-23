@@ -9,7 +9,7 @@ export const materialProfiles: Record<MaterialKind, {
   gem: { radiusPx: 22, thicknessPx: gemThicknessPx },
   'sea-glass': { radiusPx: 8, thicknessPx: 110 },
   'rough-glass': { radiusPx: 4, thicknessPx: gemThicknessPx },
-  glass: { radiusPx: 64, thicknessPx: 80 },
+  glass: { radiusPx: 32, thicknessPx: 80 },
 };
 
 export const sceneTuning = {
@@ -171,10 +171,13 @@ export const gemTuning = {
 
 export const glassTuning = {
   rimWidthPx: 12,
+  shoulderWidthPx: 22,
   refractionPx: 48,
   ior: 1.47,
   absorptionStrength: .24,
   dispersionStrength: .12,
+  tiltDeg: -4.5,
+  yawDeg: -2.5,
 } as const;
 
 export const seaGlassTuning = {

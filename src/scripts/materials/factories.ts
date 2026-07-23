@@ -86,10 +86,12 @@ export const createGemFaceMaterial = (
 export const createGlassMaterial = (
   backdropTexture: THREE.Texture,
   domRefractionTexture: THREE.Texture,
+  environmentTexture: THREE.CubeTexture,
 ) => new THREE.ShaderMaterial({
   uniforms: {
     uBackdrop: { value: backdropTexture },
     uDomRefraction: { value: domRefractionTexture },
+    uEnvironment: { value: environmentTexture },
     uCanvasSize: { value: new THREE.Vector2(1, 1) },
     uWorldCardSize: { value: new THREE.Vector2(1, 1) },
     uThicknessPx: { value: 80 },

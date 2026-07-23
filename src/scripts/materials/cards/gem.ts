@@ -11,5 +11,6 @@ export const gemCardDefinition: CardDefinition = {
   shadowColor: 0x000000,
   shadowProfile: 'gem',
   shadowFollowsLift: true,
+  cacheDuringMotion: true,
   createGeometry: (width, height, depth) => makeGemGeometry(width, height, depth),
 };

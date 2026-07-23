@@ -331,19 +331,22 @@ export const glassVertexShader = `
   attribute float aOpticalThickness;
   varying vec2 vScreenUv;
   varying vec3 vLocalPosition;
-  varying vec3 vViewNormal;
-  varying vec3 vViewPosition;
+  varying vec3 vLocalNormal;
+  varying vec3 vWorldNormal;
+  varying vec3 vWorldPosition;
   varying float vSurfaceRegion;
   varying float vBevelProgress;
   varying float vOpticalThickness;
 
   void main(){
+    vec4 worldPosition=modelMatrix*vec4(position,1.0);
     vec4 viewPosition=modelViewMatrix*vec4(position,1.0);
     vec4 clip=projectionMatrix*viewPosition;
     vScreenUv=clip.xy/clip.w*.5+.5;
     vLocalPosition=position;
-    vViewNormal=normalize(normalMatrix*normal);
-    vViewPosition=viewPosition.xyz;
+    vLocalNormal=normal;
+    vWorldNormal=normalize(mat3(modelMatrix)*normal);
+    vWorldPosition=worldPosition.xyz;
     vSurfaceRegion=aSurfaceRegion;
     vBevelProgress=aBevelProgress;
     vOpticalThickness=aOpticalThickness;
@@ -355,6 +358,7 @@ export const glassFragmentShader = `
   precision highp float;
   uniform sampler2D uBackdrop;
   uniform sampler2D uDomRefraction;
+  uniform samplerCube uEnvironment;
   uniform vec2 uCanvasSize;
   uniform vec2 uWorldCardSize;
   uniform float uThicknessPx;
@@ -367,14 +371,11 @@ export const glassFragmentShader = `
   uniform vec3 uFloorColor;
   uniform vec2 uLightDirection;
   uniform float uGlintStrength;
-  uniform vec3 uBackgroundReflectionFallback;
-  uniform float uBandTopY;
-  uniform float uBackgroundReflectionStrength;
-  uniform float uBackgroundReflectionRayDistance;
   varying vec2 vScreenUv;
   varying vec3 vLocalPosition;
-  varying vec3 vViewNormal;
-  varying vec3 vViewPosition;
+  varying vec3 vLocalNormal;
+  varying vec3 vWorldNormal;
+  varying vec3 vWorldPosition;
   varying float vSurfaceRegion;
   varying float vBevelProgress;
   varying float vOpticalThickness;
@@ -398,33 +399,49 @@ export const glassFragmentShader = `
     return mix(scene,text.rgb,text.a);
   }
 
+  vec3 glassRay(vec3 incident,vec3 surfaceNormal,float ior){
+    vec3 transmitted=refract(incident,surfaceNormal,1.0/ior);
+    float hasTransmission=step(.0001,dot(transmitted,transmitted));
+    return mix(reflect(incident,surfaceNormal),transmitted,hasTransmission);
+  }
+
+  vec2 raySlope(vec3 ray){
+    return ray.xy/max(abs(ray.z),.18);
+  }
+
   void main(){
     vec2 local=vLocalPosition.xy/uWorldCardSize+.5;
-    vec3 opticalNormal=normalize(vViewNormal);
-    if(!gl_FrontFacing) opticalNormal=-opticalNormal;
-    vec3 viewDirection=normalize(-vViewPosition);
-    float surfaceRegion=clamp(vSurfaceRegion,0.0,1.0);
-    float bevelProgress=clamp(vBevelProgress,0.0,1.0);
-    float shoulderMask=smoothstep(.04,.62,surfaceRegion)
-      *(1.0-smoothstep(.84,1.0,surfaceRegion));
-    float sideMask=smoothstep(.68,.97,surfaceRegion);
-    float roundedMask=smoothstep(
-      .025,
-      .86,
-      max(surfaceRegion,bevelProgress*.94)
-    );
-    float facing=clamp(abs(dot(opticalNormal,viewDirection)),.001,1.0);
+    vec3 localNormal=normalize(vLocalNormal);
+    vec3 worldNormal=normalize(vWorldNormal);
+    if(!gl_FrontFacing){
+      localNormal=-localNormal;
+      worldNormal=-worldNormal;
+    }
+    vec3 incident=normalize(vWorldPosition-cameraPosition);
+    vec3 viewDirection=-incident;
+    float profile=clamp(vSurfaceRegion,0.0,1.0);
+    float lateralNormal=clamp(vBevelProgress,0.0,1.0);
+    float frontFace=1.0-smoothstep(.015,.09,profile);
+    float innerShoulder=smoothstep(.025,.12,profile)
+      *(1.0-smoothstep(.48,.62,profile));
+    float outerShoulder=smoothstep(.24,.48,profile)
+      *(1.0-smoothstep(.72,.84,profile));
+    float sideMask=smoothstep(.5,.68,profile)
+      *(1.0-smoothstep(.9,.985,profile));
+    float rearShoulder=smoothstep(.78,.9,profile);
+    float facing=clamp(abs(dot(worldNormal,viewDirection)),.06,1.0);
     float grazing=1.0-facing;
-    float fresnel=.04+.96*pow(grazing,5.0);
-    float rightSurface=roundedMask*max(opticalNormal.x,0.0);
-    float leftSurface=roundedMask*max(-opticalNormal.x,0.0);
-    float topSurface=roundedMask*max(opticalNormal.y,0.0);
-    float bottomSurface=roundedMask*max(-opticalNormal.y,0.0);
+    float f0=pow((uIor-1.0)/(uIor+1.0),2.0);
+    float fresnel=f0+(1.0-f0)*pow(grazing,5.0);
+    float rightSurface=max(localNormal.x,0.0);
+    float leftSurface=max(-localNormal.x,0.0);
+    float topSurface=max(localNormal.y,0.0);
+    float bottomSurface=max(-localNormal.y,0.0);
     float thicknessScale=clamp(uThicknessPx/80.0,.5,1.8);
     float opticalPath=clamp(
-      vOpticalThickness*(.68+grazing*.58)*thicknessScale,
-      .04,
-      1.0
+      vOpticalThickness*thicknessScale/facing,
+      .7,
+      3.2
     );
 
     float spectrumPosition=clamp(local.x*.7+(1.0-local.y)*.3,0.0,1.0);
@@ -442,121 +459,88 @@ export const glassFragmentShader = `
       +vec3(.95,.3,.57)*redWeight
     )/max(totalWeight,.0001);
 
-    vec3 refractedRay=refract(-viewDirection,opticalNormal,1.0/uIor);
-    vec2 projectedRay=refractedRay.xy/max(abs(refractedRay.z),.24);
-    vec2 bendDirection=mix(opticalNormal.xy,projectedRay,.36);
-    bendDirection=clamp(bendDirection,vec2(-1.4),vec2(1.4));
-    float bendStrength=smoothstep(.012,.32,length(opticalNormal.xy));
-    vec2 bendPixels=bendDirection*uRefraction*opticalPath*bendStrength;
-    vec2 bend=bendPixels/uCanvasSize;
-    float dispersionMask=clamp(
-      (shoulderMask*.7+sideMask+bottomSurface*.28)*opticalPath,
-      0.0,
+    float opticalRegion=clamp(
+      frontFace*.16+innerShoulder*.58+outerShoulder*.86+sideMask,
+      .12,
       1.0
     );
-    float dispersion=uDispersionStrength*dispersionMask;
-    vec2 uv=vScreenUv-bend;
-    vec2 redUv=vScreenUv-bend*(1.0+dispersion);
-    vec2 blueUv=vScreenUv-bend*(1.0-dispersion);
-    vec3 centerSample=sceneAt(uv);
-    vec3 refracted=vec3(sceneAt(redUv).r,centerSample.g,sceneAt(blueUv).b);
-    vec3 color=refracted;
-
-    vec3 keyDirection=normalize(vec3(uLightDirection,.72));
-    vec3 halfVector=normalize(keyDirection+viewDirection);
-    float directLight=max(dot(opticalNormal,keyDirection),0.0);
-    float normalHalf=max(dot(opticalNormal,halfVector),0.0);
-    float broadSpecular=pow(normalHalf,18.0);
-    float sharpSpecular=pow(normalHalf,150.0);
-    float upperLeftWeight=mix(1.0,.58,smoothstep(.06,.92,local.x));
-    float topHighlight=topSurface*upperLeftWeight;
-    float upperLeftCorner=leftSurface*smoothstep(.58,.94,local.y);
-
-    float absorptionAmount=clamp(
-      opticalPath*uAbsorptionStrength*(
-        .22+rightSurface*.5+bottomSurface*.72+sideMask*.16
-      ),
-      0.0,
-      .42
+    float iorSpread=uDispersionStrength*.11;
+    vec2 incidentSlope=raySlope(incident);
+    vec2 redBend=(
+      raySlope(glassRay(incident,worldNormal,uIor-iorSpread))-incidentSlope
+    )*uRefraction*opticalPath*opticalRegion;
+    vec2 greenBend=(
+      raySlope(glassRay(incident,worldNormal,uIor))-incidentSlope
+    )*uRefraction*opticalPath*opticalRegion;
+    vec2 blueBend=(
+      raySlope(glassRay(incident,worldNormal,uIor+iorSpread))-incidentSlope
+    )*uRefraction*opticalPath*opticalRegion;
+    vec3 transmitted=vec3(
+      sceneAt(vScreenUv+redBend/uCanvasSize).r,
+      sceneAt(vScreenUv+greenBend/uCanvasSize).g,
+      sceneAt(vScreenUv+blueBend/uCanvasSize).b
     );
-    color*=mix(vec3(1.0),vec3(.84,.96,.985),absorptionAmount);
-    float sideShadow=rightSurface*(.13+sideMask*.11)
-      +bottomSurface*(.2+sideMask*.14)
-      +pow(grazing,2.2)*sideMask*.12;
-    color*=1.0-clamp(sideShadow,0.0,.4);
+
+    vec3 absorptionCoefficient=vec3(.055,.018,.008)
+      *uAbsorptionStrength*opticalPath;
+    transmitted*=exp(-absorptionCoefficient);
+    float negativeFill=rightSurface*(.12+sideMask*.2)
+      +bottomSurface*(.17+sideMask*.24)
+      +rearShoulder*.08;
+    transmitted*=1.0-clamp(negativeFill,0.0,.46);
+
+    vec3 keyDirection=normalize(vec3(uLightDirection,.28));
+    vec3 halfVector=normalize(keyDirection+viewDirection);
+    float normalHalf=max(dot(worldNormal,halfVector),0.0);
+    float broadSpecular=pow(normalHalf,22.0);
+    float sharpSpecular=pow(normalHalf,170.0);
+    float upperLeftPosition=(
+      1.0-smoothstep(.24,.94,local.x)
+    )*smoothstep(.32,.96,local.y);
+    float upperSide=topSurface*(.38+upperLeftPosition*.62);
+    float keyBroad=broadSpecular*(
+      upperSide*.72+leftSurface*upperLeftPosition*.28
+    );
+    float keySharp=sharpSpecular*(
+      innerShoulder*.48+outerShoulder*.74+sideMask*.44
+    );
+
+    vec3 reflectionRay=reflect(incident,worldNormal);
+    vec3 environment=textureCube(uEnvironment,reflectionRay).rgb;
+    environment=vec3(1.0)-exp(-environment*.82);
+    float reflectionWeight=clamp(
+      fresnel*(.72+sideMask*.72+rearShoulder*.28)
+        +lateralNormal*.025
+        +keyBroad*.16
+        +keySharp*.24,
+      0.0,
+      .86
+    );
+    vec3 color=mix(transmitted,environment,reflectionWeight);
+
+    float innerRail=gaussian(profile,.18,.055)
+      *innerShoulder*upperSide;
+    float outerRail=gaussian(profile,.49,.085)
+      *outerShoulder*(.45+upperSide*.55);
+    float lightStrength=clamp(uGlintStrength*.34,0.0,1.2);
+    color+=vec3(1.0,.995,.975)*(
+      keyBroad*.26
+        +keySharp*.46
+        +innerRail*.14
+        +outerRail*.11
+    )*lightStrength;
 
     float spectralStrength=clamp(
-      dispersionMask*(shoulderMask*.1+sideMask*.16+bottomSurface*.08),
+      uDispersionStrength*opticalPath*(
+        innerShoulder*.08
+          +outerShoulder*.18
+          +sideMask*.3
+          +bottomSurface*.12
+      )*(.45+grazing*.55),
       0.0,
-      .24
+      .12
     );
     color=mix(color,spectralColor,spectralStrength);
-
-    vec3 topPanelRay=reflect(-viewDirection,opticalNormal);
-    float topFaceMask=clamp(
-      topHighlight*.9+upperLeftCorner*.22,
-      0.0,
-      1.0
-    );
-    float reflectionReach=uBackgroundReflectionRayDistance
-      *(.88+max(topPanelRay.y,0.0)*.12);
-    vec2 reflectedBackgroundUv=vec2(
-      vScreenUv.x+topPanelRay.x*reflectionReach*.18,
-      vScreenUv.y+reflectionReach
-    );
-    float reflectedBackgroundOutside=clamp(
-      step(reflectedBackgroundUv.x,0.0)
-        +step(1.0,reflectedBackgroundUv.x)
-        +step(reflectedBackgroundUv.y,0.0)
-        +step(1.0,reflectedBackgroundUv.y),
-      0.0,
-      1.0
-    );
-    vec4 reflectedBackgroundSample=texture2D(
-      uBackdrop,
-      clamp(reflectedBackgroundUv,vec2(.002),vec2(.998))
-    );
-    vec3 reflectedBackground=mix(
-      uBackgroundReflectionFallback,
-      reflectedBackgroundSample.rgb,
-      reflectedBackgroundSample.a
-    );
-    reflectedBackground=mix(
-      reflectedBackground,
-      uBackgroundReflectionFallback,
-      reflectedBackgroundOutside
-    );
-    float distanceToBand=max(uBandTopY-vScreenUv.y,0.0);
-    float reflectionBand=1.0-smoothstep(
-      reflectionReach*.7,
-      reflectionReach,
-      distanceToBand
-    );
-    float backgroundReflection=topFaceMask
-      *reflectionBand
-      *uBackgroundReflectionStrength;
-    color=mix(
-      color,
-      reflectedBackground,
-      clamp(backgroundReflection,0.0,.62)
-    );
-
-    float broadReflection=topHighlight*broadSpecular*(.22+directLight*.18)
-      +upperLeftCorner*broadSpecular*.14;
-    float sharpReflection=sharpSpecular*(
-      .18+uGlintStrength*.2
-    )*(shoulderMask+sideMask*.72);
-    float edgeReflection=pow(grazing,2.6)
-      *(shoulderMask*.07+sideMask*.13);
-    float reflection=clamp(
-      fresnel*(shoulderMask*.28+sideMask*.46)
-        +broadReflection
-        +sharpReflection
-        +edgeReflection,
-      0.0,
-      .72
-    );
-    color=mix(color,vec3(1.0,.998,.99),reflection);
 
     gl_FragColor=vec4(clamp(color,vec3(0.0),vec3(1.0)),1.0);
     #include <colorspace_fragment>

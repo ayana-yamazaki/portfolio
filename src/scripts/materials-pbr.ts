@@ -35,8 +35,7 @@ import {
   type MotionCache,
 } from './materials/engine/motion-cache';
 import {
-  makeRoughGlassBumpTexture,
-  makeRoughGlassCausticTexture,
+  loadRoughGlassTextures,
   makeGemFloorCausticTexture,
   makeGemPrismTexture,
   makeCardShadowTexture,
@@ -131,6 +130,15 @@ if (canvas && cases && hero) {
     hero.style.removeProperty('--stage-floor-y');
     canvas.dataset.rendererState = 'stopped';
     if (canvas.materialsPbrCleanup === cleanup) delete canvas.materialsPbrCleanup;
+  };
+
+  const failInitialization = (error: unknown) => {
+    cleanup();
+    canvas.dataset.rendererState = 'error';
+    canvas.dataset.rendererError = error instanceof Error
+      ? error.message
+      : 'webgl-initialization';
+    canvas.hidden = true;
   };
 
   canvas.materialsPbrCleanup = cleanup;
@@ -284,8 +292,9 @@ if (canvas && cases && hero) {
       markLayoutDirty();
     };
 
-    const roughGlassBump = makeRoughGlassBumpTexture();
-    const roughGlassCaustic = makeRoughGlassCausticTexture();
+    const roughGlassTextures = loadRoughGlassTextures();
+    const roughGlassBump = roughGlassTextures.bump;
+    const roughGlassCaustic = roughGlassTextures.caustic;
     const gemFloorCaustic = makeGemFloorCausticTexture();
     const gemPrism = makeGemPrismTexture();
     [
@@ -378,7 +387,11 @@ if (canvas && cases && hero) {
       gemEnvironmentTarget.texture,
       gemFloorInteraction,
     );
-    const glassMaterial = createGlassMaterial(glassBackdropTexture, domRefractionTexture);
+    const glassMaterial = createGlassMaterial(
+      glassBackdropTexture,
+      domRefractionTexture,
+      gemEnvironmentTarget.texture,
+    );
     const seaGlassMaterial = createSeaGlassMaterial(
       glassBackdropTexture,
       seaGlassBlurTexture,
@@ -612,9 +625,10 @@ if (canvas && cases && hero) {
       scene,
       camera,
       samples: sceneTuning.motionCacheSamples,
-      items: cardStates.map(({ kind, renderables }) => ({
+      items: cardStates.map(({ kind, definition, renderables }) => ({
         id: kind,
         renderables,
+        cacheable: definition.cacheDuringMotion,
       })),
     });
 
@@ -978,7 +992,11 @@ if (canvas && cases && hero) {
         const depth = profile.thicknessPx * pxY;
         const radiusPx = profile.radiusPx;
         const radius = radiusPx * pxY;
-        const shoulderWidth = glassTuning.rimWidthPx * pxY;
+        const shoulderWidth = (
+          state.kind === 'glass'
+            ? glassTuning.shoulderWidthPx
+            : glassTuning.rimWidthPx
+        ) * pxY;
         const geometrySignature = [
           width,
           height,
@@ -1020,12 +1038,30 @@ if (canvas && cases && hero) {
           centerY + state.liftPx * pxY,
           state.group.position.z,
         );
+        const tilt = THREE.MathUtils.degToRad(
+          state.kind === 'glass' ? glassTuning.tiltDeg : sceneTuning.baseTilt,
+        );
+        const yaw = THREE.MathUtils.degToRad(
+          state.kind === 'glass' ? glassTuning.yawDeg : sceneTuning.baseYaw,
+        );
         state.group.rotation.set(
-          THREE.MathUtils.degToRad(sceneTuning.baseTilt),
-          THREE.MathUtils.degToRad(sceneTuning.baseYaw),
+          tilt,
+          yaw,
           THREE.MathUtils.degToRad(sceneTuning.baseRoll),
         );
-        state.group.scale.setScalar(1.006);
+        if (state.kind === 'glass') {
+          const projectedWidth = width * Math.abs(Math.cos(yaw))
+            + depth * Math.abs(Math.sin(yaw));
+          const projectedHeight = height * Math.abs(Math.cos(tilt))
+            + depth * Math.abs(Math.sin(tilt));
+          state.group.scale.set(
+            1.006 * width / projectedWidth,
+            1.006 * height / projectedHeight,
+            1,
+          );
+        } else {
+          state.group.scale.setScalar(1.006);
+        }
         state.group.position.z = 0.08;
         if (state.surface) {
           state.surface.position.set(
@@ -1204,7 +1240,28 @@ if (canvas && cases && hero) {
       if (dynamicIds.size === 0) scheduleMotionCacheWarm();
     };
 
-    markTextureReady();
+    const finishInitialization = async () => {
+      await roughGlassTextures.ready;
+      if (disposed) return;
+      if (!syncLayout(true)) {
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        if (disposed) return;
+        if (!syncLayout(true)) {
+          throw new Error('Unable to resolve material layout before shader compilation');
+        }
+      }
+      const activeRenderer = renderer;
+      const activeScene = scene;
+      if (!activeRenderer || !activeScene) {
+        throw new Error('Unable to initialize material renderer');
+      }
+      await activeRenderer.compileAsync(activeScene, camera);
+      if (disposed) return;
+      markTextureReady();
+    };
+    void finishInitialization().catch((error) => {
+      if (!disposed) failInitialization(error);
+    });
 
     resizeObserver = new ResizeObserver(markLayoutDirty);
     resizeObserver.observe(canvas);
@@ -1251,9 +1308,6 @@ if (canvas && cases && hero) {
 
     import.meta.hot?.dispose(cleanup);
   } catch (error) {
-    cleanup();
-    canvas.dataset.rendererState = 'error';
-    canvas.dataset.rendererError = error instanceof Error ? error.message : 'webgl-initialization';
-    canvas.hidden = true;
+    failInitialization(error);
   }
 }

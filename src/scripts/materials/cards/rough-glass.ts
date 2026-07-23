@@ -11,5 +11,6 @@ export const roughGlassCardDefinition: CardDefinition = {
   shadowColor: 0x000000,
   shadowProfile: 'rough-glass',
   shadowFollowsLift: true,
+  cacheDuringMotion: true,
   createGeometry: makePanelGeometry,
 };

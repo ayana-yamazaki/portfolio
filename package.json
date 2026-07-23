@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "generate:material-textures": "node scripts/generate-rough-glass-textures.mjs"
   },
   "dependencies": {
     "astro": "^6.0.4",

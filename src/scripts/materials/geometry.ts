@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 const makeRoundedShape = (width: number, height: number, radius: number) => {
   const halfWidth = width / 2;
@@ -107,63 +106,137 @@ export const makeGlassPanelGeometry = (
   radius: number,
   shoulderWidth: number,
 ) => {
-  const shoulder = Math.min(shoulderWidth, depth * .34, radius * .45);
-  const bodyDepth = Math.max(depth - shoulder * 2, depth * .2);
-  const shapeWidth = Math.max(width - shoulder * 2, shoulder * 2);
-  const shapeHeight = Math.max(height - shoulder * 2, shoulder * 2);
-  const shapeRadius = Math.max(radius - shoulder, 0);
-  const geometry = new THREE.ExtrudeGeometry(
-    makeRoundedShape(shapeWidth, shapeHeight, shapeRadius),
-    {
-      depth: bodyDepth,
-      steps: 1,
-      curveSegments: 40,
-      bevelEnabled: true,
-      bevelSegments: 24,
-      bevelSize: shoulder,
-      bevelThickness: shoulder,
-    },
+  const shoulder = Math.min(
+    shoulderWidth,
+    depth * .32,
+    radius * .8,
+    width * .16,
+    height * .16,
   );
-  geometry.translate(0, 0, -bodyDepth / 2);
-  geometry.deleteAttribute('normal');
-  geometry.deleteAttribute('uv');
-  const smoothedGeometry = mergeVertices(geometry, 1e-5);
-  geometry.dispose();
-  smoothedGeometry.computeVertexNormals();
+  const halfDepth = depth / 2;
+  const cornerSegments = 20;
+  const profile = [
+    { inset: shoulder, z: halfDepth, region: 0 },
+    { inset: shoulder * .86, z: halfDepth - depth * .008, region: .07 },
+    { inset: shoulder * .64, z: halfDepth - depth * .045, region: .17 },
+    { inset: shoulder * .38, z: halfDepth - depth * .13, region: .31 },
+    { inset: shoulder * .14, z: halfDepth - depth * .27, region: .48 },
+    { inset: 0, z: halfDepth - depth * .5, region: .66 },
+    { inset: shoulder * .025, z: halfDepth - depth * .72, region: .79 },
+    { inset: shoulder * .23, z: halfDepth - depth * .87, region: .9 },
+    { inset: shoulder * .55, z: halfDepth - depth * .97, region: .97 },
+    { inset: shoulder * .82, z: -halfDepth, region: 1 },
+  ] as const;
 
-  const normals = smoothedGeometry.getAttribute('normal');
-  const vertexCount = normals.count;
-  const surfaceRegions = new Float32Array(vertexCount);
-  const bevelProgress = new Float32Array(vertexCount);
-  const opticalThickness = new Float32Array(vertexCount);
+  const makeOutline = (inset: number) => {
+    const outlineWidth = Math.max(width - inset * 2, 1e-4);
+    const outlineHeight = Math.max(height - inset * 2, 1e-4);
+    const outlineRadius = Math.max(
+      Math.min(radius - inset, outlineWidth / 2, outlineHeight / 2),
+      1e-4,
+    );
+    const halfWidth = outlineWidth / 2;
+    const halfHeight = outlineHeight / 2;
+    const centers = [
+      new THREE.Vector2(halfWidth - outlineRadius, halfHeight - outlineRadius),
+      new THREE.Vector2(-halfWidth + outlineRadius, halfHeight - outlineRadius),
+      new THREE.Vector2(-halfWidth + outlineRadius, -halfHeight + outlineRadius),
+      new THREE.Vector2(halfWidth - outlineRadius, -halfHeight + outlineRadius),
+    ];
+    return centers.flatMap((center, corner) => (
+      Array.from({ length: cornerSegments }, (_, segment) => {
+        const angle = (corner + segment / cornerSegments) * Math.PI / 2;
+        return new THREE.Vector2(
+          center.x + Math.cos(angle) * outlineRadius,
+          center.y + Math.sin(angle) * outlineRadius,
+        );
+      })
+    ));
+  };
 
-  for (let index = 0; index < vertexCount; index += 1) {
-    const normalX = normals.getX(index);
-    const normalY = normals.getY(index);
-    const normalZ = Math.max(normals.getZ(index), 0);
-    const lateralNormal = Math.min(1, Math.hypot(normalX, normalY));
-    surfaceRegions[index] = THREE.MathUtils.clamp(1 - normalZ, 0, 1);
-    bevelProgress[index] = lateralNormal;
-    opticalThickness[index] = THREE.MathUtils.clamp(
-      .08 + Math.pow(lateralNormal, .72) * .92,
-      .08,
+  const positions: number[] = [];
+  const indices: number[] = [];
+  const surfaceRegions: number[] = [];
+  const opticalThickness: number[] = [];
+  const ringStarts: number[] = [];
+  const outlines: THREE.Vector2[][] = [];
+
+  profile.forEach(({ inset, z, region }) => {
+    const outline = makeOutline(inset);
+    outlines.push(outline);
+    ringStarts.push(positions.length / 3);
+    const sidePath = 1 + Math.sin(region * Math.PI) * .62;
+    outline.forEach((point) => {
+      positions.push(point.x, point.y, z);
+      surfaceRegions.push(region);
+      opticalThickness.push(sidePath);
+    });
+  });
+
+  for (let ring = 0; ring < profile.length - 1; ring += 1) {
+    const currentStart = ringStarts[ring];
+    const nextStart = ringStarts[ring + 1];
+    for (let point = 0; point < outlines[ring].length; point += 1) {
+      const nextPoint = (point + 1) % outlines[ring].length;
+      const front = currentStart + point;
+      const frontNext = currentStart + nextPoint;
+      const back = nextStart + point;
+      const backNext = nextStart + nextPoint;
+      indices.push(front, back, backNext, front, backNext, frontNext);
+    }
+  }
+
+  const addCap = (outline: THREE.Vector2[], z: number, front: boolean) => {
+    const capStart = positions.length / 3;
+    outline.forEach((point) => {
+      positions.push(point.x, point.y, z);
+      surfaceRegions.push(front ? 0 : 1);
+      opticalThickness.push(1);
+    });
+    THREE.ShapeUtils.triangulateShape(outline, []).forEach(([a, b, c]) => {
+      indices.push(
+        capStart + a,
+        capStart + (front ? b : c),
+        capStart + (front ? c : b),
+      );
+    });
+  };
+
+  addCap(outlines[0], halfDepth, true);
+  addCap(outlines[outlines.length - 1], -halfDepth, false);
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+
+  const normals = geometry.getAttribute('normal');
+  const bevelProgress = new Float32Array(normals.count);
+  for (let index = 0; index < normals.count; index += 1) {
+    bevelProgress[index] = Math.min(
       1,
+      Math.hypot(normals.getX(index), normals.getY(index)),
     );
   }
 
-  smoothedGeometry.setAttribute(
+  geometry.setAttribute(
     'aSurfaceRegion',
-    new THREE.BufferAttribute(surfaceRegions, 1),
+    new THREE.Float32BufferAttribute(surfaceRegions, 1),
   );
-  smoothedGeometry.setAttribute(
+  geometry.setAttribute(
     'aBevelProgress',
     new THREE.BufferAttribute(bevelProgress, 1),
   );
-  smoothedGeometry.setAttribute(
+  geometry.setAttribute(
     'aOpticalThickness',
-    new THREE.BufferAttribute(opticalThickness, 1),
+    new THREE.Float32BufferAttribute(opticalThickness, 1),
   );
-  return smoothedGeometry;
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
 };
 
 export const makeGemGeometry = (width: number, height: number, depth: number) => {

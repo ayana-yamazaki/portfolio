@@ -3,6 +3,7 @@ import * as THREE from 'three';
 export type MotionCacheItem = {
   id: string;
   renderables: THREE.Object3D[];
+  cacheable?: boolean;
 };
 
 type MotionCacheBounds = {
@@ -37,6 +38,12 @@ export const createMotionCache = ({
   const compositeCamera = new THREE.OrthographicCamera(0, 1, 1, 0, 0, 2);
   compositeCamera.position.z = 1;
 
+  const cachedItems = items.filter(({ cacheable }) => cacheable !== false);
+  const alwaysLiveIds = new Set(
+    items
+      .filter(({ cacheable }) => cacheable === false)
+      .map(({ id }) => id),
+  );
   const itemBounds = new Map<string, MotionCacheBounds>();
   const layers = new Map<string, CachedLayer>();
   let width = 1;
@@ -161,7 +168,7 @@ export const createMotionCache = ({
 
   const prepare = () => {
     if (!cacheDirty && cacheReady) return true;
-    if (items.some(({ id }) => !itemBounds.has(id))) return false;
+    if (cachedItems.some(({ id }) => !itemBounds.has(id))) return false;
 
     disposeLayers();
     const scratch = new THREE.WebGLRenderTarget(width, height, {
@@ -188,7 +195,7 @@ export const createMotionCache = ({
       renderer.autoClear = false;
       renderer.setRenderTarget(scratch);
 
-      items.forEach((item) => {
+      cachedItems.forEach((item) => {
         const bounds = itemBounds.get(item.id);
         if (!bounds) return;
         setVisibility(new Set([item.id]));
@@ -200,7 +207,7 @@ export const createMotionCache = ({
       });
 
       cacheDirty = false;
-      cacheReady = layers.size === items.length;
+      cacheReady = layers.size === cachedItems.length;
       return cacheReady;
     } finally {
       showAllItems();
@@ -217,8 +224,9 @@ export const createMotionCache = ({
   const render = (dynamicIds: Set<string>) => {
     if (dynamicIds.size === 0 || !cacheReady) return false;
 
+    const liveIds = new Set([...alwaysLiveIds, ...dynamicIds]);
     layers.forEach(({ mesh }, id) => {
-      mesh.visible = !dynamicIds.has(id);
+      mesh.visible = !liveIds.has(id);
     });
 
     const previousAutoClear = renderer.autoClear;
@@ -228,7 +236,7 @@ export const createMotionCache = ({
     renderer.clear(true, true, true);
     renderer.render(compositeScene, compositeCamera);
     renderer.clearDepth();
-    setVisibility(dynamicIds);
+    setVisibility(liveIds);
     renderer.render(scene, camera);
     showAllItems();
     renderer.autoClear = previousAutoClear;

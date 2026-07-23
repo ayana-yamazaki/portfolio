@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import roughGlassBumpUrl from '../../assets/materials/rough-glass-bump.png?url';
+import roughGlassCausticUrl from '../../assets/materials/rough-glass-caustic.png?url';
 import {
   lightingTuning,
   materialProfiles,
@@ -7,107 +9,39 @@ import {
 } from './config';
 import { makeSeaGlassOutline } from './geometry';
 
-const hashGrid = (x: number, y: number, seed: number) => {
-  let value = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(seed, 69069);
-  value = Math.imul(value ^ (value >>> 13), 1274126177);
-  return ((value ^ (value >>> 16)) >>> 0) / 4294967295;
+const staticTextureLoader = new THREE.TextureLoader();
+
+const loadStaticTexture = (
+  url: string,
+  configure: (texture: THREE.Texture) => void,
+) => {
+  let texture!: THREE.Texture;
+  const ready = new Promise<THREE.Texture>((resolve, reject) => {
+    texture = staticTextureLoader.load(url, resolve, undefined, reject);
+  });
+  configure(texture);
+  return { texture, ready };
 };
 
-const smoothCurve = (value: number) => value * value * (3 - 2 * value);
-const mixNumber = (from: number, to: number, amount: number) => from + (to - from) * amount;
+export const loadRoughGlassTextures = () => {
+  const bump = loadStaticTexture(roughGlassBumpUrl, (texture) => {
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 2;
+  });
+  const caustic = loadStaticTexture(roughGlassCausticUrl, (texture) => {
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+  });
 
-const valueNoise = (x: number, y: number, scale: number, seed: number) => {
-  const gridX = x / scale;
-  const gridY = y / scale;
-  const x0 = Math.floor(gridX);
-  const y0 = Math.floor(gridY);
-  const tx = smoothCurve(gridX - x0);
-  const ty = smoothCurve(gridY - y0);
-  const top = mixNumber(hashGrid(x0, y0, seed), hashGrid(x0 + 1, y0, seed), tx);
-  const bottom = mixNumber(
-    hashGrid(x0, y0 + 1, seed),
-    hashGrid(x0 + 1, y0 + 1, seed),
-    tx,
-  );
-  return mixNumber(top, bottom, ty);
-};
-
-const cellularRelief = (x: number, y: number, cellSize: number, seed: number) => {
-  const cellX = Math.floor(x / cellSize);
-  const cellY = Math.floor(y / cellSize);
-  let nearest = 2;
-
-  for (let offsetY = -1; offsetY <= 1; offsetY += 1) {
-    for (let offsetX = -1; offsetX <= 1; offsetX += 1) {
-      const gridX = cellX + offsetX;
-      const gridY = cellY + offsetY;
-      const pointX = (
-        gridX + .18 + hashGrid(gridX, gridY, seed) * .64
-      ) * cellSize;
-      const pointY = (
-        gridY + .18 + hashGrid(gridX, gridY, seed + 37) * .64
-      ) * cellSize;
-      const distance = Math.hypot(x - pointX, y - pointY) / cellSize;
-      nearest = Math.min(nearest, distance);
-    }
-  }
-
-  const normalized = Math.max(0, Math.min(1, nearest / .82));
-  return .5 + Math.cos(normalized * Math.PI) * .5;
-};
-
-const makeRoughGlassHeightField = (width: number, height: number) => {
-  const field = new Float32Array(width * height);
-  const unit = width / 7.1;
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const broad = valueNoise(x, y, unit * 1.85, 11);
-      const medium = valueNoise(x + unit * .37, y - unit * .23, unit * .72, 29);
-      const carved = cellularRelief(x, y, unit, 47);
-      const chipped = cellularRelief(x + unit * .21, y + unit * .34, unit * .48, 83);
-      const relief = .5
-        + (broad - .5) * .46
-        + (medium - .5) * .25
-        + (carved - .5) * .4
-        + (chipped - .5) * .12;
-      field[y * width + x] = Math.max(0, Math.min(1, .5 + (relief - .5) * 1.28));
-    }
-  }
-
-  return field;
-};
-
-export const makeRoughGlassBumpTexture = () => {
-  const width = 384;
-  const height = 576;
-  const source = document.createElement('canvas');
-  source.width = width;
-  source.height = height;
-  const context = source.getContext('2d');
-  if (!context) throw new Error('Unable to create rough glass texture');
-  const image = context.createImageData(width, height);
-  const heightField = makeRoughGlassHeightField(width, height);
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = (y * width + x) * 4;
-      const value = Math.round(heightField[y * width + x] * 255);
-      image.data[index] = value;
-      image.data[index + 1] = value;
-      image.data[index + 2] = value;
-      image.data[index + 3] = 255;
-    }
-  }
-
-  context.putImageData(image, 0, 0);
-  const texture = new THREE.CanvasTexture(source);
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.anisotropy = 2;
-  return texture;
+  return {
+    bump: bump.texture,
+    caustic: caustic.texture,
+    ready: Promise.all([bump.ready, caustic.ready]).then(() => undefined),
+  };
 };
 
 export const makeCardShadowTexture = (kind: MaterialKind) => {
@@ -195,6 +129,19 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     context.fillStyle = gradient;
     context.beginPath();
     context.arc(0, 0, source.width * .42, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
+
+    context.save();
+    context.translate(source.width / 2, source.height / 2 + 4);
+    context.scale(.82, .075);
+    const contact = context.createRadialGradient(0, 0, 0, 0, 0, source.width * .32);
+    contact.addColorStop(0, 'rgba(0, 0, 0, .24)');
+    contact.addColorStop(.48, 'rgba(0, 0, 0, .11)');
+    contact.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    context.fillStyle = contact;
+    context.beginPath();
+    context.arc(0, 0, source.width * .32, 0, Math.PI * 2);
     context.fill();
     context.restore();
 
@@ -404,56 +351,6 @@ export const makeGemPrismTexture = () => {
     trace([startA, startB, sharpTip], color, .7);
   });
 
-  const texture = new THREE.CanvasTexture(source);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.generateMipmaps = false;
-  return texture;
-};
-
-export const makeRoughGlassCausticTexture = () => {
-  const width = 512;
-  const height = 192;
-  const source = document.createElement('canvas');
-  source.width = width;
-  source.height = height;
-  const context = source.getContext('2d');
-  if (!context) throw new Error('Unable to create rough glass caustics');
-  const image = context.createImageData(width, height);
-  const heightField = makeRoughGlassHeightField(width, height);
-  const sample = (x: number, y: number) => heightField[
-    Math.max(0, Math.min(height - 1, y)) * width
-      + Math.max(0, Math.min(width - 1, x))
-  ];
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const index = (y * width + x) * 4;
-      const u = x / width;
-      const v = y / height;
-      const envelope = Math.sin(Math.min(1, v * 1.18) * Math.PI)
-        * Math.pow(Math.sin(Math.min(1, u) * Math.PI), 0.55);
-      const center = sample(x, y);
-      const curvature = Math.abs(
-        sample(x - 2, y)
-          + sample(x + 2, y)
-          + sample(x, y - 2)
-          + sample(x, y + 2)
-          - center * 4
-      );
-      const bright = Math.pow(Math.min(1, curvature * 4.8), 1.65);
-      const dark = Math.min(1, Math.abs(center - .5) * 1.6);
-      const isBright = bright > dark * .42;
-      const value = isBright ? 245 : 42;
-      const alpha = envelope * (isBright ? bright * .34 : dark * .055);
-      image.data[index] = value;
-      image.data[index + 1] = value;
-      image.data[index + 2] = Math.min(255, value + (isBright ? 8 : 0));
-      image.data[index + 3] = Math.max(0, Math.min(255, alpha * 255));
-    }
-  }
-
-  context.putImageData(image, 0, 0);
   const texture = new THREE.CanvasTexture(source);
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
