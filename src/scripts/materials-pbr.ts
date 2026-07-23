@@ -979,19 +979,12 @@ if (canvas && cases && hero) {
       const aspect = canvasRect.width / canvasRect.height;
       const pxY = 2 / canvasRect.height;
       const pxX = aspect * 2 / canvasRect.width;
-      const roughGlassIndex = cardStates.findIndex(
-        ({ definition }) => definition.surface === 'rough-glass',
-      );
-      const referenceRect = rects[roughGlassIndex] ?? rects[0];
-      if (!referenceRect) return false;
-      const referenceWidth = referenceRect.width * pxX;
-      const referenceHeight = referenceRect.height * pxY;
 
       cardStates.forEach((state, index) => {
         const rect = rects[index];
         if (!rect) return;
-        const width = referenceWidth;
-        const height = referenceHeight;
+        const width = rect.width * pxX;
+        const height = rect.height * pxY;
         const profile = materialProfiles[state.kind];
         const depth = profile.thicknessPx * pxY;
         const radiusPx = profile.radiusPx;

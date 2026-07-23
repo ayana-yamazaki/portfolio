@@ -183,7 +183,7 @@ body:has(.home-main) {
   object-fit: cover;
   object-position: left 45%;
   transform: translate(-50%, clamp(32px, 4vw, 56px)) scale(.9);
-  transform-origin: left top;
+  transform-origin: left bottom;
   pointer-events: none;
 }
 
@@ -695,6 +695,16 @@ body:has(.home-main) {
   display: block;
 }
 
+.home-hero__case[data-material='rough-glass'] .home-hero__card {
+  transform: scale(.92);
+  transform-origin: center;
+}
+
+.home-hero__case[data-material='glass'] .home-hero__card {
+  transform: scale(.96);
+  transform-origin: center;
+}
+
 .home-hero__case-copy {
   position: absolute;
   z-index: 5;
@@ -709,7 +719,7 @@ body:has(.home-main) {
   display: block;
   margin-top: 0;
   color: #fff;
-  font-size: clamp(26px, 2.6vw, 31px);
+  font-size: 25px;
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: -.045em;
@@ -848,7 +858,7 @@ body:has(.home-main) {
   }
 
   .home-hero__case-title {
-    font-size: clamp(18px, 7vw, 28px);
+    font-size: 25px;
   }
 
   .home-hero__case-text {
@@ -859,11 +869,38 @@ body:has(.home-main) {
   .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
   .home-hero__case[data-material='rough-glass'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
-    font-size: clamp(18px, 7.8vw, 31px);
+    font-size: 25px;
   }
 }
 
-@media (min-width: 721px) and (max-height: 820px) {
+@media (min-width: 721px) and (max-width: 1024px) {
+  .home-hero__case-copy,
+  .home-hero__case[data-material='gem'] .home-hero__case-copy,
+  .home-hero__case[data-material='sea-glass'] .home-hero__case-copy,
+  .home-hero__case[data-material='rough-glass'] .home-hero__case-copy,
+  .home-hero__case[data-material='glass'] .home-hero__case-copy {
+    transform: translateY(calc(-50% + var(--home-hero-case-lift)));
+  }
+
+  .home-hero__case-title,
+  .home-hero__case[data-material='gem'] .home-hero__case-title,
+  .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
+  .home-hero__case[data-material='rough-glass'] .home-hero__case-title,
+  .home-hero__case[data-material='glass'] .home-hero__case-title {
+    font-size: 25px;
+  }
+
+  .home-hero__case-text {
+    display: none;
+  }
+
+  .home-hero__case-link {
+    margin-top: clamp(18px, 2.5vw, 26px);
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 1025px) and (max-height: 820px) {
   .home-hero {
     padding-top: 28px;
     padding-bottom: 24px;
@@ -876,14 +913,14 @@ body:has(.home-main) {
 
   .home-hero__case-title {
     margin-top: 0;
-    font-size: 30px;
+    font-size: 25px;
   }
 
   .home-hero__case[data-material='gem'] .home-hero__case-title,
   .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
   .home-hero__case[data-material='rough-glass'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
-    font-size: 31px;
+    font-size: 25px;
   }
 
   .home-hero__case-text {

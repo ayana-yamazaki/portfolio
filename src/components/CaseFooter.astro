@@ -1,7 +1,7 @@
 ---
 import { caseStudies } from '../data/site';
 
-const currentPath = Astro.url.pathname;
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isHome = currentPath === '/';
 const currentCaseIndex = caseStudies.findIndex((caseStudy) => caseStudy.href === currentPath);
 
@@ -43,24 +43,29 @@ const footer: {
     href={footer.href}
   >
     {footer.image && <img class="case-footer__image" src={footer.image} alt="" aria-hidden="true" />}
-    {footer.cardImage && (
-      <img
-        class="case-footer__material"
-        src={footer.cardImage}
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        decoding="async"
-        fetchpriority="low"
-      />
-    )}
     <div class="case-footer__feature-inner">
       <div class="case-footer__title-row">
-        <h2>{footer.title}</h2>
+        {footer.cardImage && (
+          <img
+            class="case-footer__material"
+            src={footer.cardImage}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            fetchpriority="low"
+          />
+        )}
+        <div class="case-footer__copy">
+          <span class="case-footer__label">Case Study</span>
+          <h2>{footer.title}</h2>
+          <p>{footer.description.split('\n').map((line, index, lines) => <>{line}{index < lines.length - 1 && <br />}</>)}</p>
+          {footer.action !== 'View next case' && (
+            <span class="case-footer__action">{footer.action} <span aria-hidden="true">↗</span></span>
+          )}
+        </div>
         <span class="case-footer__arrow" aria-hidden="true">→</span>
       </div>
-      <p>{footer.description.split('\n').map((line, index, lines) => <>{line}{index < lines.length - 1 && <br />}</>)}</p>
-      <span class="case-footer__action">{footer.action} <span aria-hidden="true">↗</span></span>
     </div>
   </a>
 
