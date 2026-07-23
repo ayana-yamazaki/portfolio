@@ -17,13 +17,22 @@ import {
   createSideMaterials,
 } from './materials/factories';
 import {
-  makeGemGeometry,
-  makeGlassPanelGeometry,
-  makePanelGeometry,
   makeRoundedFaceGeometry,
-  makeSeaGlassGeometry,
 } from './materials/geometry';
+import {
+  getCardDefinition,
+  type CardDefinition,
+} from './materials/cards/registry';
 import { createRenderHarness, type RenderHarness } from './materials/render-harness';
+import {
+  createRenderDirtyState,
+  RenderDirtyFlag,
+  type RenderDirtyFlags,
+} from './materials/engine/dirty-state';
+import {
+  createMotionCache,
+  type MotionCache,
+} from './materials/engine/motion-cache';
 import {
   makeRoughGlassBumpTexture,
   makeRoughGlassCausticTexture,
@@ -39,6 +48,7 @@ type ManagedCanvas = HTMLCanvasElement & {
 type CardState = {
   element: HTMLElement;
   kind: MaterialKind;
+  definition: CardDefinition;
   group: THREE.Group;
   mesh: THREE.Mesh;
   surface?: THREE.Mesh;
@@ -46,6 +56,8 @@ type CardState = {
   shadow: THREE.Mesh;
   caustic?: THREE.Mesh;
   prism?: THREE.Mesh;
+  renderables: THREE.Object3D[];
+  geometrySignature: string;
   baseGroupY: number;
   baseShadowY: number;
   baseCausticY: number;
@@ -71,6 +83,7 @@ if (canvas && cases && hero) {
   let disposed = false;
   let renderer: THREE.WebGLRenderer | undefined;
   let renderHarness: RenderHarness | undefined;
+  let motionCache: MotionCache | undefined;
   let scene: THREE.Scene | undefined;
   let environmentTarget: THREE.WebGLRenderTarget | undefined;
   let gemEnvironmentTarget: THREE.WebGLCubeRenderTarget | undefined;
@@ -84,6 +97,7 @@ if (canvas && cases && hero) {
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
+    motionCache?.dispose();
     renderHarness?.dispose();
     eventController.abort();
     intersectionObserver?.disconnect();
@@ -226,7 +240,12 @@ if (canvas && cases && hero) {
 
     let textureReady = false;
     let isVisible = true;
-    let layoutDirty = true;
+    const dirty = createRenderDirtyState(
+      RenderDirtyFlag.layout
+      | RenderDirtyFlag.backdrop
+      | RenderDirtyFlag.appearance
+      | RenderDirtyFlag.motionCache,
+    );
     let lastWidth = 0;
     let lastHeight = 0;
     let lastPixelRatio = 0;
@@ -236,14 +255,19 @@ if (canvas && cases && hero) {
     let lastFloorY = 0;
     let renderFrame = () => {};
 
-    const invalidate = () => {
+    const invalidate = (flags: RenderDirtyFlags = RenderDirtyFlag.transform) => {
+      dirty.add(flags);
       if (disposed || !textureReady || !isVisible) return;
       renderHarness?.schedule(() => renderFrame());
     };
 
     const markLayoutDirty = () => {
-      layoutDirty = true;
-      invalidate();
+      invalidate(
+        RenderDirtyFlag.layout
+        | RenderDirtyFlag.backdrop
+        | RenderDirtyFlag.appearance
+        | RenderDirtyFlag.motionCache,
+      );
     };
 
     const markTextureReady = () => {
@@ -452,34 +476,34 @@ if (canvas && cases && hero) {
       state.liftToPx = nextLift;
       state.liftStartedAt = performance.now();
       renderHarness?.resetAnimationBudget();
-      invalidate();
+      invalidate(RenderDirtyFlag.transform);
     };
 
     const cardElements = Array.from(cases.querySelectorAll<HTMLElement>('[data-material]'));
     cardElements.forEach((element) => {
       const kind = element.dataset.material as MaterialKind;
+      const definition = getCardDefinition(kind);
       const group = new THREE.Group();
+      const materialByKind = {
+        gem: [gemFaceMaterial, sideMaterials.gem],
+        'sea-glass': seaGlassMaterial,
+        glass: glassMaterial,
+        body: [bodyMaterials['rough-glass'], sideMaterials['rough-glass']],
+      };
       const mesh = new THREE.Mesh(
         new THREE.BufferGeometry(),
-        kind === 'sea-glass'
-          ? seaGlassMaterial
-          : kind === 'glass'
-            ? glassMaterial
-            : [
-              kind === 'gem' ? gemFaceMaterial : bodyMaterials[kind],
-              sideMaterials[kind],
-            ],
+        materialByKind[definition.meshMaterial],
       );
       group.add(mesh);
 
       let surface: THREE.Mesh | undefined;
-      if (kind === 'rough-glass') {
+      if (definition.surface === 'rough-glass') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), roughGlassFaceMaterial);
       }
       if (surface) group.add(surface);
 
       let bottomSurface: THREE.Mesh | undefined;
-      if (kind === 'rough-glass') {
+      if (definition.hasBottomSurface) {
         bottomSurface = new THREE.Mesh(
           new THREE.PlaneGeometry(1, 1),
           roughGlassBottomMaterial,
@@ -493,7 +517,7 @@ if (canvas && cases && hero) {
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicMaterial({
           map: getShadowMap(kind),
-          color: kind === 'glass' ? 0xffffff : 0x000000,
+          color: definition.shadowColor,
           transparent: true,
           opacity: 1,
           depthWrite: false,
@@ -501,12 +525,12 @@ if (canvas && cases && hero) {
         }),
       );
       shadow.position.z = -0.5;
-      const caustic = kind === 'gem'
+      const caustic = definition.caustic === 'gem'
         ? new THREE.Mesh(
           new THREE.PlaneGeometry(1, 1),
           gemFloorCausticMaterial,
         )
-        : kind === 'rough-glass'
+        : definition.caustic === 'rough-glass'
         ? new THREE.Mesh(
           new THREE.PlaneGeometry(1, 1),
           new THREE.MeshBasicMaterial({
@@ -519,7 +543,7 @@ if (canvas && cases && hero) {
           }),
         )
         : undefined;
-      const prism = kind === 'gem'
+      const prism = definition.hasPrism
         ? new THREE.Mesh(
           new THREE.PlaneGeometry(1, 1),
           gemPrismMaterial,
@@ -535,6 +559,7 @@ if (canvas && cases && hero) {
       const state: CardState = {
         element,
         kind,
+        definition,
         group,
         mesh,
         surface,
@@ -542,6 +567,8 @@ if (canvas && cases && hero) {
         shadow,
         caustic,
         prism,
+        renderables: [shadow, group, ...(caustic ? [caustic] : []), ...(prism ? [prism] : [])],
+        geometrySignature: '',
         baseGroupY: 0,
         baseShadowY: 0,
         baseCausticY: 0,
@@ -572,6 +599,16 @@ if (canvas && cases && hero) {
         state.keyboardFocused = false;
         updateLiftTarget(state);
       }, { signal: eventController.signal });
+    });
+
+    motionCache = createMotionCache({
+      renderer,
+      scene,
+      camera,
+      items: cardStates.map(({ kind, renderables }) => ({
+        id: kind,
+        renderables,
+      })),
     });
 
     const readTextLines = (element: HTMLElement) => {
@@ -847,6 +884,10 @@ if (canvas && cases && hero) {
         || pixelRatio !== lastPixelRatio;
       if (sizeChanged) {
         renderHarness?.resize(canvasRect.width, canvasRect.height, window.devicePixelRatio || 1);
+        motionCache?.resize(
+          canvasRect.width * pixelRatio,
+          canvasRect.height * pixelRatio,
+        );
         const aspect = canvasRect.width / canvasRect.height;
         camera.aspect = aspect;
         camera.updateProjectionMatrix();
@@ -888,7 +929,9 @@ if (canvas && cases && hero) {
       const aspect = canvasRect.width / canvasRect.height;
       const pxY = 2 / canvasRect.height;
       const pxX = aspect * 2 / canvasRect.width;
-      const roughGlassIndex = cardStates.findIndex(({ kind }) => kind === 'rough-glass');
+      const roughGlassIndex = cardStates.findIndex(
+        ({ definition }) => definition.surface === 'rough-glass',
+      );
       const referenceRect = rects[roughGlassIndex] ?? rects[0];
       if (!referenceRect) return false;
       const referenceWidth = referenceRect.width * pxX;
@@ -903,20 +946,40 @@ if (canvas && cases && hero) {
         const depth = profile.thicknessPx * pxY;
         const radiusPx = profile.radiusPx;
         const radius = radiusPx * pxY;
-        state.mesh.geometry.dispose();
-        state.mesh.geometry = state.kind === 'gem'
-          ? makeGemGeometry(width, height, depth)
-          : state.kind === 'sea-glass'
-            ? makeSeaGlassGeometry(width, height, depth)
-          : state.kind === 'glass'
-              ? makeGlassPanelGeometry(
-                width,
-                height,
-                depth,
-                radius,
-                glassTuning.rimWidthPx * pxY,
-              )
-            : makePanelGeometry(width, height, depth, radius);
+        const shoulderWidth = glassTuning.rimWidthPx * pxY;
+        const geometrySignature = [
+          width,
+          height,
+          depth,
+          radius,
+          shoulderWidth,
+        ].join('|');
+        if (state.geometrySignature !== geometrySignature) {
+          state.mesh.geometry.dispose();
+          state.mesh.geometry = state.definition.createGeometry(
+            width,
+            height,
+            depth,
+            radius,
+            shoulderWidth,
+          );
+          if (state.surface) {
+            state.surface.geometry.dispose();
+            state.surface.geometry = makeRoundedFaceGeometry(
+              width - radius * 0.2,
+              height - radius * 0.2,
+              radius * 0.9,
+            );
+          }
+          if (state.bottomSurface) {
+            state.bottomSurface.geometry.dispose();
+            state.bottomSurface.geometry = new THREE.PlaneGeometry(
+              width - radius * .2,
+              depth * .96,
+            );
+          }
+          state.geometrySignature = geometrySignature;
+        }
         const centerX = (((rect.left + rect.width / 2) - canvasRect.left) / canvasRect.width * 2 - 1) * aspect;
         const centerY = 1 - (((rect.top + rect.height / 2) - canvasRect.top) / canvasRect.height * 2);
         state.baseGroupY = centerY;
@@ -933,34 +996,21 @@ if (canvas && cases && hero) {
         state.group.scale.setScalar(1.006);
         state.group.position.z = 0.08;
         if (state.surface) {
-          state.surface.geometry.dispose();
-          state.surface.geometry = makeRoundedFaceGeometry(
-            width - radius * 0.2,
-            height - radius * 0.2,
-            radius * 0.9,
-          );
           state.surface.position.set(
             0,
             0,
-            state.kind === 'rough-glass' || state.kind === 'glass'
-              ? depth / 2 + 0.001
-              : depth / 2 + depth * 0.25 + 0.001,
+            depth / 2 + 0.001,
           );
         }
         if (state.bottomSurface) {
-          state.bottomSurface.geometry.dispose();
-          state.bottomSurface.geometry = new THREE.PlaneGeometry(
-            width - radius * .2,
-            depth * .96,
-          );
           state.bottomSurface.position.set(0, -height / 2 + radius * .08, 0);
         }
-        const isGem = state.kind === 'gem';
-        const simpleShadowProfile = state.kind === 'sea-glass'
-          || state.kind === 'rough-glass'
-          ? simpleShadowProfiles[state.kind]
+        const isGem = state.definition.shadowProfile === 'gem';
+        const simpleShadowProfile = state.definition.shadowProfile === 'sea-glass'
+          || state.definition.shadowProfile === 'rough-glass'
+          ? simpleShadowProfiles[state.definition.shadowProfile]
           : undefined;
-        const shadowProfile = state.kind === 'glass'
+        const shadowProfile = state.definition.shadowProfile === 'glass'
           ? glassContactShadowProfile
           : simpleShadowProfile;
         state.shadow.scale.set(
@@ -986,7 +1036,7 @@ if (canvas && cases && hero) {
                 ?? lightingTuning.shadowOffset.xRatio
           ),
           state.baseShadowY + state.liftPx * pxY * (
-            state.kind === 'glass' ? 0 : .5
+            state.definition.shadowFollowsLift ? .5 : 0
           ),
           -0.65,
         );
@@ -1020,7 +1070,7 @@ if (canvas && cases && hero) {
             -0.63,
           );
         }
-        if (state.kind === 'glass') {
+        if (state.definition.meshMaterial === 'glass') {
           glassMaterial.uniforms.uWorldCardSize.value.set(width, height);
           glassMaterial.uniforms.uThicknessPx.value = profile.thicknessPx;
         }
@@ -1049,7 +1099,7 @@ if (canvas && cases && hero) {
         const liftWorld = state.liftPx * pxY;
         state.group.position.y = state.baseGroupY + liftWorld;
         state.shadow.position.y = state.baseShadowY + liftWorld * (
-          state.kind === 'glass' ? 0 : .5
+          state.definition.shadowFollowsLift ? .5 : 0
         );
         if (state.caustic) {
           state.caustic.position.y = state.baseCausticY + liftWorld * .5;
@@ -1063,14 +1113,34 @@ if (canvas && cases && hero) {
 
     renderFrame = () => {
       if (disposed || !textureReady || !isVisible || !renderer || !scene) return;
-      if (layoutDirty) layoutDirty = !syncLayout();
+      if (dirty.has(RenderDirtyFlag.layout) && syncLayout()) {
+        dirty.clear(
+          RenderDirtyFlag.layout
+          | RenderDirtyFlag.backdrop
+          | RenderDirtyFlag.appearance,
+        );
+      }
+      if (dirty.has(RenderDirtyFlag.motionCache)) {
+        motionCache?.invalidate();
+        dirty.clear(RenderDirtyFlag.motionCache);
+      }
       const liftAnimating = updateCardLift(performance.now());
+      const dynamicIds = new Set(
+        cardStates
+          .filter(({ liftPx, liftToPx }) => Math.abs(liftPx) > 0.01 || Math.abs(liftToPx) > 0.01)
+          .map(({ kind }) => kind),
+      );
 
-      renderer.setRenderTarget(null);
-      renderer.setClearColor(0x000000, 0);
-      renderer.clear();
-      renderer.render(scene, camera);
-      if (liftAnimating && renderHarness?.allowNextAnimationFrame()) invalidate();
+      if (!motionCache?.render(dynamicIds)) {
+        renderer.setRenderTarget(null);
+        renderer.setClearColor(0x000000, 0);
+        renderer.clear();
+        renderer.render(scene, camera);
+      }
+      dirty.clear(RenderDirtyFlag.transform);
+      if (liftAnimating && renderHarness?.allowNextAnimationFrame()) {
+        invalidate(RenderDirtyFlag.transform);
+      }
     };
 
     markTextureReady();
@@ -1086,9 +1156,6 @@ if (canvas && cases && hero) {
     if (backdropImage) resizeObserver.observe(backdropImage);
 
     mutationObserver = new MutationObserver(markLayoutDirty);
-    mutationObserver.observe(hero, { attributes: true });
-    mutationObserver.observe(cases, { attributes: true });
-    mutationObserver.observe(document.documentElement, { attributes: true });
     observedTextSources.forEach((source) => mutationObserver?.observe(source, {
       attributes: true,
       childList: true,

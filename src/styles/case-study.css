@@ -197,10 +197,14 @@
 }
 
 @media (max-width: 720px) {
-  .case-meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
-  .case-meta-grid > div { padding: 0; border-left: 0; }
-  .case-meta-grid > div:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--divider-color); }
-  .case-meta-grid > div:nth-child(n + 3) { padding-top: 14px; margin-top: 14px; border-top: 1px solid var(--divider-color); }
+  .case-page section { padding-inline: 24px; }
+  .case-meta-grid { display: flex; flex-direction: column; gap: 16px; }
+  .case-meta-grid > div,
+  .case-meta-grid > div:nth-child(even),
+  .case-meta-grid > div:nth-child(n + 3) { margin: 0; padding: 0; border: 0; }
+  .case-meta-grid dt { margin-bottom: 4px; }
+  .case-prose ul:not(.case-observation-list),
+  .outcome-list--bulleted { padding-left: 1.25em; list-style-position: outside; }
   .image-placeholder { min-height: 300px; margin-right: -24px; }
   .case-page { --case-section-padding: 32px; --case-block-gap: 28px; --case-heading-gap: 18px; --case-subblock-gap: 22px; }
   .case-header { padding: 18px 24px; }
