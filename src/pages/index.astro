@@ -9,7 +9,7 @@ import { caseStudies } from '../data/site';
 import nanakamadoImage from '../../img/nanakamado.png';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
-const materials = ['gem', 'sea-glass', 'resin', 'glass'] as const;
+const materials = ['gem', 'sea-glass', 'rough-glass', 'glass'] as const;
 ---
 
 <!doctype html>
@@ -40,7 +40,7 @@ const materials = ['gem', 'sea-glass', 'resin', 'glass'] as const;
               <feBlend in="fiber-paper" in2="paper-light-clipped" mode="screen" />
             </filter>
 
-            <filter id="material-resin-cloud" x="-20%" y="-20%" width="140%" height="140%">
+            <filter id="material-rough-glass-surface" x="-20%" y="-20%" width="140%" height="140%">
               <feTurbulence type="fractalNoise" baseFrequency=".012 .026" numOctaves="4" seed="31" result="cloud" />
               <feDisplacementMap in="SourceGraphic" in2="cloud" scale="7" xChannelSelector="R" yChannelSelector="G" result="warped" />
               <feColorMatrix in="cloud" values="
@@ -49,11 +49,11 @@ const materials = ['gem', 'sea-glass', 'resin', 'glass'] as const;
                 0 0 .58 0 .04
                 0 0 0 .3 0" result="amber-cloud" />
               <feBlend in="warped" in2="amber-cloud" mode="screen" result="clouded" />
-              <feSpecularLighting in="cloud" surfaceScale="5" specularConstant=".45" specularExponent="26" lighting-color="#fff7e9" result="resin-specular">
+              <feSpecularLighting in="cloud" surfaceScale="5" specularConstant=".45" specularExponent="26" lighting-color="#fff7e9" result="rough-glass-specular">
                 <fePointLight x="-120" y="-180" z="260" />
               </feSpecularLighting>
-              <feComposite in="resin-specular" in2="SourceAlpha" operator="in" result="resin-specular-clipped" />
-              <feBlend in="clouded" in2="resin-specular-clipped" mode="screen" />
+              <feComposite in="rough-glass-specular" in2="SourceAlpha" operator="in" result="rough-glass-specular-clipped" />
+              <feBlend in="clouded" in2="rough-glass-specular-clipped" mode="screen" />
             </filter>
 
           </defs>
@@ -63,7 +63,7 @@ const materials = ['gem', 'sea-glass', 'resin', 'glass'] as const;
           <div class="home-hero__intro">
             <p class="home-hero__name">Ayana Yamazaki</p>
             <p class="home-hero__role">Product Builder / Product Designer</p>
-            <p class="home-hero__description">複雑な現場を理解し、作るべきものを決め、触れる形まで持っていくプロダクトデザイナー</p>
+            <p class="home-hero__description">複雑な現場を、動くプロダクトへ翻訳する</p>
           </div>
         </header>
 
@@ -105,9 +105,9 @@ const materials = ['gem', 'sea-glass', 'resin', 'glass'] as const;
                     {materials[index] === 'gem'
                       ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
                       : materials[index] === 'sea-glass'
-                        ? <>Decide<br />What to<br />Build</>
-                      : materials[index] === 'resin'
-                        ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />and<br /><span class="home-hero__embedded-title-strong">Iterate</span></>
+                        ? <>Decide<br />What to Build</>
+                      : materials[index] === 'rough-glass'
+                        ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />&amp; <span class="home-hero__embedded-title-strong">Iterate</span></>
                         : materials[index] === 'glass'
                           ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
                           : caseStudy.title}

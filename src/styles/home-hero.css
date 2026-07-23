@@ -8,6 +8,11 @@ body:has(.home-main) {
 
 .home-hero {
   --home-hero-case-gap: clamp(12px, 2vw, 32px);
+  --home-hero-stage-ratio: 2584 / 958;
+  --home-hero-band-height: 65.35%;
+  --home-hero-stage-padding: 8%;
+  --home-hero-card-top: 5.5%;
+  --home-hero-card-width: 90%;
   --build-title-size: clamp(66.4px, 10.4vw, 161.6px);
   --blue-band-overhang: clamp(72px, 7vw, 108px);
   --build-title-x: 0px;
@@ -198,12 +203,30 @@ body:has(.home-main) {
 }
 
 .home-hero__case {
+  --home-hero-case-lift: 0px;
   position: relative;
   z-index: 4;
   min-width: 0;
   color: inherit;
   text-decoration: none;
   perspective: 1200px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-hero__case:hover {
+    --home-hero-case-lift: -12px;
+  }
+}
+
+.home-hero__case:focus-visible {
+  --home-hero-case-lift: -12px;
+}
+
+.home-hero__cases:not(.is-materials-pbr-ready) .home-hero__case .material-card__volume {
+  translate: 0 var(--home-hero-case-lift);
+  transition:
+    transform 550ms cubic-bezier(.2, .75, .2, 1),
+    translate 360ms cubic-bezier(.45, 0, .55, 1);
 }
 
 .home-hero__cases.is-materials-pbr-ready .material-card__front,
@@ -256,7 +279,7 @@ body:has(.home-main) {
   clip-path: var(--sea-glass-outline);
 }
 
-.material-card--resin .material-card__shadow,
+.material-card--rough-glass .material-card__shadow,
 .material-card--glass .material-card__shadow {
   border-radius: 4px;
 }
@@ -501,18 +524,18 @@ body:has(.home-main) {
   opacity: .22;
 }
 
-/* Resin — glossy, softly translucent milk-white plastic. */
-.material-card--resin {
+/* Rough glass — irregularly carved translucent cast glass. */
+.material-card--rough-glass {
   --card-edge: rgba(224, 222, 216, .94);
   --card-edge-dark: rgba(156, 153, 146, .92);
 }
 
-.material-card--resin .material-card__front,
-.material-card--resin .material-card__front::after {
+.material-card--rough-glass .material-card__front,
+.material-card--rough-glass .material-card__front::after {
   border-radius: 10px;
 }
 
-.material-card--resin .material-card__side--right {
+.material-card--rough-glass .material-card__side--right {
   border-radius: 0 5px 5px 0;
   background:
     linear-gradient(90deg, rgba(247, 246, 242, .94), rgba(151, 148, 141, .94)),
@@ -520,7 +543,7 @@ body:has(.home-main) {
   box-shadow: inset 1px 0 2px rgba(255, 255, 255, .72), 2px 0 7px rgba(79, 76, 71, .16);
 }
 
-.material-card--resin .material-card__side--bottom {
+.material-card--rough-glass .material-card__side--bottom {
   border-radius: 0 0 10px 10px;
   background:
     linear-gradient(180deg, rgba(224, 222, 216, .96), rgba(139, 136, 130, .96)),
@@ -528,11 +551,11 @@ body:has(.home-main) {
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, .58), 0 2px 7px rgba(75, 72, 68, .16);
 }
 
-.material-card--resin .material-card__shadow {
+.material-card--rough-glass .material-card__shadow {
   background: radial-gradient(ellipse, rgba(54, 51, 47, .28), rgba(86, 82, 76, .08) 52%, transparent 76%);
 }
 
-.material-card--resin .material-card__surface {
+.material-card--rough-glass .material-card__surface {
   background:
     radial-gradient(ellipse at 38% 30%, rgba(255, 255, 255, .72), transparent 31%),
     radial-gradient(ellipse at 78% 76%, rgba(169, 165, 157, .12), transparent 34%),
@@ -541,10 +564,10 @@ body:has(.home-main) {
   box-shadow:
     inset 10px 8px 22px rgba(255, 226, 186, .3),
     inset -13px -15px 28px rgba(72, 28, 15, .24);
-  filter: url('#material-resin-cloud');
+  filter: url('#material-rough-glass-surface');
 }
 
-.material-card--resin .material-card__surface::before {
+.material-card--rough-glass .material-card__surface::before {
   inset: 7% 9%;
   border-radius: 48% 52% 43% 57%;
   background:
@@ -554,7 +577,7 @@ body:has(.home-main) {
   filter: blur(.35px);
 }
 
-.material-card--resin .material-card__sheen {
+.material-card--rough-glass .material-card__sheen {
   background:
     linear-gradient(112deg, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, .2) 16%, transparent 36%),
     radial-gradient(ellipse at 78% 84%, rgba(255, 255, 255, .24), transparent 38%);
@@ -749,10 +772,12 @@ body:has(.home-main) {
 
 .home-hero__case[data-material='gem'] .home-hero__case-copy,
 .home-hero__case[data-material='sea-glass'] .home-hero__case-copy,
-.home-hero__case[data-material='resin'] .home-hero__case-copy,
+.home-hero__case[data-material='rough-glass'] .home-hero__case-copy,
 .home-hero__case[data-material='glass'] .home-hero__case-copy {
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(calc(-50% - 30px + var(--home-hero-case-lift)));
+  transform-origin: center;
+  transition: transform 360ms cubic-bezier(.45, 0, .55, 1);
 }
 
 .home-hero__embedded-title-strong {
@@ -765,6 +790,7 @@ body:has(.home-main) {
   color: #fff;
   font-size: clamp(11px, .9vw, 13px);
   line-height: 1.55;
+  text-align: center;
 }
 
 .home-hero__case-link {
@@ -773,8 +799,46 @@ body:has(.home-main) {
   color: #fff;
   font-size: clamp(11px, .9vw, 13px);
   line-height: 1.55;
+  text-align: center;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+@media (min-width: 721px) {
+  .home-hero__cases {
+    box-sizing: border-box;
+    flex: none;
+    width: calc(100vw - clamp(24px, 7vw, 112px));
+    aspect-ratio: var(--home-hero-stage-ratio);
+    gap: 1.3%;
+    padding: 0 var(--home-hero-stage-padding);
+  }
+
+  .home-hero__cases::before {
+    top: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: var(--home-hero-band-height);
+    border-radius: clamp(24px, 2.7vw, 70px);
+    transform: none;
+  }
+
+  .home-hero__backdrop-image {
+    top: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: var(--home-hero-band-height);
+    border-radius: clamp(24px, 2.7vw, 70px);
+    transform: scale(.9);
+  }
+
+  .home-hero__case {
+    top: var(--home-hero-card-top);
+    width: var(--home-hero-card-width);
+    justify-self: center;
+  }
 }
 
 @media (max-width: 720px) {
@@ -810,7 +874,7 @@ body:has(.home-main) {
 
   .home-hero__case[data-material='gem'] .home-hero__case-title,
   .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
-  .home-hero__case[data-material='resin'] .home-hero__case-title,
+  .home-hero__case[data-material='rough-glass'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
     font-size: 31px;
   }
@@ -834,7 +898,7 @@ body:has(.home-main) {
 
   .home-hero__case[data-material='gem'] .home-hero__case-title,
   .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
-  .home-hero__case[data-material='resin'] .home-hero__case-title,
+  .home-hero__case[data-material='rough-glass'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
     font-size: 31px;
   }
@@ -847,6 +911,13 @@ body:has(.home-main) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-hero__case:hover,
+  .home-hero__case:focus-visible {
+    --home-hero-case-lift: 0px;
+  }
+
+  .home-hero__case-copy,
+  .home-hero__cases:not(.is-materials-pbr-ready) .home-hero__case .material-card__volume,
   .material-card__volume,
   .material-card__shadow,
   .material-card__sheen {

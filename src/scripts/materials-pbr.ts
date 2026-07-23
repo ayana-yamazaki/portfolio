@@ -11,7 +11,7 @@ import {
   createGlassMaterial,
   createSeaGlassMaterial,
   createPaperFaceMaterial,
-  createResinFaceMaterial,
+  createRoughGlassFaceMaterial,
   createSideMaterials,
 } from './materials/factories';
 import {
@@ -22,8 +22,9 @@ import {
 } from './materials/geometry';
 import { createRenderHarness, type RenderHarness } from './materials/render-harness';
 import {
-  makeCastGlassBumpTexture,
-  makeCastGlassCausticTexture,
+  makeRoughGlassBumpTexture,
+  makeRoughGlassCausticTexture,
+  makeGemFloorCausticTexture,
   makeNoiseTexture,
   makePaperAlbedoTexture,
   makeRoundedMaskTexture,
@@ -40,8 +41,19 @@ type CardState = {
   group: THREE.Group;
   mesh: THREE.Mesh;
   surface?: THREE.Mesh;
+  topSurface?: THREE.Mesh;
+  bottomSurface?: THREE.Mesh;
   shadow: THREE.Mesh;
   caustic?: THREE.Mesh;
+  baseGroupY: number;
+  baseShadowY: number;
+  baseCausticY: number;
+  liftPx: number;
+  liftFromPx: number;
+  liftToPx: number;
+  liftStartedAt: number;
+  hovered: boolean;
+  keyboardFocused: boolean;
 };
 
 const canvas = document.querySelector<ManagedCanvas>('[data-materials-pbr]');
@@ -241,11 +253,12 @@ if (canvas && cases && hero) {
     };
 
     const paperBump = makeNoiseTexture();
-    const castGlassBump = makeCastGlassBumpTexture();
-    const castGlassCaustic = makeCastGlassCausticTexture();
+    const roughGlassBump = makeRoughGlassBumpTexture();
+    const roughGlassCaustic = makeRoughGlassCausticTexture();
+    const gemFloorCaustic = makeGemFloorCausticTexture();
     const paperAlbedo = makePaperAlbedoTexture();
     const roundedMask = makeRoundedMaskTexture();
-    [paperBump, castGlassBump, castGlassCaustic, paperAlbedo, roundedMask]
+    [paperBump, roughGlassBump, roughGlassCaustic, gemFloorCaustic, paperAlbedo, roundedMask]
       .forEach((texture) => trackedTextures.add(texture));
     const shadowMaps = new Map<MaterialKind, THREE.Texture>();
     const getShadowMap = (kind: MaterialKind) => {
@@ -259,7 +272,7 @@ if (canvas && cases && hero) {
 
     const refractionSources = Array.from(
       document.querySelectorAll<HTMLElement>(
-        '[data-glass-refraction-source], [data-resin-refraction-source]',
+        '[data-glass-refraction-source], [data-rough-glass-refraction-source]',
       ),
     );
     const observedTextSources = [...refractionSources];
@@ -317,7 +330,7 @@ if (canvas && cases && hero) {
       }
       seaGlassBlurContext.setTransform(1, 0, 0, 1, 0, 0);
       seaGlassBlurContext.clearRect(0, 0, width, height);
-      seaGlassBlurContext.filter = 'blur(7px)';
+      seaGlassBlurContext.filter = 'blur(18px)';
       seaGlassBlurContext.drawImage(glassBackdropCanvas, 0, 0, width, height);
       seaGlassBlurContext.filter = 'none';
       seaGlassBlurTexture.needsUpdate = true;
@@ -336,8 +349,8 @@ if (canvas && cases && hero) {
       glassBackdropTexture,
       seaGlassBlurTexture,
     );
-    const resinFaceMaterial = createResinFaceMaterial(
-      castGlassBump,
+    const roughGlassFaceMaterial = createRoughGlassFaceMaterial(
+      roughGlassBump,
       glassBackdropTexture,
       domRefractionTexture,
     );
@@ -347,6 +360,105 @@ if (canvas && cases && hero) {
       colorWrite: false,
       depthWrite: false,
     });
+    const roughGlassTopMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: .86,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    const roughGlassBottomMaterial = new THREE.MeshBasicMaterial({
+      color: 0xa9c4c9,
+      transparent: true,
+      opacity: .58,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    const gemFloorCausticMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uBackdrop: { value: glassBackdropTexture },
+        uDomRefraction: { value: domRefractionTexture },
+        uCaustic: { value: gemFloorCaustic },
+        uOpacity: { value: .76 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec2 vScreenUv;
+
+        void main() {
+          vec4 clip = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vUv = uv;
+          vScreenUv = clip.xy / clip.w * .5 + .5;
+          gl_Position = clip;
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        uniform sampler2D uBackdrop;
+        uniform sampler2D uDomRefraction;
+        uniform sampler2D uCaustic;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        varying vec2 vScreenUv;
+
+        vec3 sceneAt(vec2 uv) {
+          vec4 backdrop = texture2D(uBackdrop, clamp(uv, vec2(.002), vec2(.998)));
+          vec4 dom = texture2D(uDomRefraction, clamp(uv, vec2(.002), vec2(.998)));
+          return mix(backdrop.rgb, dom.rgb, dom.a);
+        }
+
+        vec3 hardLight(vec3 base, vec3 light) {
+          vec3 multiply = 2.0 * base * light;
+          vec3 screen = 1.0 - 2.0 * (1.0 - base) * (1.0 - light);
+          return mix(multiply, screen, step(vec3(.5), light));
+        }
+
+        void main() {
+          vec4 caustic = texture2D(uCaustic, vUv);
+          vec3 base = sceneAt(vScreenUv);
+          vec3 screened = 1.0 - (1.0 - base) * (1.0 - caustic.rgb);
+          vec3 hardened = hardLight(base, caustic.rgb);
+          float blueSurface = smoothstep(.08, .24, base.b - base.r);
+          vec3 light = mix(screened, hardened, blueSurface);
+          float spectralRange = max(
+            caustic.r,
+            max(caustic.g, caustic.b)
+          ) - min(
+            caustic.r,
+            min(caustic.g, caustic.b)
+          );
+          float prism = smoothstep(.12, .38, spectralRange);
+          vec3 spectralLight = mix(
+            base,
+            min(caustic.rgb * 1.08, vec3(1.0)),
+            .9
+          );
+          light = mix(light, spectralLight, prism);
+          gl_FragColor = vec4(light, caustic.a * uOpacity);
+          #include <colorspace_fragment>
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+    });
+
+    const cardLiftPx = 12;
+    const cardLiftDurationMs = 360;
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const updateLiftTarget = (state: CardState) => {
+      const isActive = (state.hovered || state.keyboardFocused) && !reducedMotionQuery.matches;
+      const nextLift = isActive ? cardLiftPx : 0;
+      if (nextLift === state.liftToPx) return;
+      state.liftFromPx = state.liftPx;
+      state.liftToPx = nextLift;
+      state.liftStartedAt = performance.now();
+      renderHarness?.resetAnimationBudget();
+      invalidate();
+    };
 
     const cardElements = Array.from(cases.querySelectorAll<HTMLElement>('[data-material]'));
     cardElements.forEach((element) => {
@@ -363,22 +475,39 @@ if (canvas && cases && hero) {
           ? seaGlassMaterial
           : [faceMaterial, sideMaterials[kind]],
       );
+      if (kind === 'glass') mesh.visible = false;
       group.add(mesh);
 
       let surface: THREE.Mesh | undefined;
       if (kind === 'paper') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 32, 48), paperFaceMaterial);
-      } else if (kind === 'resin') {
-        surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), resinFaceMaterial);
+      } else if (kind === 'rough-glass') {
+        surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), roughGlassFaceMaterial);
       } else if (kind === 'glass') {
         surface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), glassMaterial);
       }
       if (surface) group.add(surface);
 
+      let topSurface: THREE.Mesh | undefined;
+      let bottomSurface: THREE.Mesh | undefined;
+      if (kind === 'rough-glass') {
+        topSurface = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), roughGlassTopMaterial);
+        bottomSurface = new THREE.Mesh(
+          new THREE.PlaneGeometry(1, 1),
+          roughGlassBottomMaterial,
+        );
+        topSurface.rotation.x = -Math.PI / 2;
+        bottomSurface.rotation.x = -Math.PI / 2;
+        topSurface.renderOrder = 3;
+        bottomSurface.renderOrder = 1;
+        group.add(topSurface, bottomSurface);
+      }
+
       const shadow = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicMaterial({
           map: getShadowMap(kind),
+          color: kind === 'gem' ? 0x000000 : 0xffffff,
           transparent: true,
           opacity: 1,
           depthWrite: false,
@@ -386,15 +515,21 @@ if (canvas && cases && hero) {
         }),
       );
       shadow.position.z = -0.5;
-      const caustic = kind === 'resin'
+      const caustic = kind === 'gem'
+        ? new THREE.Mesh(
+          new THREE.PlaneGeometry(1, 1),
+          gemFloorCausticMaterial,
+        )
+        : kind === 'rough-glass'
         ? new THREE.Mesh(
           new THREE.PlaneGeometry(1, 1),
           new THREE.MeshBasicMaterial({
-            map: castGlassCaustic,
+            map: roughGlassCaustic,
             color: 0xffffff,
             transparent: true,
-            opacity: 0.78,
+            opacity: .78,
             depthWrite: false,
+            toneMapped: false,
           }),
         )
         : undefined;
@@ -409,10 +544,39 @@ if (canvas && cases && hero) {
         group,
         mesh,
         surface,
+        topSurface,
+        bottomSurface,
         shadow,
         caustic,
+        baseGroupY: 0,
+        baseShadowY: 0,
+        baseCausticY: 0,
+        liftPx: 0,
+        liftFromPx: 0,
+        liftToPx: 0,
+        liftStartedAt: 0,
+        hovered: false,
+        keyboardFocused: false,
       };
       cardStates.push(state);
+
+      element.addEventListener('pointerenter', (event) => {
+        if (!hoverQuery.matches || event.pointerType === 'touch') return;
+        state.hovered = true;
+        updateLiftTarget(state);
+      }, { signal: eventController.signal });
+      element.addEventListener('pointerleave', () => {
+        state.hovered = false;
+        updateLiftTarget(state);
+      }, { signal: eventController.signal });
+      element.addEventListener('focus', () => {
+        state.keyboardFocused = element.matches(':focus-visible');
+        updateLiftTarget(state);
+      }, { signal: eventController.signal });
+      element.addEventListener('blur', () => {
+        state.keyboardFocused = false;
+        updateLiftTarget(state);
+      }, { signal: eventController.signal });
     });
 
     const readTextLines = (element: HTMLElement) => {
@@ -705,7 +869,8 @@ if (canvas && cases && hero) {
         (heroRect.top + floorY - canvasRect.top) / canvasRect.height
       );
       glassMaterial.uniforms.uFloorY.value = floorScreenY;
-      resinFaceMaterial.uniforms.uFloorY.value = floorScreenY;
+      roughGlassFaceMaterial.uniforms.uFloorY.value = floorScreenY;
+      gemFaceMaterial.uniforms.uFloorY.value = floorScreenY;
       if (floorY > 0 && Math.abs(floorY - lastFloorY) > 0.5) {
         hero.style.setProperty('--stage-floor-y', `${floorY}px`);
         lastFloorY = floorY;
@@ -744,7 +909,12 @@ if (canvas && cases && hero) {
             : makePanelGeometry(width, height, depth, radius);
         const centerX = (((rect.left + rect.width / 2) - canvasRect.left) / canvasRect.width * 2 - 1) * aspect;
         const centerY = 1 - (((rect.top + rect.height / 2) - canvasRect.top) / canvasRect.height * 2);
-        state.group.position.set(centerX, centerY, state.group.position.z);
+        state.baseGroupY = centerY;
+        state.group.position.set(
+          centerX,
+          centerY + state.liftPx * pxY,
+          state.group.position.z,
+        );
         state.group.rotation.set(
           THREE.MathUtils.degToRad(sceneTuning.baseTilt),
           THREE.MathUtils.degToRad(sceneTuning.baseYaw),
@@ -758,9 +928,9 @@ if (canvas && cases && hero) {
             state.surface.geometry = new THREE.PlaneGeometry(width - radius * 0.14, height - radius * 0.14, 32, 48);
           } else if (state.kind === 'glass') {
             state.surface.geometry = makeRoundedFaceGeometry(
-              width - radius * 0.2,
-              height - radius * 0.2,
-              radius * 0.9,
+              width,
+              height,
+              radius,
             );
           } else {
             state.surface.geometry = makeRoundedFaceGeometry(
@@ -772,30 +942,56 @@ if (canvas && cases && hero) {
           state.surface.position.set(
             0,
             0,
-            state.kind === 'resin' || state.kind === 'glass'
+            state.kind === 'rough-glass' || state.kind === 'glass'
               ? depth / 2 + 0.001
               : depth / 2 + depth * 0.25 + 0.001,
           );
         }
+        if (state.topSurface && state.bottomSurface) {
+          state.topSurface.geometry.dispose();
+          state.bottomSurface.geometry.dispose();
+          state.topSurface.geometry = new THREE.PlaneGeometry(
+            width - radius * .2,
+            depth * .96,
+          );
+          state.bottomSurface.geometry = new THREE.PlaneGeometry(
+            width - radius * .2,
+            depth * .96,
+          );
+          state.topSurface.position.set(0, height / 2 - radius * .08, 0);
+          state.bottomSurface.position.set(0, -height / 2 + radius * .08, 0);
+        }
+        const isGem = state.kind === 'gem';
+        const isGlass = state.kind === 'glass';
         state.shadow.scale.set(
-          width * 1.1,
-          height * 1.06,
+          width * (isGem ? 1.28 : isGlass ? 1.035 : 1.1),
+          height * (isGem ? 1.16 : isGlass ? 1.025 : 1.06),
           1,
         );
+        state.baseShadowY = centerY + height * (
+          isGem ? -.06 : isGlass ? -.006 : lightingTuning.shadowOffset.yRatio
+        );
         state.shadow.position.set(
-          centerX + width * lightingTuning.shadowOffset.xRatio,
-          centerY + height * lightingTuning.shadowOffset.yRatio,
+          centerX + width * (
+            isGem ? .12 : isGlass ? .008 : lightingTuning.shadowOffset.xRatio
+          ),
+          state.baseShadowY + state.liftPx * pxY * .2,
           -0.65,
         );
         if (state.caustic) {
           state.caustic.scale.set(
-            width * 1.08,
-            height * 1.04,
+            width * (isGem ? 1.34 : 1.08),
+            height * (isGem ? 1.18 : 1.04),
             1,
           );
+          state.baseCausticY = centerY + height * (
+            isGem ? -.075 : lightingTuning.causticOffset.yRatio
+          );
           state.caustic.position.set(
-            centerX + width * lightingTuning.causticOffset.xRatio,
-            centerY + height * lightingTuning.causticOffset.yRatio,
+            centerX + width * (
+              isGem ? .15 : lightingTuning.causticOffset.xRatio
+            ),
+            state.baseCausticY + state.liftPx * pxY * .12,
             -0.64,
           );
         }
@@ -808,14 +1004,44 @@ if (canvas && cases && hero) {
       return true;
     };
 
+    const updateCardLift = (now: number) => {
+      const pxY = lastHeight > 0 ? 2 / lastHeight : 0;
+      let isAnimating = false;
+      cardStates.forEach((state) => {
+        if (state.liftPx !== state.liftToPx) {
+          const elapsed = now - state.liftStartedAt;
+          const progress = reducedMotionQuery.matches
+            ? 1
+            : Math.min(1, Math.max(0, elapsed / cardLiftDurationMs));
+          const eased = progress * progress * (3 - 2 * progress);
+          state.liftPx = THREE.MathUtils.lerp(state.liftFromPx, state.liftToPx, eased);
+          if (progress < 1) {
+            isAnimating = true;
+          } else {
+            state.liftPx = state.liftToPx;
+          }
+        }
+
+        const liftWorld = state.liftPx * pxY;
+        state.group.position.y = state.baseGroupY + liftWorld;
+        state.shadow.position.y = state.baseShadowY + liftWorld * .2;
+        if (state.caustic) {
+          state.caustic.position.y = state.baseCausticY + liftWorld * .12;
+        }
+      });
+      return isAnimating;
+    };
+
     renderFrame = () => {
       if (disposed || !textureReady || !isVisible || !renderer || !scene) return;
       if (layoutDirty) layoutDirty = !syncLayout();
+      const liftAnimating = updateCardLift(performance.now());
 
       renderer.setRenderTarget(null);
       renderer.setClearColor(0x000000, 0);
       renderer.clear();
       renderer.render(scene, camera);
+      if (liftAnimating && renderHarness?.allowNextAnimationFrame()) invalidate();
     };
 
     markTextureReady();

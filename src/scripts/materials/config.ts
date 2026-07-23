@@ -1,13 +1,15 @@
-export type MaterialKind = 'gem' | 'paper' | 'sea-glass' | 'resin' | 'glass';
+export type MaterialKind = 'gem' | 'paper' | 'sea-glass' | 'rough-glass' | 'glass';
+
+const gemThicknessPx = 350;
 
 export const materialProfiles: Record<MaterialKind, {
   radiusPx: number;
   thicknessPx: number;
 }> = {
-  gem: { radiusPx: 22, thicknessPx: 350 },
+  gem: { radiusPx: 22, thicknessPx: gemThicknessPx },
   paper: { radiusPx: 4, thicknessPx: 350 },
   'sea-glass': { radiusPx: 8, thicknessPx: 110 },
-  resin: { radiusPx: 4, thicknessPx: 350 },
+  'rough-glass': { radiusPx: 4, thicknessPx: gemThicknessPx },
   glass: { radiusPx: 46, thicknessPx: 34 },
 };
 
@@ -32,7 +34,7 @@ export const lightingTuning = {
   key: {
     color: 0xfff2da,
     intensity: 4.2,
-    position: [-8, 8, 14],
+    position: [-5, 9, 6],
   },
   fill: {
     color: 0xc8dcff,
@@ -48,13 +50,13 @@ export const lightingTuning = {
     background: 0x26302d,
     keyPanel: {
       color: 0xffffff,
-      position: [-4, 5, 8],
-      size: [4, 7],
+      position: [-2.8, 4.6, 4.2],
+      size: [3.2, 5.8],
     },
     glintPanel: {
       color: 0xffffff,
-      position: [-3.5, 6.5, 8],
-      size: [0.22, 5.2],
+      position: [-2.5, 5.2, 4],
+      size: [0.18, 4.4],
       intensity: 4,
     },
     fillPanel: {
@@ -92,33 +94,32 @@ export const glintProfiles = {
   'sea-glass': {
     strength: 0.9,
   },
-  resin: {
-    strength: 1.3,
-    sharpness: 180,
-  },
   glass: {
-    strength: 2.2,
-    edgeWidthPx: 4.5,
-    faceBandWidth: 0.018,
-    cornerBoost: 1.6,
+    strength: 1.9,
+    edgeWidthPx: 9,
+    faceBandWidth: 0.075,
+    cornerBoost: 1.2,
   },
 } as const;
 
 export const gemTuning = {
-  ior: 1.48,
+  ior: 1.485,
+  iorRed: 1.45,
+  iorGreen: 1.485,
+  iorBlue: 1.53,
   refractionPx: 42,
-  dispersion: 0.035,
+  dispersionBoost: 3.1,
 } as const;
 
 export const glassTuning = {
   rimWidthPx: 24,
-  refractionPx: 34,
+  refractionPx: 48,
 } as const;
 
 export const seaGlassTuning = {
-  refractionPx: 18,
+  refractionPx: 46,
 } as const;
 
-export const resinTuning = {
-  textWaveStrength: 2.2,
+export const roughGlassTuning = {
+  refractionStrength: 1.85,
 } as const;

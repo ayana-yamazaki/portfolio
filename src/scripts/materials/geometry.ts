@@ -36,15 +36,32 @@ const makeGemShape = (width: number, height: number) => new THREE.Shape(
 );
 
 const makeSeaGlassOutline = (width: number, height: number, segments = 96) => {
-  const curve = new THREE.CatmullRomCurve3(
-    makeGemPoints(width, height).map((point) => new THREE.Vector3(point.x, point.y, 0)),
-    true,
-    'centripetal',
-    .5,
-  );
-  return curve.getSpacedPoints(segments).slice(0, -1).map(
-    (point) => new THREE.Vector2(point.x, point.y),
-  );
+  const points = makeGemPoints(width, height);
+  const wear = Math.min(width, height);
+  const cornerRadii = [.16, .13, .18, .15, .2, .13, .17].map((ratio) => wear * ratio);
+  const entries: THREE.Vector2[] = [];
+  const exits: THREE.Vector2[] = [];
+
+  points.forEach((point, index) => {
+    const previous = points[(index - 1 + points.length) % points.length];
+    const next = points[(index + 1) % points.length];
+    const radius = Math.min(
+      cornerRadii[index],
+      point.distanceTo(previous) * .3,
+      point.distanceTo(next) * .3,
+    );
+    entries.push(point.clone().add(previous.clone().sub(point).normalize().multiplyScalar(radius)));
+    exits.push(point.clone().add(next.clone().sub(point).normalize().multiplyScalar(radius)));
+  });
+
+  const shape = new THREE.Shape();
+  shape.moveTo(entries[0].x, entries[0].y);
+  points.forEach((point, index) => {
+    shape.lineTo(entries[index].x, entries[index].y);
+    shape.quadraticCurveTo(point.x, point.y, exits[index].x, exits[index].y);
+  });
+  shape.closePath();
+  return shape.getSpacedPoints(segments).slice(0, -1);
 };
 
 export const makePanelGeometry = (width: number, height: number, depth: number, radius: number) => {
