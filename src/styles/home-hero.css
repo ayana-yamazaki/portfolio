@@ -900,7 +900,7 @@ body:has(.home-main) {
   .home-hero__backdrop-image {
     top: 0;
     bottom: auto;
-    left: clamp(12px, 3.5vw, 56px);
+    left: 0;
     width: 100%;
     height: var(--home-hero-band-height);
     border-radius: clamp(24px, 2.7vw, 70px);

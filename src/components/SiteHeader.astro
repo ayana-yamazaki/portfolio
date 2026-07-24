@@ -12,6 +12,7 @@ const caseStudies = getCaseStudies(locale);
 const currentPath = stripLocalePrefix(Astro.url.pathname);
 const revealOnScroll = currentPath === '/';
 const isCaseStudy = caseStudies.some((caseStudy) => currentPath === caseStudy.href);
+const useCaseStudyStyle = revealOnScroll || isCaseStudy;
 ---
 
 <header
@@ -20,7 +21,7 @@ const isCaseStudy = caseStudies.some((caseStudy) => currentPath === caseStudy.hr
       {
         'site-header--reveal-on-scroll': revealOnScroll,
         'site-header--visible': !revealOnScroll,
-        'site-header--case-study': isCaseStudy,
+        'site-header--case-study': useCaseStudyStyle,
       },
     ]}
 >

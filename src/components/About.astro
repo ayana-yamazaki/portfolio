@@ -14,7 +14,16 @@ const about = getAbout(locale);
 <section id="about" class="about" aria-labelledby="about-title">
   <h2 id="about-title" class="home-section-heading">{about.label}</h2>
   <div class="about-intro">
-    <div class="case-prose case-prose--full">{about.description.map((line) => <p>{line}</p>)}</div>
+    <div class="case-prose case-prose--full">
+      {about.description.map((line) => <p>{line}</p>)}
+      <p class="about-award">
+        <strong>
+          {locale === 'ja'
+            ? 'GOOD DESIGN AWARD 2025　グッドデザイン金賞 (トップ20)'
+            : 'GOOD DESIGN AWARD 2025 Gold Award (Top 20)'}
+        </strong>
+      </p>
+    </div>
     <ResponsiveImage
       base="/images/optimized/profile"
       widths={[360, 720, 1080]}

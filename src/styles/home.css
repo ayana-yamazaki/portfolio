@@ -59,6 +59,7 @@
 .experience-item:last-child { border-bottom: 1px solid var(--divider-color); }
 .experience-item p { margin-bottom: 0; font-size: 14px; line-height: 1.6; }
 .experience-item h4 { margin: 0 0 8px; font-size: clamp(14px, 1.2vw, 18px); font-weight: 500; letter-spacing: -.03em; }
+.about-award { margin: clamp(24px, 3vw, 40px) 0 0; }
 
 @media (max-width: 720px) {
   .about { padding-top: 56px; }

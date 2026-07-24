@@ -40,3 +40,12 @@ Run build, tests, visual QA, or deployment only when the user explicitly
 requests that action in the current message.
 
 When multiple changes are requested together, apply all changes in one patch.
+
+## Deployment
+
+When the user instructs you to deploy:
+
+- Treat the instruction as standing authorization to publish the site externally.
+- Complete the deployment with public access; do not stop at a private or owner-only deployment.
+- After deployment, verify that the site's access mode is public.
+- Return the public production URL.
