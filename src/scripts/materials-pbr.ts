@@ -528,6 +528,12 @@ if (canvas && cases && hero) {
       glassBackdropTexture,
       domRefractionTexture,
     );
+    const baseRefraction = {
+      gem: gemFaceMaterial.uniforms.uRefraction.value as number,
+      'sea-glass': seaGlassMaterial.uniforms.uRefraction.value as number,
+      'rough-glass': roughGlassFaceMaterial.uniforms.uRefractionStrength.value as number,
+      glass: glassMaterial.uniforms.uRefraction.value as number,
+    } as const;
     const bodyMaterials = createBodyMaterials();
     const sideMaterials = createSideMaterials(gemFaceMaterial);
     const roughGlassBottomMaterial = new MeshBasicMaterial({
@@ -1227,6 +1233,11 @@ if (canvas && cases && hero) {
       const casesRect = cases.getBoundingClientRect();
       const rect = backdropImage?.getBoundingClientRect();
       const style = backdropImage ? getComputedStyle(backdropImage) : undefined;
+      const backdropClip = backdropImage?.closest<HTMLElement>('picture');
+      const backdropClipStyle = backdropClip ? getComputedStyle(backdropClip) : undefined;
+      const backdropClipRect = backdropClipStyle?.overflow === 'hidden'
+        ? backdropClip?.getBoundingClientRect()
+        : undefined;
       const signature = [
         canvasRect.left,
         canvasRect.top,
@@ -1252,6 +1263,11 @@ if (canvas && cases && hero) {
         style?.objectFit,
         style?.opacity,
         style?.filter,
+        backdropClipRect?.left,
+        backdropClipRect?.top,
+        backdropClipRect?.width,
+        backdropClipRect?.height,
+        backdropClipStyle?.borderRadius,
       ].join('::');
       if (signature === lastBackdropSignature) return;
       lastBackdropSignature = signature;
@@ -1318,14 +1334,18 @@ if (canvas && cases && hero) {
 
       const x = rect.left - canvasRect.left;
       const y = rect.top - canvasRect.top;
+      const clipRect = backdropClipRect ?? rect;
+      const clipStyle = backdropClipRect ? backdropClipStyle : style;
+      const clipX = clipRect.left - canvasRect.left;
+      const clipY = clipRect.top - canvasRect.top;
       glassBackdropContext.save();
       glassBackdropContext.beginPath();
       glassBackdropContext.roundRect(
-        x,
-        y,
-        rect.width,
-        rect.height,
-        Number.parseFloat(style.borderTopLeftRadius) || 0,
+        clipX,
+        clipY,
+        clipRect.width,
+        clipRect.height,
+        Number.parseFloat(clipStyle?.borderTopLeftRadius ?? '') || 0,
       );
       glassBackdropContext.clip();
       const imageOpacity = Number.parseFloat(style.opacity);
@@ -1394,6 +1414,13 @@ if (canvas && cases && hero) {
       const canvasRect = canvas.getBoundingClientRect();
       const heroRect = hero.getBoundingClientRect();
       if (!canvasRect.width || !canvasRect.height) return false;
+      const refractionBoost = window.innerWidth > 720 ? 1.16 : 1;
+      gemFaceMaterial.uniforms.uRefraction.value = baseRefraction.gem * refractionBoost;
+      seaGlassMaterial.uniforms.uRefraction.value = baseRefraction['sea-glass'] * refractionBoost;
+      roughGlassFaceMaterial.uniforms.uRefractionStrength.value = (
+        baseRefraction['rough-glass'] * refractionBoost
+      );
+      glassMaterial.uniforms.uRefraction.value = baseRefraction.glass * refractionBoost;
       const pixelRatio = renderHarness?.resolvePixelRatio(
         canvasRect.width,
         canvasRect.height,

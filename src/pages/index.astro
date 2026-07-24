@@ -206,19 +206,19 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                       {materials[index] === 'gem'
                         ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
                         : materials[index] === 'sea-glass'
-                          ? <><span class="home-hero__embedded-title-strong">Decide</span><br />What to Build</>
+                          ? <>What to<br />Build</>
                         : materials[index] === 'rough-glass'
                           ? <><span class="home-hero__embedded-title-strong">Prototype</span><br />&amp; <span class="home-hero__embedded-title-strong">Iterate</span></>
                           : materials[index] === 'glass'
                             ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
                             : caseStudy.title}
                     </span>
-                    <span class={`home-hero__case-text${index === 0 ? ' home-hero__case-text--strong' : ''}`}>
+                    <span class="home-hero__case-text">
                       {caseStudy.text.split('\n').map((line, lineIndex, lines) => (
                         <>{line}{lineIndex < lines.length - 1 && <br />}</>
                       ))}
                     </span>
-                    <span class="home-hero__case-link">Case study ↗</span>
+                    <span class="home-hero__case-link">Case study ↗︎</span>
                   </span>
                 </span>
               </a>
