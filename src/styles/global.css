@@ -3,8 +3,16 @@
   --text-color-secondary: #4a4a4a;
   --keyvisual-background: #f6f3f1;
   --divider-color: #cccccc;
-  --body-font: 'Inter', 'Noto Sans JP', sans-serif;
-  --heading-font: 'Noto Sans JP', sans-serif;
+  --japanese-font:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Hiragino Sans',
+    'Yu Gothic UI',
+    'Yu Gothic',
+    Meiryo,
+    sans-serif;
+  --body-font: 'Inter', var(--japanese-font);
+  --heading-font: var(--japanese-font);
   --award-font: 'Inter', 'Arial Narrow', sans-serif;
 }
 
@@ -12,6 +20,10 @@ html:lang(en) {
   --body-font: 'Inter', sans-serif;
   --heading-font: 'Inter', sans-serif;
   --award-font: 'Inter', sans-serif;
+}
+
+@view-transition {
+  navigation: auto;
 }
 
 * { box-sizing: border-box; }

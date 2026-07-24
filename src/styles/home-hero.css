@@ -1105,12 +1105,12 @@ html:lang(ja) .home-hero__case-text {
 
   .home-hero__case-track[data-carousel-ready] .home-hero__case {
     opacity: .6;
-    transform: translateY(14px) scale(.94);
+    transform: translateY(14px);
   }
 
   .home-hero__case-track[data-carousel-ready] .home-hero__case[data-active='true'] {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 
   .home-hero__case-progress {
