@@ -6,7 +6,7 @@ carousels.forEach((carousel) => {
   const current = stage?.querySelector<HTMLElement>('[data-case-current]');
   const progress = stage?.querySelector<HTMLElement>('[data-case-progress]');
   let activeIndex = -1;
-  let ticking = false;
+  let settleTimer: number | undefined;
 
   const setActiveCard = (nextIndex: number) => {
     if (nextIndex === activeIndex || !cards[nextIndex]) return;
@@ -31,11 +31,14 @@ carousels.forEach((carousel) => {
       && window.matchMedia('(max-width: 720px)').matches
     ) {
       cards[activeIndex].dispatchEvent(new CustomEvent('case-carousel-activate'));
+      [activeIndex + 1, activeIndex + 2].forEach((index) => {
+        cards[index]?.dispatchEvent(new CustomEvent('case-carousel-prepare'));
+      });
     }
   };
 
   const updateActiveCard = () => {
-    ticking = false;
+    settleTimer = undefined;
     const target = carousel.scrollLeft + carousel.clientWidth * .5;
     const nextIndex = cards.reduce((closestIndex, card, index) => {
       const cardCenter = card.offsetLeft + card.offsetWidth / 2;
@@ -50,20 +53,11 @@ carousels.forEach((carousel) => {
   };
 
   const requestUpdate = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(updateActiveCard);
-  };
-
-  const prepareAdjacentCards = () => {
-    if (!window.matchMedia('(max-width: 720px)').matches) return;
-    [activeIndex - 1, activeIndex + 1].forEach((index) => {
-      cards[index]?.dispatchEvent(new CustomEvent('case-carousel-prepare'));
-    });
+    if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(updateActiveCard, 120);
   };
 
   carousel.addEventListener('scroll', requestUpdate, { passive: true });
-  carousel.addEventListener('pointerdown', prepareAdjacentCards, { passive: true });
   carousel.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();

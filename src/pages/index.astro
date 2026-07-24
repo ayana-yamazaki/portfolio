@@ -78,7 +78,13 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
         }, isSmallViewport ? 120 : 0);
       };
 
-      requestDeferredMaterials();
+      if (isSmallViewport) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => void loadMaterials());
+        });
+      } else {
+        requestDeferredMaterials();
+      }
 
       const cases = document.querySelector('[data-case-carousel]');
       const loadMaterialsForInteraction = () => void loadMaterials();

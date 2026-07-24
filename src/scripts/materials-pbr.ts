@@ -878,13 +878,13 @@ if (canvas && cases && hero) {
         updateLiftTarget(state);
       }, { signal: eventController.signal });
       element.addEventListener('pointerdown', (event) => {
-        if (event.pointerType !== 'touch') return;
+        if (event.pointerType !== 'touch' || isSmallViewport) return;
         state.pressed = true;
         updateTouchInteractionFromPoint(state, event.clientX, event.clientY);
         updateLiftTarget(state);
       }, { passive: true, signal: eventController.signal });
       element.addEventListener('pointermove', (event) => {
-        if (event.pointerType !== 'touch' || !state.pressed) return;
+        if (event.pointerType !== 'touch' || isSmallViewport || !state.pressed) return;
         updateTouchInteractionFromPoint(state, event.clientX, event.clientY);
       }, { passive: true, signal: eventController.signal });
       const releaseTouch = (event: PointerEvent) => {
@@ -1001,7 +1001,7 @@ if (canvas && cases && hero) {
       return preparation;
     };
 
-    const scheduleInitialAdjacentCardPreparation = () => {
+    const scheduleInitialUpcomingCardPreparation = () => {
       if (
         !isSmallViewport
         || disposed
@@ -1010,25 +1010,24 @@ if (canvas && cases && hero) {
       ) {
         return;
       }
-      const nextState = cardStates[1];
-      if (
-        !nextState
-        || preparedCardKinds.has(nextState.kind)
-        || preparingCardKinds.has(nextState.kind)
-        || failedCardKinds.has(nextState.kind)
-      ) {
-        return;
-      }
 
       const delayId = window.setTimeout(() => {
-        cancelMobileCardPreparation = scheduleIdleWork(() => {
-          cancelMobileCardPreparation = undefined;
-          void prepareCard(nextState.kind);
-        }, {
-          timeoutMs: 8_000,
-          fallbackDelayMs: 1_200,
-        });
-      }, 6_000);
+        const upcomingStates = cardStates.slice(1, 3);
+        const prepareNext = (index: number) => {
+          const nextState = upcomingStates[index];
+          if (!nextState || disposed) return;
+          cancelMobileCardPreparation = scheduleIdleWork(() => {
+            cancelMobileCardPreparation = undefined;
+            void prepareCard(nextState.kind).finally(() => {
+              prepareNext(index + 1);
+            });
+          }, {
+            timeoutMs: 3_000,
+            fallbackDelayMs: 400,
+          });
+        };
+        prepareNext(0);
+      }, 200);
       cancelMobileCardPreparation = () => window.clearTimeout(delayId);
     };
 
@@ -1997,7 +1996,7 @@ if (canvas && cases && hero) {
       dirty.clear(RenderDirtyFlag.transform);
       if (isSmallViewport && !mobileInitialFrameRendered) {
         mobileInitialFrameRendered = true;
-        scheduleInitialAdjacentCardPreparation();
+        scheduleInitialUpcomingCardPreparation();
       }
       if (sceneMotion.isAnimating && renderHarness?.allowNextAnimationFrame()) {
         invalidate(RenderDirtyFlag.transform);
