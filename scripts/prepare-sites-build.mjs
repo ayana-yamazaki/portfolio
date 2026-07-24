@@ -1,4 +1,4 @@
-import { mkdir, readdir, rename, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const distDirectory = new URL('../dist/', import.meta.url);
@@ -14,6 +14,19 @@ for (const entry of await readdir(distDirectory, { withFileTypes: true })) {
     join(assetsDirectory.pathname, entry.name),
   );
 }
+
+const unusedLegacyAssets = [
+  'images/ayana-yamazaki.jpg',
+  'images/medical-ui/hero-interaction.gif',
+  'images/reposaku-hero.png',
+  'images/reposaku-live-map.gif',
+];
+
+await Promise.all(
+  unusedLegacyAssets.map((asset) =>
+    rm(join(assetsDirectory.pathname, asset), { force: true }),
+  ),
+);
 
 await mkdir(serverDirectory, { recursive: true });
 await writeFile(
