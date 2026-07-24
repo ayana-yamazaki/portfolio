@@ -883,7 +883,7 @@ html:lang(ja) .home-hero__case-text {
     bottom: auto;
     left: 0;
     width: auto;
-    height: calc(var(--home-hero-band-height) - var(--home-hero-band-start));
+    height: calc(var(--home-hero-band-height) - var(--home-hero-band-start) + 16px);
     border-radius: clamp(32px, 3.2vw, 56px);
     background:
       linear-gradient(
@@ -896,7 +896,7 @@ html:lang(ja) .home-hero__case-text {
       #1f5dcd;
     background-color: #1f5dcd;
     opacity: 1;
-    transform: none;
+    transform: translateY(10px);
   }
 
   .home-hero__cases::after {
@@ -907,7 +907,7 @@ html:lang(ja) .home-hero__case-text {
     bottom: auto;
     left: 0;
     width: auto;
-    height: calc(var(--home-hero-band-height) - var(--home-hero-band-start));
+    height: calc(var(--home-hero-band-height) - var(--home-hero-band-start) + 16px);
     border-radius: clamp(32px, 3.2vw, 56px);
     corner-shape: squircle;
     background:
@@ -919,7 +919,7 @@ html:lang(ja) .home-hero__case-text {
       ),
       radial-gradient(circle at 86% 28%, rgba(169, 199, 250, .14), transparent 30%);
     opacity: .62;
-    transform: none;
+    transform: translateY(10px);
     pointer-events: none;
     content: '';
   }
@@ -930,18 +930,19 @@ html:lang(ja) .home-hero__case-text {
     top: var(--home-hero-band-start);
     left: 0;
     width: 100%;
-    height: calc(var(--home-hero-band-height) - var(--home-hero-band-start));
+    height: calc(var(--home-hero-band-height) - var(--home-hero-band-start) + 16px);
     overflow: hidden;
     border-radius: clamp(32px, 3.2vw, 56px);
     clip-path: inset(0 round clamp(32px, 3.2vw, 56px));
+    transform: translateY(10px);
     pointer-events: none;
   }
 
   .home-hero__backdrop-image {
-    top: 50%;
+    top: calc(50% + 45px);
     bottom: auto;
     left: 0;
-    width: 100%;
+    width: 90%;
     height: auto;
     border-radius: 0;
     clip-path: none;
@@ -1213,6 +1214,18 @@ html:lang(ja) .home-hero__case-text {
   .home-hero__case-link {
     margin-top: clamp(18px, 2.5vw, 26px);
     font-size: 10px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .home-hero__case-track {
+    width: min(88.2vw, 1809px, calc(100cqh * 2.88));
+    gap: 5%;
+  }
+
+  .home-hero__case {
+    width: 103.5%;
+    transform: translateY(-7%);
   }
 }
 
