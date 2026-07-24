@@ -1,0 +1,24 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<section class:list={['case-hero', 'case-hero--split', className]}>
+  <div class="case-hero-copy">
+    <div class="case-hero-copy-main">
+      <slot name="copy" />
+    </div>
+    <slot name="meta" />
+  </div>
+
+  <div class="case-hero-media">
+    <slot name="media" />
+  </div>
+
+  <div class="case-hero-details">
+    <slot name="details" />
+  </div>
+</section>

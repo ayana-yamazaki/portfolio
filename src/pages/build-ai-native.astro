@@ -1,5 +1,6 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import CaseStudyHero from '../components/CaseStudyHero.astro';
 import { getCaseStudy } from '../data/site';
 import TranslatedContent from '../components/TranslatedContent.astro';
 import ResponsiveImage from '../components/ResponsiveImage.astro';
@@ -16,18 +17,26 @@ const caseStudy = getCaseStudy('/build-ai-native', locale);
 
 <CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription} locale={locale}>
   <TranslatedContent locale={locale} translations={buildAiTranslations}>
-  <section class="case-hero case-hero--split case-hero--wide-first case-hero--ai-native">
-    <div class="case-hero-copy">
-      <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
+  <CaseStudyHero>
+    <Fragment slot="copy">
       <h1>Figmaでは<span class="nowrap">見えない</span>仕様の穴を、コードで潰す</h1>
       <p class="ai-hero-lead">Claude Codeでプロトタイプを作り、Storybook上で画面と仕様を定義。PdM・エンジニアと触れるものを囲んで検証し、131件の仕様課題とUX改善を実装前に解決した。</p>
       <div class="ai-hero-article">
         <p>詳しいプロセス、131件の内訳、導入条件はCADDi Tech Blogへ</p>
         <a class="external-article-button" href="https://caddi.tech/figmaless_design" target="_blank" rel="noopener noreferrer">CADDi Tech Blogで全文を読む <span aria-hidden="true">↗</span></a>
       </div>
-    </div>
+    </Fragment>
 
-    <div class="case-hero-media">
+    <Fragment slot="meta">
+      <dl class="case-meta-list">
+        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
+        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Engineer</dd></div>
+        <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Prototype / Storybook / UX Specification</dd></div>
+        <div><dt class="meta-label">Duration</dt><dd class="text-xs">Approx. 1.5 months</dd></div>
+      </dl>
+    </Fragment>
+
+    <Fragment slot="media">
       <a class="ai-hero-image-link" href="https://caddi.tech/figmaless_design" target="_blank" rel="noopener noreferrer" aria-label="CADDi Tech Blogで全文を読む">
         <figure class="case-figure">
           <ResponsiveImage
@@ -42,19 +51,16 @@ const caseStudy = getCaseStudy('/build-ai-native', locale);
           />
         </figure>
       </a>
-      <dl class="case-meta-grid">
-        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
-        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Engineer</dd></div>
-        <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Prototype / Storybook / UX Specification</dd></div>
-        <div><dt class="meta-label">Duration</dt><dd class="text-xs">Approx. 1.5 months</dd></div>
-      </dl>
+    </Fragment>
+
+    <Fragment slot="details">
       <div class="case-key-facts" aria-label="AI-Nativeな設計プロセスの主要成果">
         <div><small>ウォークスルー</small><strong>6</strong><span>回</span></div>
         <div><small>作成したStory</small><strong>49</strong><span>件</span></div>
         <div><small>実装前に解決</small><strong>131</strong><span>件</span></div>
       </div>
-    </div>
-  </section>
+    </Fragment>
+  </CaseStudyHero>
 
   <div class="case-content ai-native-content">
     <section class="case-section case-section--no-divider">

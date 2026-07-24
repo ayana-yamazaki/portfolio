@@ -1,5 +1,6 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import CaseStudyHero from '../components/CaseStudyHero.astro';
 import { getCaseStudy } from '../data/site';
 import TranslatedContent from '../components/TranslatedContent.astro';
 import ResponsiveImage from '../components/ResponsiveImage.astro';
@@ -16,14 +17,22 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
 
 <CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription} locale={locale}>
   <TranslatedContent locale={locale} translations={prototypeTranslations}>
-  <section class="case-hero case-hero--split case-hero--wide-first">
-    <div class="case-hero-copy">
-      <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
+  <CaseStudyHero class="case-hero--wide-copy">
+    <Fragment slot="copy">
       <h1>歯科医師と試作を重ね、紙より速い操作を実現</h1>
       <p>最大192項目を5分以内に入力する、歯周病検査のタブレットUIを設計した。「紙より速いこと」を導入条件とし、プロトタイプを作るたびに歯科医師と検証。実際に入力を担う歯科衛生士の評価も反映しながら、手と視線の移動を削り、紙と比べて検査速度を24％向上させた。</p>
-    </div>
+    </Fragment>
 
-    <div class="case-hero-media">
+    <Fragment slot="meta">
+      <dl class="case-meta-list">
+        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
+        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Dentist / Dental Hygienist</dd></div>
+        <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Research / UI Design / Prototype / Specification</dd></div>
+        <div><dt class="meta-label">Duration</dt><dd class="text-xs">2021.10–2022.04</dd></div>
+      </dl>
+    </Fragment>
+
+    <Fragment slot="media">
       <figure class="case-figure">
         <video
           autoplay
@@ -38,24 +47,17 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
           <source src="/images/medical-ui/hero-interaction.mp4" type="video/mp4" />
         </video>
       </figure>
-    </div>
+    </Fragment>
 
-    <div class="case-hero-details">
-      <dl class="case-meta-grid">
-        <div><dt class="meta-label">Role</dt><dd class="text-xs">Product Designer</dd></div>
-        <div><dt class="meta-label">Team</dt><dd class="text-xs">PdM / Dentist / Dental Hygienist</dd></div>
-        <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Research / UI Design / Prototype / Specification</dd></div>
-        <div><dt class="meta-label">Duration</dt><dd class="text-xs">2021.10–2022.04</dd></div>
-      </dl>
+    <Fragment slot="details">
       <div class="case-key-facts" aria-label="歯周病検査UIの検証と成果">
         <div><small>検証体制</small><strong class="case-key-fact-text">歯科医師と反復</strong></div>
         <div><small>改善対象</small><strong class="case-key-fact-text">入力・結果表示</strong></div>
         <div><small>検査速度</small><strong>24%</strong><span>向上</span></div>
       </div>
       <p class="case-evidence-note">※紙による入力と、プロトタイプを用いた同一検査項目の入力時間を比較</p>
-    </div>
-
-  </section>
+    </Fragment>
+  </CaseStudyHero>
 
   <div class="case-content">
     <section class="case-section case-section--no-divider">
@@ -162,8 +164,6 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
 </CaseStudyLayout>
 
 <style>
-  .case-hero-media { grid-column: 2; grid-row: 1 / span 2; }
-  .case-hero-details { display: flex; grid-column: 1; flex-direction: column; gap: 32px; }
   .prototype-iterations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--divider-color); }
   .prototype-iterations article { display: flex; flex-direction: column; gap: 16px; padding: clamp(20px, 3vw, 36px); background: #fff; }
   .prototype-iterations article:nth-child(odd) { border-right: 1px solid var(--divider-color); }
@@ -218,8 +218,6 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
   }
 
   @media (max-width: 720px) {
-    .case-hero-media, .case-hero-details { grid-column: auto; grid-row: auto; }
-    .case-hero-details { gap: 22px; }
     .prototype-iterations, .prototype-feedback-list {
       grid-template-columns: none;
       grid-auto-flow: column;

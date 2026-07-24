@@ -1,5 +1,6 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import CaseStudyHero from '../components/CaseStudyHero.astro';
 import { getCaseStudy } from '../data/site';
 import TranslatedContent from '../components/TranslatedContent.astro';
 import ResponsiveImage from '../components/ResponsiveImage.astro';
@@ -16,39 +17,45 @@ const caseStudy = getCaseStudy('/decide-what-to-build', locale);
 
 <CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription} locale={locale}>
   <TranslatedContent locale={locale} translations={decideTranslations}>
-  <section class="case-hero case-hero--split">
-    <div class="case-hero-copy">
-      <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
+  <CaseStudyHero>
+    <Fragment slot="copy">
       <h1>調査と事業課題から、作るべきものと順序を決める</h1>
       <p>シードスタートアップの一人目プロダクトデザイナーとして、日報業務のリサーチから課題定義、UX・UI、開発ロードマップまでを担当した。16人の業務を観察し、GPSデータからシステムが下書きを作る体験を設計。100件以上の要望を、事業の成長順序に整理した。</p>
-    </div>
+    </Fragment>
 
-    <figure class="case-hero-media">
-      <ResponsiveImage
-        base="/images/optimized/reposaku-report-hero"
-        widths={[640, 1200, 1920]}
-        width={2496}
-        height={1800}
-        sizes="(max-width: 720px) 100vw, 50vw"
-        alt="手書きの日報と、GPSデータから日報を作成するレポサクのスマートフォン画面"
-        loading="eager"
-        fetchpriority="high"
-      />
-      <dl class="case-meta-grid">
+    <Fragment slot="meta">
+      <dl class="case-meta-list">
         <div><dt class="meta-label">Role</dt><dd class="text-xs">1st Designer / Lead Product Designer</dd></div>
         <div><dt class="meta-label">Team</dt><dd class="text-xs">CEO / CTO / Engineers — 9-person seed startup</dd></div>
         <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Research / Product Definition / UX・UI / Roadmap</dd></div>
         <div><dt class="meta-label">Duration</dt><dd class="text-xs">2022–2025</dd></div>
       </dl>
-    </figure>
+    </Fragment>
 
-    <div class="case-key-facts case-key-facts--four case-hero-wide" aria-label="調査と事業成果の主要指標">
-      <div><small>調査対象</small><strong>16</strong><span>人</span></div>
-      <div><small>整理した要望</small><strong>100+</strong><span>件</span></div>
-      <div><small>導入効果</small><strong class="case-key-fact-text">日報提出率UP</strong></div>
-      <div><small>事業成果</small><strong class="case-key-fact-text">他業種へ展開</strong></div>
-    </div>
-  </section>
+    <Fragment slot="media">
+      <figure class="case-figure">
+        <ResponsiveImage
+          base="/images/optimized/reposaku-report-hero"
+          widths={[640, 1200, 1920]}
+          width={2496}
+          height={1800}
+          sizes="(max-width: 720px) 100vw, 50vw"
+          alt="手書きの日報と、GPSデータから日報を作成するレポサクのスマートフォン画面"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+    </Fragment>
+
+    <Fragment slot="details">
+      <div class="case-key-facts case-key-facts--four" aria-label="調査と事業成果の主要指標">
+        <div><small>調査対象</small><strong>16</strong><span>人</span></div>
+        <div><small>整理した要望</small><strong>100+</strong><span>件</span></div>
+        <div><small>導入効果</small><strong class="case-key-fact-text">日報提出率UP</strong></div>
+        <div><small>事業成果</small><strong class="case-key-fact-text">他業種へ展開</strong></div>
+      </div>
+    </Fragment>
+  </CaseStudyHero>
 
   <div class="case-content">
     <section

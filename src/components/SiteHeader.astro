@@ -11,16 +11,18 @@ const { locale } = Astro.props;
 const caseStudies = getCaseStudies(locale);
 const currentPath = stripLocalePrefix(Astro.url.pathname);
 const revealOnScroll = currentPath === '/';
+const isCaseStudy = caseStudies.some((caseStudy) => currentPath === caseStudy.href);
 ---
 
 <header
   class:list={[
-    'site-header',
-    {
-      'site-header--reveal-on-scroll': revealOnScroll,
-      'site-header--visible': !revealOnScroll,
-    },
-  ]}
+      'site-header',
+      {
+        'site-header--reveal-on-scroll': revealOnScroll,
+        'site-header--visible': !revealOnScroll,
+        'site-header--case-study': isCaseStudy,
+      },
+    ]}
 >
   <div class="site-header__group">
     <a class="site-header__brand" href={getLocalizedPath('/', locale)}>Ayana Yamazaki</a>
@@ -28,7 +30,12 @@ const revealOnScroll = currentPath === '/';
       {caseStudies.map((caseStudy) => {
         const selected = currentPath === caseStudy.href;
         return (
-          <a class:list={{ selected }} href={getLocalizedPath(caseStudy.href, locale)} aria-current={selected ? 'page' : undefined}>
+          <a
+            class:list={{ selected }}
+            href={getLocalizedPath(caseStudy.href, locale)}
+            aria-current={selected ? 'page' : undefined}
+            aria-label={`${caseStudy.number} ${caseStudy.title}`}
+          >
             <span>{caseStudy.number}</span><span>{caseStudy.title}</span>
           </a>
         );
@@ -194,6 +201,47 @@ const revealOnScroll = currentPath === '/';
     background: var(--accent-color);
   }
 
+  .site-header--case-study .site-header__sections {
+    gap: clamp(2px, .5vw, 8px);
+  }
+
+  .site-header--case-study .site-header__sections a {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    gap: 0;
+    padding: 0 10px;
+    color: #a0a0a0;
+  }
+
+  .site-header--case-study .site-header__sections a:hover,
+  .site-header--case-study .site-header__sections a:focus-visible {
+    color: #181818;
+  }
+
+  .site-header--case-study .site-header__sections a.selected {
+    color: #181818;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .site-header--case-study .site-header__sections a.selected::after {
+    display: none;
+  }
+
+  .site-header--case-study .site-header__sections a > span:first-child::after {
+    display: none;
+  }
+
+  .site-header--case-study .site-header__sections a > span:first-child {
+    color: inherit;
+  }
+
+  .site-header--case-study .site-header__sections a > span:last-child {
+    display: inline;
+    margin-left: 6px;
+  }
+
   .site-header__sections a > span:first-child {
     display: inline-flex;
     gap: 4px;
@@ -232,9 +280,15 @@ const revealOnScroll = currentPath === '/';
       gap: 16px;
     }
 
-    .site-header__sections a > span:last-child {
+    .site-header:not(.site-header--case-study) .site-header__sections a > span:last-child {
       display: none;
     }
+
+    .site-header--case-study .site-header__sections a > span:last-child {
+      display: none;
+      margin-left: 0;
+    }
+
   }
 
   @media (max-width: 640px) {
@@ -262,6 +316,16 @@ const revealOnScroll = currentPath === '/';
       flex: 1;
       justify-content: center;
       padding-inline: 10px;
+    }
+
+    .site-header--case-study .site-header__sections a {
+      min-width: 40px;
+      padding: 0 6px;
+    }
+
+    .site-header--case-study .site-header__sections a.selected > span:last-child {
+      display: none;
+      margin-left: 0;
     }
 
     .site-header__nav {

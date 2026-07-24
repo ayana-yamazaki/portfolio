@@ -1,6 +1,9 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import CaseStudyHero from '../components/CaseStudyHero.astro';
 import { getCaseStudy } from '../data/site';
+import { Picture } from 'astro:assets';
+import reposakuKeyvisual from '../../img/reposaku/keyvisual02.jpg';
 import reposakuAward01 from '../../img/reposaku-award01.png';
 import reposakuAward02 from '../../img/reposaku-award02.png';
 import reposakuAward03 from '../../img/reposaku-award03.png';
@@ -21,38 +24,37 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
 
 <CaseStudyLayout title={caseStudy.pageTitle} description={caseStudy.metaDescription} locale={locale}>
   <TranslatedContent locale={locale} translations={reframeTranslations}>
-      <section class="case-hero reposaku-hero">
-        <figure class="reposaku-cover" data-reveal>
-          <ResponsiveImage
-            base="/images/optimized/reposaku-cover"
-            widths={[720, 1440, 2400]}
-            width={2833}
-            height={758}
-            sizes="100vw"
-            alt="複数の農業車両と走行軌跡を可視化するレポサク"
-            loading="eager"
-            fetchpriority="high"
-          />
-        </figure>
-
-        <div class="reposaku-hero-heading" data-reveal style="--reveal-delay: 80ms;">
-          <div class="case-hero-copy">
-            <p class="case-hero-title"><span>{caseStudy.number}</span><span>{caseStudy.title}</span></p>
-            <h1>現場を理解し、プロダクトの前提を変える</h1>
-          </div>
-        </div>
-
-        <div class="reposaku-hero-summary" data-reveal style="--reveal-delay: 160ms;">
+      <CaseStudyHero>
+        <Fragment slot="copy">
+          <h1>現場を理解し、プロダクトの前提を変える</h1>
           <p>シードスタートアップの一人目プロダクトデザイナーとして、現場調査からUX・UIまでを担当。車両のUSBに端末を挿すだけで、全員のデータが集まる体験を設計した。</p>
-          <dl class="case-meta-grid">
+        </Fragment>
+
+        <Fragment slot="meta">
+          <dl class="case-meta-list">
             <div><dt class="meta-label">Role</dt><dd class="text-xs">1st Designer / Lead Product Designer</dd></div>
             <div><dt class="meta-label">Team</dt><dd class="text-xs">CEO / CTO / Engineers — 9-person seed startup</dd></div>
             <div><dt class="meta-label">My Ownership</dt><dd class="text-xs">Research / Product Definition / UX・UI</dd></div>
             <div><dt class="meta-label">Duration</dt><dd class="text-xs">2022–2025</dd></div>
           </dl>
-        </div>
+        </Fragment>
 
-        <div class="reposaku-evidence" data-reveal style="--reveal-delay: 240ms;">
+        <Fragment slot="media">
+          <figure class="case-figure">
+            <Picture
+              src={reposakuKeyvisual}
+              formats={['avif', 'webp']}
+              widths={[640, 1200]}
+              sizes="(max-width: 720px) 100vw, 50vw"
+              alt="複数の農業車両と走行軌跡を可視化するレポサク"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </figure>
+        </Fragment>
+
+        <Fragment slot="details">
           <div class="case-key-facts case-key-facts--four" aria-label="レポサクの主な成果">
             <div><small>無線連絡</small><strong>84%</strong><span>削減</span></div>
             <div><small>作業効率</small><strong>18%</strong><span>向上</span></div>
@@ -65,11 +67,11 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
             </div>
           </div>
           <p class="case-evidence-note">※位置確認連絡と作業効率は、導入法人を対象とした第三者機関による導入効果検証</p>
-        </div>
-      </section>
+        </Fragment>
+      </CaseStudyHero>
 
       <div class="case-content">
-        <section class="case-section">
+        <section class="case-section case-section--no-divider">
           <header class="case-section-header" data-reveal>
             <p class="section-title">01 Field Research</p>
             <h2>現場に入り、課題を定義し直す</h2>
@@ -141,18 +143,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
             </figure>
           </div>
 
-          <figure class="reposaku-keyvisual" data-reveal>
-            <ResponsiveImage
-              base="/images/optimized/reposaku-keyvisual"
-              widths={[720, 1440, 2400]}
-              width={3492}
-              height={1752}
-              sizes="100vw"
-              alt="レポサクのキービジュアル"
-            />
-          </figure>
-
-          <div class="reposaku-live-map-row case-block-offset" data-reveal>
+          <div class="reposaku-live-map-row" data-reveal>
             <div class="case-block">
               <p class="case-label">Decision 2</p>
               <h3>使いたくなる理由をつくる</h3>
@@ -177,7 +168,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
         </section>
 
         <section class="case-section">
-          <header class="case-section-header" data-reveal>
+          <header class="case-section-header reposaku-impact-header" data-reveal>
             <p class="section-title">03 Impact</p>
             <h2>「俺らはIT無理だから」が、「これ、かっこいいだろ」に</h2>
           </header>
@@ -249,21 +240,6 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
 </CaseStudyLayout>
 
 <style>
-  .reposaku-hero {
-    min-height: 0;
-    justify-content: flex-start;
-    gap: clamp(22px, 2.5vw, 36px);
-    margin-top: 0;
-    padding-top: 0;
-    padding-bottom: clamp(24px, 3vw, 44px);
-  }
-
-  .reposaku-hero-heading {
-    container-type: inline-size;
-    width: 100%;
-    margin-top: 0;
-  }
-
   .reposaku-award-fact {
     grid-column: 1 / -1;
     align-self: center;
@@ -293,47 +269,6 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
     font-weight: 700;
     line-height: 1.08;
     letter-spacing: -.075em;
-  }
-
-  .reposaku-hero-summary {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(32px, 6vw, 96px);
-    align-items: end;
-  }
-
-  .reposaku-hero-summary > p {
-    max-width: 48rem;
-    margin: 0;
-    font-size: clamp(15px, 1.25vw, 18px);
-    line-height: 1.75;
-  }
-
-  .reposaku-cover {
-    position: relative;
-    margin: 0 calc(0px - clamp(24px, 7vw, 112px));
-    overflow: hidden;
-  }
-
-  .reposaku-cover :global(.responsive-picture) {
-    display: block;
-    width: 100%;
-  }
-
-  .reposaku-cover :global(.responsive-picture > img) {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .reposaku-evidence {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .reposaku-evidence .case-evidence-note {
-    margin: 0;
   }
 
   .reposaku-impact {
@@ -427,17 +362,6 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
     margin: clamp(70px, 9vw, 120px) 0;
   }
 
-  .reposaku-keyvisual {
-    width: 100%;
-    margin: 0;
-  }
-
-  .reposaku-keyvisual img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
   .reposaku-impact-layout {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -529,7 +453,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
 
   .field-research-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(360px, .75fr);
+    grid-template-columns: minmax(360px, .75fr) minmax(0, 1.25fr);
     gap: clamp(40px, 5vw, 72px);
     align-items: start;
   }
@@ -570,9 +494,19 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
 
   .reposaku-live-map-row {
     display: grid;
-    grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(40px, 7vw, 110px);
     align-items: start;
+  }
+
+  .reposaku-impact-header,
+  .reposaku-impact-header h2 {
+    width: 100%;
+    max-width: none;
+  }
+
+  .reposaku-impact-header h2 {
+    text-wrap: wrap;
   }
 
   .reposaku-decision-row {
@@ -604,40 +538,11 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
   }
 
   @media (min-width: 761px) and (max-width: 1024px) {
-    .reposaku-hero { min-height: 0; gap: 28px; padding-bottom: 36px; }
-    .reposaku-hero-summary { gap: 40px; }
     .field-research-layout { grid-template-columns: 1fr; }
     .reposaku-recognition { margin-top: 28px; }
   }
 
-  @media (min-width: 761px) {
-    .reposaku-cover :global(.responsive-picture) {
-      height: clamp(220px, 21vw, 300px);
-    }
-
-    .reposaku-cover :global(.responsive-picture > img) {
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-    }
-  }
-
   @media (max-width: 760px) {
-    .reposaku-hero { gap: 22px; margin-top: 0; padding-bottom: 32px; }
-    .reposaku-hero-heading,
-    .reposaku-hero-summary {
-      grid-template-columns: 1fr;
-    }
-
-    .reposaku-hero-summary { gap: 22px; }
-    .reposaku-hero-summary > p { font-size: 14px; }
-
-    .reposaku-cover :global(.responsive-picture > img) {
-      width: 100%;
-      height: auto;
-      transform: none;
-    }
-
     .reposaku-impact {
       position: static;
       width: 100%;
@@ -689,12 +594,5 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
 
     .reposaku-recognition { margin-top: 22px; }
     .reposaku-recognition h3 { font-size: 22px; line-height: 1.35; }
-  }
-
-  @media (max-width: 720px) {
-    .reposaku-cover {
-      margin-right: -24px;
-      margin-left: -24px;
-    }
   }
 </style>
