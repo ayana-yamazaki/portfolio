@@ -78,11 +78,11 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
           </header>
           <div class="field-research-layout" data-reveal>
             <div class="field-research-gallery" aria-label="農業現場とシニアスマホ教室でのフィールドリサーチ">
-              <ResponsiveImage class="field-research-image--large" wrapperClass="field-research-image--large" base="/images/optimized/field-research-01" widths={[480, 960, 1440]} width={1440} height={1440} sizes="(max-width: 720px) 50vw, 36vw" alt="農業現場でのフィールドリサーチ" />
+              <ResponsiveImage class="field-research-image--large" wrapperClass="field-research-image--large" base="/images/optimized/field-research-01" widths={[480, 960, 1440]} width={1440} height={1440} sizes="(max-width: 720px) 50vw, (max-width: 1024px) 100vw, 36vw" alt="農業現場でのフィールドリサーチ" />
               <ResponsiveImage base="/images/optimized/field-research-02" widths={[360, 720, 890]} width={890} height={890} sizes="(max-width: 720px) 50vw, 24vw" alt="農作業を体験している様子" />
               <ResponsiveImage base="/images/optimized/field-research-04" widths={[360, 720, 890]} width={890} height={890} sizes="(max-width: 720px) 50vw, 24vw" alt="作物を育てている畑" />
               <ResponsiveImage base="/images/optimized/field-research-05" widths={[360, 720, 890]} width={890} height={890} sizes="(max-width: 720px) 50vw, 24vw" alt="農業現場の観察" />
-              <ResponsiveImage class="field-research-image--large" wrapperClass="field-research-image--large" base="/images/optimized/field-research-senior" widths={[480, 960, 1440]} width={1440} height={1440} sizes="(max-width: 720px) 50vw, 36vw" alt="シニア向けスマホ教室でのフィールドリサーチ" />
+              <ResponsiveImage class="field-research-image--large" wrapperClass="field-research-image--large" base="/images/optimized/field-research-senior" widths={[480, 960, 1440]} width={1440} height={1440} sizes="(max-width: 720px) 50vw, (max-width: 1024px) 100vw, 36vw" alt="シニア向けスマホ教室でのフィールドリサーチ" />
             </div>
             <div class="case-prose">
               <p class="case-label">Context</p>
@@ -107,10 +107,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
               <p><strong>使えない体験は、操作を妨げるだけでなく、「自分にはできない」という認識まで作っていた。</strong></p>
 
               <p class="case-label">Insight</p>
-              <div class="case-block">
-                <p><strong>「ITが苦手」は原因ではない。</strong></p>
-                <p><strong>現場を前提にしない設計と、失敗体験の積み重ねによって生まれた結果だった。</strong></p>
-              </div>
+              <p>「ITが苦手」は原因ではない。現場を前提にしない設計と、失敗体験の積み重ねによって生まれた結果だった。</p>
             </div>
           </div>
         </section>
@@ -474,7 +471,7 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
   }
 
   .field-research-gallery :global(.responsive-picture.field-research-image--large) {
-    grid-column: span 3;
+    grid-column: 1 / -1;
   }
 
   .field-research-gallery :global(.responsive-picture.field-research-image--large:first-child) {

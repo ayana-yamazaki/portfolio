@@ -81,7 +81,7 @@ html:lang(ja) .case-hero h1, html:lang(ja) .case-section h2 { text-wrap: pretty;
 .case-block-offset { margin-top: 32px; }
 .case-prose { display: flex; flex-direction: column; gap: 12px; max-width: 760px; margin-left: auto; }
 .case-prose--full { width: 100%; max-width: none; margin-left: 0; }
-.case-prose :where(p, li) { font-size: clamp(15px, 1.35vw, 19px); line-height: 1.6; }
+.case-prose :where(p, li) { font-size: clamp(15px, 1.35vw, 17px); line-height: 1.6; }
 .case-prose > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote) { margin: 0; }
 .case-prose p.body-sm { color: inherit; font-size: 13px; font-weight: 400; line-height: 1.7; }
 .case-label { display: flex; align-items: center; width: fit-content; margin: 0; padding: 2px 8px; color: #181818; background: color-mix(in srgb, #181818 5%, transparent); font-size: 13px; font-weight: 500; line-height: 1.5; letter-spacing: .08em; text-transform: uppercase; }
@@ -111,7 +111,7 @@ html:lang(ja) .case-hero h1, html:lang(ja) .case-section h2 { text-wrap: pretty;
 .case-prose p.text-emphasis { font-size: clamp(16px, 2vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-prose .text-emphasis > p { margin: 0; font-size: clamp(16px, 2vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-prose ul { margin: 0; padding-left: 1.25em; }
-.case-prose blockquote { margin: 16px 0 0 8px; padding-left: 28px; border-left: 2px solid #d9d9d9; font-style: normal; }
+.case-prose blockquote { margin: 16px 0 0; padding-left: 28px; border-left: 2px solid #d9d9d9; font-style: normal; }
 .case-prose blockquote p { margin: 0; font-size: clamp(14px, 1.4vw, 18px); font-weight: 500; line-height: 1.6; letter-spacing: .04em; }
 .case-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 80px; padding-top: 32px; border-top: 1px solid #181818; }
 .case-meta dt { margin-bottom: 16px; }
