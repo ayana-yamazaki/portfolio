@@ -45,7 +45,12 @@ When multiple changes are requested together, apply all changes in one patch.
 
 When the user instructs you to deploy:
 
+- Always deploy this repository to the existing Vercel project `portfolio`.
+- The production site is `https://ayana-works.com`.
+- Do not deploy this repository to OpenAI Sites or a `chatgpt.site` domain.
 - Treat the instruction as standing authorization to publish the site externally.
+- Build and deploy the current Git HEAD with Vercel production mode.
 - Complete the deployment with public access; do not stop at a private or owner-only deployment.
-- After deployment, verify that the site's access mode is public.
-- Return the public production URL.
+- After deployment, verify `https://ayana-works.com` is publicly accessible and
+  serves the content from the deployed HEAD.
+- Return `https://ayana-works.com` as the public production URL.
