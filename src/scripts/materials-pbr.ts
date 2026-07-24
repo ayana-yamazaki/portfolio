@@ -558,6 +558,7 @@ if (canvas && cases && hero) {
         uDomRefraction: { value: domRefractionTexture },
         uCaustic: { value: gemFloorCaustic },
         uOpacity: { value: .84 },
+        uSpectralStrength: { value: 1.2 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -576,6 +577,7 @@ if (canvas && cases && hero) {
         uniform sampler2D uDomRefraction;
         uniform sampler2D uCaustic;
         uniform float uOpacity;
+        uniform float uSpectralStrength;
         varying vec2 vUv;
         varying vec2 vScreenUv;
 
@@ -608,7 +610,7 @@ if (canvas && cases && hero) {
           float prism = smoothstep(.12, .38, spectralRange);
           vec3 spectralLight = mix(
             base,
-            min(caustic.rgb * 1.2, vec3(1.0)),
+            min(caustic.rgb * uSpectralStrength, vec3(1.0)),
             .96
           );
           light = mix(light, spectralLight, prism);
@@ -623,6 +625,7 @@ if (canvas && cases && hero) {
     const gemPrismMaterial = gemFloorCausticMaterial.clone();
     gemPrismMaterial.uniforms.uCaustic.value = gemPrism;
     gemPrismMaterial.uniforms.uOpacity.value = 1;
+    gemPrismMaterial.uniforms.uSpectralStrength.value = 1.38;
 
     const cardLiftPx = 12;
     const cardLiftDurationMs = 360;

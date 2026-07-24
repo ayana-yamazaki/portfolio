@@ -157,6 +157,10 @@ export const gemFragmentShader = `
     vec2 centerOffset=refractionOffset(normal,viewDirection,uIorGreen);
     vec2 rawRedOffset=refractionOffset(normal,viewDirection,uIorRed);
     vec2 rawBlueOffset=refractionOffset(normal,viewDirection,uIorBlue);
+    float frontRefractionBoost=mix(1.5873,1.0,sideMask);
+    centerOffset*=frontRefractionBoost;
+    rawRedOffset*=frontRefractionBoost;
+    rawBlueOffset*=frontRefractionBoost;
     float dispersionStrength=mix(.7,uDispersionBoost,sideMask);
     vec2 redOffset=centerOffset+(rawRedOffset-centerOffset)*dispersionStrength;
     vec2 blueOffset=centerOffset+(rawBlueOffset-centerOffset)*dispersionStrength;
@@ -225,7 +229,6 @@ export const gemFragmentShader = `
     vec3 normalizedReflection=normalize(reflectionDirection);
     vec3 sideStripDirection=normalize(vec3(-.38,.77,-.52));
     vec3 sideKeyDirection=normalize(vec3(-.45,.78,-.44));
-    vec3 internalDarkDirection=normalize(vec3(.52,-.01,-.85));
     float sharpSideSpecular=pow(
       max(dot(normalizedReflection,sideStripDirection),0.0),
       190.0
@@ -234,15 +237,21 @@ export const gemFragmentShader = `
       max(dot(normalizedReflection,sideKeyDirection),0.0),
       88.0
     )*sideMask;
-    float internalDarkAlignment=pow(
-      max(dot(normalizedReflection,internalDarkDirection),0.0),
-      7.0
+    float opticalPathLength=clamp(1.0/max(facing,.24),1.0,4.2);
+    vec3 volumeTransmittance=exp(
+      -vec3(.065,.052,.038)*(opticalPathLength-1.0)
     );
-    float internalDark=clamp(
-      sideMask*totalInternalReflection*(.04+internalDarkAlignment*.52),
-      0.0,
-      1.0
+    float directFacetLight=.47+normalLight*.53;
+    float facetTransmissionLight=mix(
+      1.0,
+      directFacetLight,
+      sideMask*.86
     );
+    float brightFacet=smoothstep(
+      .5,
+      .88,
+      max(dot(normal,halfVector),0.0)
+    )*smoothstep(.08,.6,normalLight)*sideMask;
     float frontTableMask=smoothstep(.965,.995,facing);
     float glossBoundary=vUv.x-(.08+.56*vUv.y);
     float topLeftLight=clamp((1.0-vUv.x)*.46+vUv.y*.54,0.0,1.0);
@@ -307,7 +316,9 @@ export const gemFragmentShader = `
       *mix(.18,1.0,backgroundFacetAlignment)
       *uBackgroundReflectionStrength;
 
-    vec3 transmitted=refracted*mix(1.0,.42,internalDark);
+    vec3 transmitted=refracted
+      *volumeTransmittance
+      *facetTransmissionLight;
     transmitted=mix(transmitted,glossPlaneColor,glossPlane*.09);
     vec3 reflectedLight=environment*reflectionWeight;
     float spectralReflectionStrength=clamp(sideMask*.42+thinRim*.28,0.0,.62);
@@ -323,6 +334,7 @@ export const gemFragmentShader = `
       sharpSideSpecular*5.8
       +secondarySideSpecular*1.65
     );
+    reflectedLight+=vec3(1.0,.995,.985)*brightFacet*.83;
     reflectedLight+=mix(vec3(.86,.93,1.0),bodySpectrum,.62)*thinRim*.58;
     reflectedLight+=glossPlaneColor*glossPlane*.12;
     reflectedLight+=glossEdgeColor*glossEdge*.16;

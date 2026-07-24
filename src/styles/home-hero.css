@@ -1220,11 +1220,13 @@ html:lang(ja) .home-hero__case-text {
 @media (min-width: 1025px) {
   .home-hero__case-track {
     width: min(88.2vw, 1809px, calc(100cqh * 2.88));
-    gap: 5%;
+    grid-template-columns: repeat(4, 20.8%);
+    gap: 4%;
+    justify-content: center;
   }
 
   .home-hero__case {
-    width: 103.5%;
+    width: 100%;
     transform: translateY(-7%);
   }
 }
