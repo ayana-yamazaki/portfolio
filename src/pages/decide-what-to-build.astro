@@ -102,7 +102,14 @@ const caseStudy = getCaseStudy('/decide-what-to-build', locale);
           <strong>システムが作った下書きを承認</strong>
           <span>GPSの位置と時間を基準に、必要な部分だけを分割・修正する</span>
           <figure class="case-figure">
-            <img src="/images/reposaku-report-product.webp" alt="GPSログから自動生成された日報のシーン一覧と編集画面" loading="lazy" decoding="async" />
+            <ResponsiveImage
+              base="/images/optimized/reposaku-report-product"
+              widths={[480, 960, 1440]}
+              width={1950}
+              height={1300}
+              sizes="(max-width: 720px) calc(100vw - 84px), 42vw"
+              alt="GPSログから自動生成された日報のシーン一覧と編集画面"
+            />
           </figure>
         </div>
       </div>

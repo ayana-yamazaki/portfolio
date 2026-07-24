@@ -408,9 +408,7 @@ if (canvas && cases && hero) {
       context.fillRect(0, 0, 1, 1);
       return new CanvasTexture(source);
     };
-    let roughGlassTextures: ReturnType<typeof loadRoughGlassTextures> | undefined = (
-      isSmallViewport ? undefined : loadRoughGlassTextures()
-    );
+    let roughGlassTextures: ReturnType<typeof loadRoughGlassTextures> | undefined;
     const roughGlassBump = roughGlassTextures?.bump
       ?? makePlaceholderTexture('#808080');
     const roughGlassCaustic = roughGlassTextures?.caustic
@@ -742,6 +740,10 @@ if (canvas && cases && hero) {
       const kind = element.dataset.material as MaterialKind;
       const definition = getCardDefinition(kind);
       const initiallyPrepared = !isSmallViewport || cardStates.length === 0;
+      const waitsForDeferredTexture = (
+        !isSmallViewport && kind === 'rough-glass'
+      );
+      const initiallyVisible = initiallyPrepared && !waitsForDeferredTexture;
       const group = new Group();
       const materialByKind = {
         gem: [gemFaceMaterial, sideMaterials.gem],
@@ -848,9 +850,9 @@ if (canvas && cases && hero) {
         keyboardFocused: false,
       };
       state.renderables.forEach((object) => {
-        object.visible = initiallyPrepared;
+        object.visible = initiallyVisible;
       });
-      if (initiallyPrepared) {
+      if (initiallyVisible) {
         preparedCardKinds.add(kind);
         element.dataset.materialPbrReady = '';
       }
@@ -925,12 +927,12 @@ if (canvas && cases && hero) {
         .map(({ kind }) => prepareCardDefinition(kind)),
     );
 
-    const prepareMobileCard = (
+    const prepareCard = (
       kind: MaterialKind,
       { urgent = false } = {},
     ) => {
       if (
-        !isSmallViewport
+        (!isSmallViewport && kind !== 'rough-glass')
         || disposed
         || preparedCardKinds.has(kind)
         || (failedCardKinds.has(kind) && !urgent)
@@ -964,15 +966,14 @@ if (canvas && cases && hero) {
           shadowMaterial.needsUpdate = true;
         }
         delete state.element.dataset.materialPbrError;
-        state.renderables.forEach((object) => {
-          object.visible = true;
-        });
-        markLayoutDirty();
         if (!syncLayout(true)) {
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
           if (disposed || !syncLayout(true)) return;
         }
         motionCache?.invalidate();
+        state.renderables.forEach((object) => {
+          object.visible = true;
+        });
         await activeRenderer.compileAsync(activeScene, camera);
         if (disposed) return;
         preparedCardKinds.add(kind);
@@ -1014,18 +1015,21 @@ if (canvas && cases && hero) {
         return;
       }
 
-      cancelMobileCardPreparation = scheduleIdleWork(() => {
-        cancelMobileCardPreparation = undefined;
-        void prepareMobileCard(nextState.kind);
-      }, {
-        timeoutMs: 1_500,
-        fallbackDelayMs: 160,
-      });
+      const delayId = window.setTimeout(() => {
+        cancelMobileCardPreparation = scheduleIdleWork(() => {
+          cancelMobileCardPreparation = undefined;
+          void prepareCard(nextState.kind);
+        }, {
+          timeoutMs: 8_000,
+          fallbackDelayMs: 1_200,
+        });
+      }, 6_000);
+      cancelMobileCardPreparation = () => window.clearTimeout(delayId);
     };
 
     cardStates.forEach((state) => {
       const prepare = () => {
-        void prepareMobileCard(state.kind, { urgent: true });
+        void prepareCard(state.kind, { urgent: true });
       };
       state.element.addEventListener('case-carousel-prepare', prepare, {
         signal: eventController.signal,
@@ -1067,7 +1071,16 @@ if (canvas && cases && hero) {
       passive: true,
       signal: eventController.signal,
     });
-    carousel?.addEventListener('scroll', markLayoutDirty, {
+    const markCardPositionDirty = () => {
+      cancelMotionCacheWarm?.();
+      cancelMotionCacheWarm = undefined;
+      invalidate(
+        RenderDirtyFlag.cardPosition
+        | RenderDirtyFlag.motionCache,
+      );
+    };
+
+    carousel?.addEventListener('scroll', markCardPositionDirty, {
       passive: true,
       signal: eventController.signal,
     });
@@ -1362,7 +1375,10 @@ if (canvas && cases && hero) {
       syncGlassBackdropTexture(canvasRect, pixelRatio);
     };
 
-    const syncLayout = (force = false) => {
+    const syncLayout = (
+      force = false,
+      refreshStaticTextures = true,
+    ) => {
       const canvasRect = canvas.getBoundingClientRect();
       const heroRect = hero.getBoundingClientRect();
       if (!canvasRect.width || !canvasRect.height) return false;
@@ -1392,7 +1408,9 @@ if (canvas && cases && hero) {
         lastPixelRatio = pixelRatio;
       }
 
-      syncDomRefractionTextures(canvasRect, pixelRatio, force || sizeChanged);
+      if (refreshStaticTextures || sizeChanged) {
+        syncDomRefractionTextures(canvasRect, pixelRatio, force || sizeChanged);
+      }
 
       const rects = cardStates.map(({ element }) => (
         element.querySelector<HTMLElement>('.material-card')?.getBoundingClientRect()
@@ -1911,6 +1929,7 @@ if (canvas && cases && hero) {
           disposed
           || !isVisible
           || dirty.has(RenderDirtyFlag.layout)
+          || dirty.has(RenderDirtyFlag.cardPosition)
           || introLightStartedAt !== null
           || hoverLightStartedAt !== null
           || activeInteractionState !== null
@@ -1939,9 +1958,15 @@ if (canvas && cases && hero) {
 
     renderFrame = () => {
       if (disposed || !textureReady || !isVisible || !renderer || !scene) return;
-      if (dirty.has(RenderDirtyFlag.layout) && syncLayout()) {
+      const needsFullLayout = dirty.has(RenderDirtyFlag.layout);
+      const needsCardPosition = dirty.has(RenderDirtyFlag.cardPosition);
+      if (
+        (needsFullLayout || needsCardPosition)
+        && syncLayout(false, needsFullLayout)
+      ) {
         dirty.clear(
           RenderDirtyFlag.layout
+          | RenderDirtyFlag.cardPosition
           | RenderDirtyFlag.backdrop
           | RenderDirtyFlag.appearance,
         );
@@ -1999,6 +2024,15 @@ if (canvas && cases && hero) {
       }
       if (disposed) return;
       markTextureReady();
+      if (!isSmallViewport) {
+        cancelMobileCardPreparation = scheduleIdleWork(() => {
+          cancelMobileCardPreparation = undefined;
+          void prepareCard('rough-glass');
+        }, {
+          timeoutMs: 2_500,
+          fallbackDelayMs: 400,
+        });
+      }
       if (introLightAllowed && !reducedMotionQuery.matches) {
         introLightComplete = false;
         window.setTimeout(() => {

@@ -2,6 +2,7 @@
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 import { getCaseStudy } from '../data/site';
 import TranslatedContent from '../components/TranslatedContent.astro';
+import ResponsiveImage from '../components/ResponsiveImage.astro';
 import { buildAiTranslations } from '../i18n/build-ai';
 import type { Locale } from '../i18n/locale';
 
@@ -29,7 +30,16 @@ const caseStudy = getCaseStudy('/build-ai-native', locale);
     <div class="case-hero-media">
       <a class="ai-hero-image-link" href="https://caddi.tech/figmaless_design" target="_blank" rel="noopener noreferrer" aria-label="CADDi Tech Blogで全文を読む">
         <figure class="case-figure">
-          <img src="/images/build-ai-native-hero.png" alt="Figmaを使わずClaude CodeとStorybookで131件の検討漏れを発見した取り組み" />
+          <ResponsiveImage
+            base="/images/optimized/build-ai-native-hero"
+            widths={[480, 768, 1024]}
+            width={1024}
+            height={538}
+            sizes="(max-width: 720px) 100vw, 42vw"
+            alt="Figmaを使わずClaude CodeとStorybookで131件の検討漏れを発見した取り組み"
+            loading="eager"
+            fetchpriority="high"
+          />
         </figure>
       </a>
       <dl class="case-meta-grid">

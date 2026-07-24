@@ -1,0 +1,71 @@
+---
+interface Props {
+  poster: string;
+  webm: string;
+  mp4: string;
+  width: number;
+  height: number;
+  label: string;
+  class?: string;
+}
+
+const {
+  poster,
+  webm,
+  mp4,
+  width,
+  height,
+  label,
+  class: className,
+} = Astro.props;
+---
+
+<video
+  class={className}
+  muted
+  loop
+  playsinline
+  preload="none"
+  poster={poster}
+  width={width}
+  height={height}
+  aria-label={label}
+  data-lazy-loop-video
+>
+  <source data-src={webm} type="video/webm" />
+  <source data-src={mp4} type="video/mp4" />
+</video>
+
+<script>
+  const videos = document.querySelectorAll<HTMLVideoElement>(
+    'video[data-lazy-loop-video]',
+  );
+
+  const loadVideo = (video: HTMLVideoElement) => {
+    if (video.dataset.videoLoaded !== undefined) return;
+    video.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((source) => {
+      source.src = source.dataset.src ?? '';
+      source.removeAttribute('data-src');
+    });
+    video.dataset.videoLoaded = '';
+    video.load();
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target as HTMLVideoElement;
+      if (!entry.isIntersecting) {
+        video.pause();
+        return;
+      }
+      loadVideo(video);
+      void video.play().catch(() => {
+        // Keep the poster when autoplay is restricted.
+      });
+    });
+  }, {
+    rootMargin: '320px 0px',
+  });
+
+  videos.forEach((video) => observer.observe(video));
+</script>

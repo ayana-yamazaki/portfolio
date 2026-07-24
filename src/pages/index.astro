@@ -10,8 +10,6 @@ import SiteHeader from '../components/SiteHeader.astro';
 import LocaleRedirect from '../components/LocaleRedirect.astro';
 import { getCaseStudies } from '../data/site';
 import { getLocaleUrl, getLocalizedPath, type Locale } from '../i18n/locale';
-import roughGlassBumpUrl from '../assets/materials/rough-glass-bump.png?url';
-import roughGlassCausticUrl from '../assets/materials/rough-glass-caustic.png?url';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
 interface Props {
@@ -52,13 +50,49 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
     <link rel="alternate" hreflang="ja" href={japaneseUrl} />
     <link rel="alternate" hreflang="en" href={englishUrl} />
     <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
-    <link rel="preload" as="image" href={roughGlassBumpUrl} fetchpriority="high" media="(min-width: 721px)" />
-    <link rel="preload" as="image" href={roughGlassCausticUrl} fetchpriority="high" media="(min-width: 721px)" />
     <LocaleRedirect locale={locale} />
     <title>Ayana Yamazaki — Product Builder</title>
     <script>
-      import '../scripts/materials-pbr';
       import '../scripts/home-carousel';
+
+      let materialsPromise: Promise<unknown> | undefined;
+      const loadMaterials = () => {
+        materialsPromise ??= import('../scripts/materials-pbr');
+        return materialsPromise;
+      };
+
+      const isSmallViewport = window.matchMedia('(max-width: 720px)').matches;
+      const requestDeferredMaterials = () => {
+        window.setTimeout(() => {
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(
+              () => void loadMaterials(),
+              { timeout: isSmallViewport ? 2_000 : 1_200 },
+            );
+          } else {
+            window.setTimeout(
+              () => void loadMaterials(),
+              isSmallViewport ? 400 : 200,
+            );
+          }
+        }, isSmallViewport ? 120 : 0);
+      };
+
+      requestDeferredMaterials();
+
+      const cases = document.querySelector('[data-case-carousel]');
+      const loadMaterialsForInteraction = () => void loadMaterials();
+      cases?.addEventListener('pointerdown', loadMaterialsForInteraction, {
+        once: true,
+        passive: true,
+      });
+      cases?.addEventListener('pointerover', loadMaterialsForInteraction, {
+        once: true,
+        passive: true,
+      });
+      cases?.addEventListener('focusin', loadMaterialsForInteraction, {
+        once: true,
+      });
     </script>
   </head>
   <body id="top">
@@ -90,11 +124,11 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
           <div class="home-hero__intro">
             <p class="home-hero__name">Ayana Yamazaki</p>
             <p class="home-hero__role" aria-label="Product Builder / Product Designer">
-              <span>Product Builder</span>
-              <span class="home-hero__role-secondary" aria-hidden="true">
-                <span>/</span>
-                <span>Product Designer</span>
+              <span class="home-hero__role-primary">
+                <span>Product Builder</span>
+                <span class="home-hero__role-separator" aria-hidden="true">/</span>
               </span>
+              <span class="home-hero__role-secondary" aria-hidden="true">Product Designer</span>
             </p>
             <p class="home-hero__description">
               {locale === 'ja'
@@ -141,7 +175,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
             class="home-hero__materials-canvas"
             aria-hidden="true"
             data-materials-pbr
-            data-renderer-state="initializing"
+            data-renderer-state="deferred"
           ></canvas>
           <div class="home-hero__case-track" data-case-carousel>
             {caseStudies.map((caseStudy, index) => (

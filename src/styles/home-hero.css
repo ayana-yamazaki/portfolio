@@ -23,7 +23,7 @@ body:has(.home-main) {
   display: flex;
   flex-direction: column;
   contain: paint;
-  min-height: 80svh;
+  min-height: 85svh;
   padding: clamp(32px, 5vw, 72px) clamp(24px, 7vw, 112px);
   overflow: hidden;
   background: #f9f3f0;
@@ -71,41 +71,55 @@ body:has(.home-main) {
 .home-hero__role {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  column-gap: .4em;
-  margin: 4px 0 0;
-  color: var(--text-color-secondary);
-  font-size: clamp(13px, 1vw, 14px);
-  font-weight: 500;
-  line-height: 1.4;
+  align-items: center;
+  column-gap: .3em;
+  margin: 12px 0 0;
+  color: #000;
+  font-size: clamp(40px, 4.2vw, 60px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.04em;
 }
 
-.home-hero__role-secondary {
+.home-hero__role-primary {
   display: inline-flex;
-  gap: .4em;
+  gap: .3em;
+  align-items: center;
+}
+
+.home-hero__role-separator {
+  display: inline-block;
+  color: #6e6e73;
+  font-size: .7em;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0;
+  transform: scaleX(.55);
 }
 
 .home-hero__description {
   width: 100%;
-  max-width: 16em;
-  margin: clamp(28px, 3vw, 36px) 0 0;
+  max-width: 26em;
+  margin: clamp(24px, 2vw, 28px) 0 0;
   color: #181818;
   font-family: var(--heading-font);
-  font-size: clamp(32px, 4vw, 56px);
+  font-size: clamp(22px, 1.7vw, 24px);
   font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -.02em;
+  line-height: 1.5;
+  letter-spacing: -.01em;
   text-wrap: balance;
 }
 
 .home-hero__capability {
   width: 100%;
-  max-width: 44em;
-  margin: clamp(16px, 1.5vw, 20px) 0 0;
+  max-width: none;
+  margin: clamp(6px, .5vw, 8px) 0 0;
   color: var(--text-color-secondary);
-  font-size: clamp(14px, 1.15vw, 16px);
+  font-size: clamp(15px, 1.05vw, 16px);
   font-weight: 400;
   line-height: 1.75;
+  text-wrap: pretty;
+  word-break: auto-phrase;
 }
 
 .home-hero__title {
@@ -790,7 +804,7 @@ body:has(.home-main) {
 .home-hero__case-text {
   display: block;
   margin-top: 32px;
-  color: #fff;
+  color: rgba(255, 255, 255, .9);
   font-size: clamp(11px, .9vw, 13px);
   line-height: 1.55;
   text-align: center;
@@ -803,7 +817,7 @@ body:has(.home-main) {
 .home-hero__case-link {
   display: block;
   margin-top: 12px;
-  color: #fff;
+  color: rgba(255, 255, 255, .88);
   font-size: clamp(11px, .9vw, 13px);
   line-height: 1.55;
   text-align: center;
@@ -815,7 +829,14 @@ body:has(.home-main) {
   .home-hero {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(32px, 1fr) auto minmax(32px, 1fr);
+    grid-template-rows:
+      auto
+      clamp(32px, 2.5vw, 40px)
+      auto
+      0;
+    height: 92svh;
+    min-height: 0;
+    padding-bottom: 0;
   }
 
   .home-hero__heading {
@@ -827,7 +848,7 @@ body:has(.home-main) {
     flex: none;
     grid-row: 3;
     justify-self: center;
-    width: calc(100vw - clamp(24px, 7vw, 112px));
+    width: 100%;
     aspect-ratio: var(--home-hero-stage-ratio);
     margin-block: 0;
     padding: 0 var(--home-hero-stage-padding);
@@ -844,16 +865,12 @@ body:has(.home-main) {
 
   .home-hero__cases::before {
     top: var(--home-hero-band-start);
-    right: clamp(-56px, -3.5vw, -12px);
+    right: 0;
     bottom: auto;
-    left: auto;
-    width: 100%;
+    left: 0;
+    width: auto;
     height: calc(var(--home-hero-band-height) - var(--home-hero-band-start));
-    border-radius:
-      clamp(54px, 6.08vw, 158px)
-      0
-      0
-      clamp(54px, 6.08vw, 158px);
+    border-radius: clamp(54px, 6.08vw, 158px);
     background: #1f5dcd;
     opacity: 1;
     transform: none;
@@ -863,16 +880,12 @@ body:has(.home-main) {
     position: absolute;
     z-index: 0;
     top: var(--home-hero-band-start);
-    right: clamp(-56px, -3.5vw, -12px);
+    right: 0;
     bottom: auto;
-    left: auto;
-    width: 100%;
+    left: 0;
+    width: auto;
     height: calc(var(--home-hero-band-height) - var(--home-hero-band-start));
-    border-radius:
-      clamp(54px, 6.08vw, 158px)
-      0
-      0
-      clamp(54px, 6.08vw, 158px);
+    border-radius: clamp(54px, 6.08vw, 158px);
     corner-shape: squircle;
     background:
       radial-gradient(circle at 88% 8%, rgba(130, 175, 255, .56), transparent 30%),
@@ -921,6 +934,20 @@ body:has(.home-main) {
 
   .home-hero__heading {
     padding-right: 24px;
+  }
+
+  .home-hero__role {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-top: 12px;
+    font-size: clamp(36px, 11vw, 46px);
+  }
+
+  .home-hero__role-secondary {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
   }
 
   .home-hero__title {

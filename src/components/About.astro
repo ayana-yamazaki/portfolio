@@ -12,7 +12,7 @@ const about = getAbout(locale);
 ---
 
 <section id="about" class="about" aria-labelledby="about-title">
-  <h2 id="about-title">{about.label}</h2>
+  <h2 id="about-title" class="home-section-heading">{about.label}</h2>
   <div class="about-intro">
     <div class="case-prose case-prose--full">{about.description.map((line) => <p>{line}</p>)}</div>
     <ResponsiveImage
@@ -27,7 +27,7 @@ const about = getAbout(locale);
     />
   </div>
   <div class="experience">
-    <h3>Experience</h3>
+    <h3 class="home-section-heading">Experience</h3>
     <div class="experience-list">
       {about.experience.map((item) => (
         <article class="experience-item">

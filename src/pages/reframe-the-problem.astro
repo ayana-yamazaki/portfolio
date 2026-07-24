@@ -7,6 +7,7 @@ import reposakuAward03 from '../../img/reposaku-award03.png';
 import reposakuAward04 from '../../img/reposaku-award04.png';
 import TranslatedContent from '../components/TranslatedContent.astro';
 import ResponsiveImage from '../components/ResponsiveImage.astro';
+import LazyLoopVideo from '../components/LazyLoopVideo.astro';
 import { reframeTranslations } from '../i18n/reframe';
 import type { Locale } from '../i18n/locale';
 
@@ -163,7 +164,14 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
               </div>
             </div>
             <figure class="case-image reposaku-real-image">
-              <img src="/images/reposaku-live-map.gif" alt="農作業車両の走行軌跡を表示したレポサクのライブマップ画面" loading="lazy" decoding="async" />
+              <LazyLoopVideo
+                poster="/images/reposaku-live-map-poster.webp"
+                webm="/images/reposaku-live-map.webm"
+                mp4="/images/reposaku-live-map.mp4"
+                width={1200}
+                height={830}
+                label="農作業車両の走行軌跡を表示したレポサクのライブマップ画面"
+              />
             </figure>
           </div>
         </section>
@@ -199,10 +207,10 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
               </ul>
 
               <div class="reposaku-cover-awards reposaku-inline-awards" aria-label="レポサクの受賞実績">
-                <img src={reposakuAward01.src} alt="農林水産技術会議会長賞" loading="lazy" decoding="async" />
-                <img src={reposakuAward02.src} alt="デジタル田園都市国家構想" loading="lazy" decoding="async" />
-                <img src={reposakuAward03.src} alt="CEATEC AWARD" loading="lazy" decoding="async" />
-                <img src={reposakuAward04.src} alt="イチBizアワード2023 最優秀賞" loading="lazy" decoding="async" />
+                <img src={reposakuAward01.src} width={reposakuAward01.width} height={reposakuAward01.height} alt="農林水産技術会議会長賞" loading="lazy" decoding="async" />
+                <img src={reposakuAward02.src} width={reposakuAward02.width} height={reposakuAward02.height} alt="デジタル田園都市国家構想" loading="lazy" decoding="async" />
+                <img src={reposakuAward03.src} width={reposakuAward03.width} height={reposakuAward03.height} alt="CEATEC AWARD" loading="lazy" decoding="async" />
+                <img src={reposakuAward04.src} width={reposakuAward04.width} height={reposakuAward04.height} alt="イチBizアワード2023 最優秀賞" loading="lazy" decoding="async" />
               </div>
             </div>
           </div>
@@ -512,7 +520,8 @@ const caseStudy = getCaseStudy('/reframe-the-problem', locale);
     background: transparent;
   }
 
-  .reposaku-real-image img {
+  .reposaku-real-image img,
+  .reposaku-real-image :global(video) {
     display: block;
     width: 100%;
     height: auto;

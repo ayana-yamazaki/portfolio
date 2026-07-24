@@ -20,6 +20,22 @@ const images = [
   { name: 'reposaku-report-hero', source: 'public/images/reposaku-report-hero.jpg', widths: [640, 1200, 1920] },
   { name: 'reposaku-report-research', source: 'public/images/reposaku-report-research.png', widths: [800, 1200, 1600] },
   { name: 'reposaku-report-split', source: 'public/images/reposaku-report-split.png', widths: [480, 768, 1024] },
+  { name: 'reposaku-report-product', source: 'public/images/reposaku-report-product.webp', widths: [480, 960, 1440] },
+  { name: 'build-ai-native-hero', source: 'public/images/build-ai-native-hero.png', widths: [480, 768, 1024] },
+  { name: 'medical-input-v1', source: 'public/images/medical-ui/input-v1.png', widths: [480, 960, 1440] },
+  { name: 'medical-input-v2', source: 'public/images/medical-ui/input-v2.png', widths: [480, 960, 1440] },
+  { name: 'medical-input-v3', source: 'public/images/medical-ui/input-v3.png', widths: [480, 960, 1440] },
+  { name: 'medical-input-v4', source: 'public/images/medical-ui/input-v4.png', widths: [480, 960, 1440] },
+  { name: 'medical-input-v5', source: 'public/images/medical-ui/input-v5.png', widths: [480, 960, 1440] },
+  { name: 'medical-input-final', source: 'public/images/medical-ui/input-final.png', widths: [480, 960, 1218] },
+  { name: 'medical-feedback-v1', source: 'public/images/medical-ui/feedback-v1.png', widths: [480, 960, 1440] },
+  { name: 'medical-feedback-v2', source: 'public/images/medical-ui/feedback-v2.png', widths: [480, 960, 1440] },
+  { name: 'medical-feedback-v3', source: 'public/images/medical-ui/feedback-v3.png', widths: [480, 960, 1440] },
+  { name: 'medical-feedback-v4', source: 'public/images/medical-ui/feedback-v4.png', widths: [480, 960, 1440] },
+  { name: 'medical-feedback-final', source: 'public/images/medical-ui/feedback-final.png', widths: [480, 960, 1440] },
+  { name: 'medical-interactive-prototype', source: 'public/images/medical-ui/interactive-prototype.png', widths: [480, 960, 1399] },
+  { name: 'medical-design-specification', source: 'public/images/medical-ui/design-specification.png', widths: [640, 1280, 1920] },
+  { name: 'medical-component-states', source: 'public/images/medical-ui/component-states.png', widths: [640, 1280, 1920] },
 ];
 
 await mkdir(outputDirectory, { recursive: true });
