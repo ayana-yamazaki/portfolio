@@ -182,6 +182,7 @@ if (canvas && cases && hero) {
   const failedCardKinds = new Set<MaterialKind>();
   const preparingCardKinds = new Map<MaterialKind, Promise<void>>();
   let mobileInitialFrameRendered = false;
+  let mobileScrollFrameId: number | undefined;
 
   const cleanup = () => {
     if (disposed) return;
@@ -190,6 +191,10 @@ if (canvas && cases && hero) {
     cancelMotionCacheWarm = undefined;
     cancelMobileCardPreparation?.();
     cancelMobileCardPreparation = undefined;
+    if (mobileScrollFrameId !== undefined) {
+      cancelAnimationFrame(mobileScrollFrameId);
+      mobileScrollFrameId = undefined;
+    }
     motionCache?.dispose();
     renderHarness?.dispose();
     eventController.abort();
@@ -1067,7 +1072,15 @@ if (canvas && cases && hero) {
       setLightTarget(nextX, nextY);
     };
 
-    window.addEventListener('scroll', syncMobileScrollLight, {
+    const requestMobileScrollLight = () => {
+      if (mobileScrollFrameId !== undefined) return;
+      mobileScrollFrameId = requestAnimationFrame(() => {
+        mobileScrollFrameId = undefined;
+        syncMobileScrollLight();
+      });
+    };
+
+    window.addEventListener('scroll', requestMobileScrollLight, {
       passive: true,
       signal: eventController.signal,
     });
@@ -1915,10 +1928,7 @@ if (canvas && cases && hero) {
         || !isVisible
         || cancelMotionCacheWarm
         || !motionCache?.needsPreparation()
-        || (
-          isSmallViewport
-          && preparedCardKinds.size < cardStates.length
-        )
+        || preparedCardKinds.size < cardStates.length
       ) {
         return;
       }

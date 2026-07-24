@@ -40,7 +40,13 @@ const images = [
 
 await mkdir(outputDirectory, { recursive: true });
 
-for (const image of images) {
+const requestedNames = new Set(process.argv.slice(2));
+const selectedImages = requestedNames.size > 0
+  ? images.filter(({ name }) => requestedNames.has(name))
+  : images;
+const conversionEffort = requestedNames.size > 0 ? 2 : 5;
+
+for (const image of selectedImages) {
   for (const width of image.widths) {
     const source = sharp(image.source).rotate().resize({
       width,
@@ -48,10 +54,10 @@ for (const image of images) {
     });
     await Promise.all([
       source.clone()
-        .avif({ quality: 54, effort: 5 })
+        .avif({ quality: 54, effort: conversionEffort })
         .toFile(path.join(outputDirectory, `${image.name}-${width}.avif`)),
       source.clone()
-        .webp({ quality: 76, effort: 5 })
+        .webp({ quality: 76, effort: conversionEffort })
         .toFile(path.join(outputDirectory, `${image.name}-${width}.webp`)),
     ]);
   }
