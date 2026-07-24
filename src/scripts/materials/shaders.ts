@@ -202,7 +202,7 @@ export const gemFragmentShader = `
     float incidenceSine=sqrt(max(1.0-facing*facing,0.0));
     float totalInternalReflection=smoothstep(1.0/uIor-.055,1.0/uIor+.055,incidenceSine);
     float surfaceFresnel=max(fresnel.r,max(fresnel.g,fresnel.b));
-    float reflectionLimit=mix(.18,.54,sideMask)+thinRim*.18;
+    float reflectionLimit=mix(.18,.38,sideMask)+thinRim*.1;
     float reflectionWeight=min(clamp(
       surfaceFresnel+totalInternalReflection*.18,
       0.0,
@@ -239,7 +239,7 @@ export const gemFragmentShader = `
       7.0
     );
     float internalDark=clamp(
-      sideMask*totalInternalReflection*(.08+internalDarkAlignment*1.08),
+      sideMask*totalInternalReflection*(.04+internalDarkAlignment*.52),
       0.0,
       1.0
     );
@@ -307,7 +307,7 @@ export const gemFragmentShader = `
       *mix(.18,1.0,backgroundFacetAlignment)
       *uBackgroundReflectionStrength;
 
-    vec3 transmitted=refracted*mix(1.0,.08,internalDark);
+    vec3 transmitted=refracted*mix(1.0,.42,internalDark);
     transmitted=mix(transmitted,glossPlaneColor,glossPlane*.09);
     vec3 reflectedLight=environment*reflectionWeight;
     float spectralReflectionStrength=clamp(sideMask*.42+thinRim*.28,0.0,.62);

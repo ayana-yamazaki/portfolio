@@ -1415,7 +1415,7 @@ if (canvas && cases && hero) {
       const heroRect = hero.getBoundingClientRect();
       if (!canvasRect.width || !canvasRect.height) return false;
       const refractionBoost = window.innerWidth > 720 ? 1.16 : 1;
-      gemFaceMaterial.uniforms.uRefraction.value = baseRefraction.gem * refractionBoost;
+      gemFaceMaterial.uniforms.uRefraction.value = baseRefraction.gem * .75;
       seaGlassMaterial.uniforms.uRefraction.value = baseRefraction['sea-glass'] * refractionBoost;
       roughGlassFaceMaterial.uniforms.uRefractionStrength.value = (
         baseRefraction['rough-glass'] * refractionBoost
