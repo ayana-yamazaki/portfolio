@@ -1,0 +1,67 @@
+---
+interface Props {
+  base: string;
+  widths: number[];
+  width: number;
+  height: number;
+  sizes: string;
+  alt: string;
+  class?: string;
+  wrapperClass?: string;
+  loading?: 'eager' | 'lazy';
+  decoding?: 'sync' | 'async' | 'auto';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  ariaHidden?: boolean;
+}
+
+const {
+  base,
+  widths,
+  width,
+  height,
+  sizes,
+  alt,
+  class: className,
+  wrapperClass,
+  loading = 'lazy',
+  decoding = 'async',
+  fetchpriority = 'auto',
+  ariaHidden,
+} = Astro.props;
+const sortedWidths = [...widths].sort((a, b) => a - b);
+const largestWidth = sortedWidths.at(-1) ?? width;
+const makeSrcset = (format: 'avif' | 'webp') => sortedWidths
+  .map((candidateWidth) => `${base}-${candidateWidth}.${format} ${candidateWidth}w`)
+  .join(', ');
+---
+
+<picture class:list={['responsive-picture', wrapperClass]}>
+  <source type="image/avif" srcset={makeSrcset('avif')} sizes={sizes} />
+  <source type="image/webp" srcset={makeSrcset('webp')} sizes={sizes} />
+  <img
+    class={className}
+    src={`${base}-${largestWidth}.webp`}
+    srcset={makeSrcset('webp')}
+    sizes={sizes}
+    width={width}
+    height={height}
+    alt={alt}
+    loading={loading}
+    decoding={decoding}
+    fetchpriority={fetchpriority}
+    aria-hidden={ariaHidden ? 'true' : undefined}
+  />
+</picture>
+
+<style>
+  .responsive-picture {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .responsive-picture > img {
+    max-width: 100%;
+    height: auto;
+  }
+</style>

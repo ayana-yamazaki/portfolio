@@ -1,6 +1,7 @@
 ---
 import { getAbout } from '../data/site';
 import type { Locale } from '../i18n/locale';
+import ResponsiveImage from './ResponsiveImage.astro';
 
 interface Props {
   locale: Locale;
@@ -14,10 +15,15 @@ const about = getAbout(locale);
   <h2 id="about-title">{about.label}</h2>
   <div class="about-intro">
     <div class="case-prose case-prose--full">{about.description.map((line) => <p>{line}</p>)}</div>
-    <img
-      src={about.profileImage}
+    <ResponsiveImage
+      base="/images/optimized/profile"
+      widths={[360, 720, 1080]}
+      width={3598}
+      height={3598}
+      sizes="(max-width: 720px) 64vw, 360px"
       alt={locale === 'ja' ? '山崎文菜のプロフィール写真' : 'Portrait of Ayana Yamazaki'}
       loading="lazy"
+      decoding="async"
     />
   </div>
   <div class="experience">

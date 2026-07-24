@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import '../styles/home-hero.css';
 import heroAbstract from '../assets/hero-abstract.svg';
+import FontLinks from '../components/FontLinks.astro';
 ---
 
 <!doctype html>
@@ -12,6 +13,7 @@ import heroAbstract from '../assets/hero-abstract.svg';
     <meta name="robots" content="noindex" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <FontLinks />
     <title>Glass rendering harness</title>
   </head>
   <body>
@@ -322,5 +324,45 @@ import heroAbstract from '../assets/hero-abstract.svg';
 
   .glass-harness__panel button {
     cursor: pointer;
+  }
+
+  @media (max-width: 1000px) {
+    .glass-harness__workspace {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .glass-harness__stage {
+      min-height: min(680px, calc(100svh - 220px));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .glass-harness {
+      padding: 20px 16px;
+      overflow-x: clip;
+    }
+
+    .glass-harness__header {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .glass-harness__header p:last-child {
+      grid-column: auto;
+      grid-row: auto;
+      margin-top: 8px;
+    }
+
+    .glass-harness__stage {
+      min-height: min(620px, 145vw);
+      border-radius: 12px;
+    }
+
+    .glass-harness__card {
+      top: 15%;
+      right: 13%;
+      width: min(58vw, 250px);
+    }
   }
 </style>

@@ -5,11 +5,11 @@ import '../styles/home-hero.css';
 import '../styles/case-study.css';
 import About from '../components/About.astro';
 import CaseFooter from '../components/CaseFooter.astro';
+import FontLinks from '../components/FontLinks.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import LocaleRedirect from '../components/LocaleRedirect.astro';
 import { getCaseStudies } from '../data/site';
 import { getLocaleUrl, getLocalizedPath, type Locale } from '../i18n/locale';
-import nanakamadoImage from '../../img/nanakamado.png';
 import roughGlassBumpUrl from '../assets/materials/rough-glass-bump.png?url';
 import roughGlassCausticUrl from '../assets/materials/rough-glass-caustic.png?url';
 // import codeXmlIcon from '../assets/code-xml.svg';
@@ -41,6 +41,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
     <meta name="description" content={ogDescription} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <FontLinks />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={ogDescription} />
     <meta property="og:type" content="website" />
@@ -88,8 +89,12 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
         <header class="home-hero__heading">
           <div class="home-hero__intro">
             <p class="home-hero__name">Ayana Yamazaki</p>
-            <p class="home-hero__role">
-              Product Builder /<br class="home-hero__role-break" />Product Designer
+            <p class="home-hero__role" aria-label="Product Builder / Product Designer">
+              <span>Product Builder</span>
+              <span class="home-hero__role-secondary" aria-hidden="true">
+                <span>/</span>
+                <span>Product Designer</span>
+              </span>
             </p>
             <p class="home-hero__description">
               {locale === 'ja'
@@ -108,12 +113,21 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
           <picture>
             <source
               media="(min-width: 721px)"
-              srcset={nanakamadoImage.src}
-              type="image/png"
+              srcset="/images/optimized/nanakamado-960.avif 960w, /images/optimized/nanakamado-1600.avif 1600w, /images/optimized/nanakamado-2400.avif 2400w"
+              sizes="100vw"
+              type="image/avif"
+            />
+            <source
+              media="(min-width: 721px)"
+              srcset="/images/optimized/nanakamado-960.webp 960w, /images/optimized/nanakamado-1600.webp 1600w, /images/optimized/nanakamado-2400.webp 2400w"
+              sizes="100vw"
+              type="image/webp"
             />
             <img
               class="home-hero__backdrop-image"
               src={transparentPixel}
+              width="3170"
+              height="1344"
               alt=""
               aria-hidden="true"
               data-glass-backdrop-image-source

@@ -24,7 +24,18 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
 
     <div class="case-hero-media">
       <figure class="case-figure">
-        <img src="/images/medical-ui/hero-interaction.gif" alt="歯周病検査の数値を連続入力するタブレットUI" />
+        <video
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="/images/medical-ui/hero-interaction-poster.webp"
+          aria-label="歯周病検査の数値を連続入力するタブレットUI"
+        >
+          <source src="/images/medical-ui/hero-interaction.webm" type="video/webm" />
+          <source src="/images/medical-ui/hero-interaction.mp4" type="video/mp4" />
+        </video>
       </figure>
     </div>
 
@@ -76,12 +87,12 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
         <p>実際に入力を担う歯科衛生士の評価も反映し、机上の使いやすさではなく、現場で紙より速く使える操作を探った。</p>
       </div>
       <div class="prototype-iterations" data-reveal>
-        <article><p class="case-label">Version 1</p><h3>「次へ」を押す</h3><p>数値を選択した後、「次へ」を押して入力を確定する案。1回の操作に約0.5秒かかり、192項目では90秒以上のロスになるため不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/input-v1.png" alt="数値選択後に次へボタンを押す入力UI" /></figure></article>
-        <article><p class="case-label">Version 2</p><h3>3点をまとめて入力する</h3><p>3点を入力してから、まとめて次へ進む案。指の移動が増え、目的のボタンを探すために画面を見続ける必要があることが分かり、不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/input-v2.png" alt="3点をまとめて入力するUI" /></figure></article>
-        <article><p class="case-label">Version 3</p><h3>入力後、自動で次へ送る</h3><p>数値を入力すると、自動で次の項目へ移動する方式へ変更した。「次へ」の操作がなくなり、歯科衛生士からも高く評価されたため採用した。</p><figure class="case-figure"><img src="/images/medical-ui/input-v3.png" alt="数値入力後に自動で次の項目へ移動するUI" /></figure></article>
-        <article><p class="case-label">Version 4</p><h3>指の位置を固定する</h3><p>数値ボタンをテンキーのように配置。指を同じ位置に置いたまま、リズムを止めずに連続入力できる形へ変更した。</p><figure class="case-figure"><img src="/images/medical-ui/input-v4.png" alt="指を固定したまま連続入力する操作イメージ" /></figure></article>
-        <article><p class="case-label">Version 5</p><h3>ボタンを96pxまで調整する</h3><p>人差し指から薬指を自然に置けるサイズを検討し、ボタンを96pxに調整した。指の移動量を抑えながら、押し間違いを防げる大きさを探った。</p><figure class="case-figure"><img src="/images/medical-ui/input-v5.png" alt="入力ボタンのサイズ比較" /></figure></article>
-        <article><p class="case-label">Final</p><h3>使用頻度から、ボタンの強弱を決める</h3><p>使用頻度が低く、異常値でもある数値のボタンを小さくすることで、誤タップを抑えた。歯周病リスクとなる4mm以上には警戒色を使用し、入力時に識別できるようにした。</p><figure class="case-figure"><img src="/images/medical-ui/input-final.png" alt="使用頻度と異常値に応じて強弱を付けた最終入力UI" /></figure></article>
+        <article><p class="case-label">Version 1</p><h3>「次へ」を押す</h3><p>数値を選択した後、「次へ」を押して入力を確定する案。1回の操作に約0.5秒かかり、192項目では90秒以上のロスになるため不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/input-v1.png" alt="数値選択後に次へボタンを押す入力UI" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Version 2</p><h3>3点をまとめて入力する</h3><p>3点を入力してから、まとめて次へ進む案。指の移動が増え、目的のボタンを探すために画面を見続ける必要があることが分かり、不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/input-v2.png" alt="3点をまとめて入力するUI" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Version 3</p><h3>入力後、自動で次へ送る</h3><p>数値を入力すると、自動で次の項目へ移動する方式へ変更した。「次へ」の操作がなくなり、歯科衛生士からも高く評価されたため採用した。</p><figure class="case-figure"><img src="/images/medical-ui/input-v3.png" alt="数値入力後に自動で次の項目へ移動するUI" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Version 4</p><h3>指の位置を固定する</h3><p>数値ボタンをテンキーのように配置。指を同じ位置に置いたまま、リズムを止めずに連続入力できる形へ変更した。</p><figure class="case-figure"><img src="/images/medical-ui/input-v4.png" alt="指を固定したまま連続入力する操作イメージ" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Version 5</p><h3>ボタンを96pxまで調整する</h3><p>人差し指から薬指を自然に置けるサイズを検討し、ボタンを96pxに調整した。指の移動量を抑えながら、押し間違いを防げる大きさを探った。</p><figure class="case-figure"><img src="/images/medical-ui/input-v5.png" alt="入力ボタンのサイズ比較" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Final</p><h3>使用頻度から、ボタンの強弱を決める</h3><p>使用頻度が低く、異常値でもある数値のボタンを小さくすることで、誤タップを抑えた。歯周病リスクとなる4mm以上には警戒色を使用し、入力時に識別できるようにした。</p><figure class="case-figure"><img src="/images/medical-ui/input-final.png" alt="使用頻度と異常値に応じて強弱を付けた最終入力UI" loading="lazy" decoding="async" /></figure></article>
       </div>
     </section>
 
@@ -95,11 +106,11 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
         <p><strong>紙の検査表の高い一覧性を、デジタルに落とし込んだ。</strong></p>
       </div>
       <div class="prototype-feedback-list" data-reveal>
-        <article><p class="case-label">Version 1</p><h3>紙の検査表を、そのまま再現する</h3><p>見慣れた紙の検査表を、そのままタブレット上に再現した。しかし、「見慣れてはいるが、この形である必要はない」というフィードバックを受け、タブレットに適した表示を探ることにした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v1.png" alt="紙の検査表を再現した初期表示案" /></figure></article>
-        <article><p class="case-label">Version 2</p><h3>顎をイラストで表示する</h3><p>顎の形をそのままイラスト化した。見た目は直感的だったが、現在どの歯の、どの面を入力しているか判別しにくく、不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v2.png" alt="顎全体をイラストで表示した案" /></figure></article>
-        <article><p class="case-label">Version 3</p><h3>入力中の歯面を表示する</h3><p>入力対象となる歯面を表示し、現在地を確認できるようにした。一方で、検査中は上顎と下顎を同時に確認する必要があることが分かった。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v3.png" alt="入力中の歯面を表示した案" /></figure></article>
-        <article><p class="case-label">Version 4</p><h3>上下の歯を、横一列に並べる</h3><p>上下顎を同時に一覧できるよう、歯を横一列に配置した。情報を増やしすぎると視認性が下がるため、表示するフィードバックを絞り込んだ。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v4.png" alt="上下の歯を横一列に並べた表示案" /></figure></article>
-        <article><p class="case-label">Final</p><h3>現在地と異常値だけを強調する</h3><p>入力中の歯面を青く表示し、入力済みの数値は必要最小限に抑えた。歯周病リスクとなる4mm以上だけを強調し、「今どこを入力しているか」「どのように入力したか」を一目で確認できるようにした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-final.png" alt="現在地と異常値だけを強調した最終結果表示UI" /></figure></article>
+        <article><p class="case-label">Version 1</p><h3>紙の検査表を、そのまま再現する</h3><p>見慣れた紙の検査表を、そのままタブレット上に再現した。しかし、「見慣れてはいるが、この形である必要はない」というフィードバックを受け、タブレットに適した表示を探ることにした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v1.png" alt="紙の検査表を再現した初期表示案" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Version 2</p><h3>顎をイラストで表示する</h3><p>顎の形をそのままイラスト化した。見た目は直感的だったが、現在どの歯の、どの面を入力しているか判別しにくく、不採用とした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v2.png" alt="顎全体をイラストで表示した案" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Version 3</p><h3>入力中の歯面を表示する</h3><p>入力対象となる歯面を表示し、現在地を確認できるようにした。一方で、検査中は上顎と下顎を同時に確認する必要があることが分かった。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v3.png" alt="入力中の歯面を表示した案" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Version 4</p><h3>上下の歯を、横一列に並べる</h3><p>上下顎を同時に一覧できるよう、歯を横一列に配置した。情報を増やしすぎると視認性が下がるため、表示するフィードバックを絞り込んだ。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-v4.png" alt="上下の歯を横一列に並べた表示案" loading="lazy" decoding="async" /></figure></article>
+        <article><p class="case-label">Final</p><h3>現在地と異常値だけを強調する</h3><p>入力中の歯面を青く表示し、入力済みの数値は必要最小限に抑えた。歯周病リスクとなる4mm以上だけを強調し、「今どこを入力しているか」「どのように入力したか」を一目で確認できるようにした。</p><figure class="case-figure"><img src="/images/medical-ui/feedback-final.png" alt="現在地と異常値だけを強調した最終結果表示UI" loading="lazy" decoding="async" /></figure></article>
       </div>
     </section>
 
@@ -116,13 +127,13 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
         <div class="case-prose">
           <p class="case-label">Interactive Prototype</p>
           <p>Figma上で実際の入力操作と画面遷移を再現した。歯科医師との検証だけでなく、エンジニアにも操作の手触りを共有し、データ構造やトランジションとの整合性を実装前に確認した。</p>
-          <figure class="case-figure"><img src="/images/medical-ui/interactive-prototype.png" alt="Figmaで作成した歯周病検査UIのインタラクティブプロトタイプ" /></figure>
+          <figure class="case-figure"><img src="/images/medical-ui/interactive-prototype.png" alt="Figmaで作成した歯周病検査UIのインタラクティブプロトタイプ" loading="lazy" decoding="async" /></figure>
         </div>
         <div class="case-prose">
           <p class="case-label">Design Specification</p>
           <p>入力値、選択状態、自動送り、フィードバック、エラーなど、操作中に発生する状態を整理した。Figma上で変数名とステートを定義し、視認性を検証した上でコンポーネント化。開発チームが設計意図を理解し、実装できる仕様書へ落とし込んだ。</p>
-          <figure class="case-figure"><img src="/images/medical-ui/design-specification.png" alt="操作遷移と状態を整理したデザイン仕様書" /></figure>
-          <figure class="case-figure"><img src="/images/medical-ui/component-states.png" alt="入力値や状態ごとに整理した歯のUIコンポーネント" /></figure>
+          <figure class="case-figure"><img src="/images/medical-ui/design-specification.png" alt="操作遷移と状態を整理したデザイン仕様書" loading="lazy" decoding="async" /></figure>
+          <figure class="case-figure"><img src="/images/medical-ui/component-states.png" alt="入力値や状態ごとに整理した歯のUIコンポーネント" loading="lazy" decoding="async" /></figure>
         </div>
       </div>
     </section>

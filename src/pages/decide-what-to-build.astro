@@ -2,6 +2,7 @@
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 import { getCaseStudy } from '../data/site';
 import TranslatedContent from '../components/TranslatedContent.astro';
+import ResponsiveImage from '../components/ResponsiveImage.astro';
 import { decideTranslations } from '../i18n/decide';
 import type { Locale } from '../i18n/locale';
 
@@ -23,7 +24,16 @@ const caseStudy = getCaseStudy('/decide-what-to-build', locale);
     </div>
 
     <figure class="case-hero-media">
-      <img src="/images/reposaku-report-hero.jpg" alt="手書きの日報と、GPSデータから日報を作成するレポサクのスマートフォン画面" />
+      <ResponsiveImage
+        base="/images/optimized/reposaku-report-hero"
+        widths={[640, 1200, 1920]}
+        width={2496}
+        height={1800}
+        sizes="(max-width: 720px) 100vw, 50vw"
+        alt="手書きの日報と、GPSデータから日報を作成するレポサクのスマートフォン画面"
+        loading="eager"
+        fetchpriority="high"
+      />
       <dl class="case-meta-grid">
         <div><dt class="meta-label">Role</dt><dd class="text-xs">1st Designer / Lead Product Designer</dd></div>
         <div><dt class="meta-label">Team</dt><dd class="text-xs">CEO / CTO / Engineers — 9-person seed startup</dd></div>
@@ -41,7 +51,10 @@ const caseStudy = getCaseStudy('/decide-what-to-build', locale);
   </section>
 
   <div class="case-content">
-    <section class="case-section case-section--background-image" style="--case-background-image: url('/images/reposaku-report-research.png');">
+    <section
+      class="case-section case-section--background-image"
+      style="--case-background-image: image-set(url('/images/optimized/reposaku-report-research-1600.avif') type('image/avif'), url('/images/optimized/reposaku-report-research-1600.webp') type('image/webp'));"
+    >
       <header class="case-section-header" data-reveal>
         <p class="section-title">01 Discovery</p>
         <h2>16人が帰宅するまで、日報業務を観察する</h2>
@@ -89,7 +102,7 @@ const caseStudy = getCaseStudy('/decide-what-to-build', locale);
           <strong>システムが作った下書きを承認</strong>
           <span>GPSの位置と時間を基準に、必要な部分だけを分割・修正する</span>
           <figure class="case-figure">
-            <img src="/images/reposaku-report-product.webp" alt="GPSログから自動生成された日報のシーン一覧と編集画面" />
+            <img src="/images/reposaku-report-product.webp" alt="GPSログから自動生成された日報のシーン一覧と編集画面" loading="lazy" decoding="async" />
           </figure>
         </div>
       </div>
@@ -124,7 +137,14 @@ const caseStudy = getCaseStudy('/decide-what-to-build', locale);
           <h3>一つの走行に、複数の作業が含まれる</h3>
           <p>位置・速度・時刻を見ながら、一つのGPSログを複数の作業へ分割できるようにした。</p>
           <figure class="case-figure">
-            <img src="/images/reposaku-report-split.png" alt="GPSログを速度と位置情報を確認しながら二つの作業へ分割する画面" />
+            <ResponsiveImage
+              base="/images/optimized/reposaku-report-split"
+              widths={[480, 768, 1024]}
+              width={1024}
+              height={683}
+              sizes="(max-width: 720px) 100vw, 48vw"
+              alt="GPSログを速度と位置情報を確認しながら二つの作業へ分割する画面"
+            />
           </figure>
         </article>
         <div class="decision-exception-stack">

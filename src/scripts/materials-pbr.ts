@@ -125,6 +125,44 @@ if (canvas && cases && hero) {
   delete canvas.dataset.rendererError;
 
   const isSmallViewport = window.matchMedia('(max-width: 720px)').matches;
+  const performanceNavigator = navigator as Navigator & {
+    deviceMemory?: number;
+    connection?: {
+      saveData?: boolean;
+    };
+  };
+  const deviceMemory = performanceNavigator.deviceMemory;
+  const hardwareConcurrency = performanceNavigator.hardwareConcurrency || 6;
+  const saveData = performanceNavigator.connection?.saveData === true;
+  const isLowPowerDevice = (
+    saveData
+    || (deviceMemory !== undefined && deviceMemory <= 4)
+    || hardwareConcurrency <= 4
+  );
+  const isHighPowerDevice = (
+    !saveData
+    && deviceMemory !== undefined
+    && deviceMemory >= 8
+    && hardwareConcurrency >= 8
+  );
+  const mobileQuality = isLowPowerDevice
+    ? {
+      tier: 'low',
+      maxPixelRatio: 1.25,
+      maxPixelCount: 850_000,
+    }
+    : isHighPowerDevice
+    ? {
+      tier: 'high',
+      maxPixelRatio: 1.5,
+      maxPixelCount: 1_200_000,
+    }
+    : {
+      tier: 'balanced',
+      maxPixelRatio: 1.35,
+      maxPixelCount: 1_000_000,
+    };
+  if (isSmallViewport) canvas.dataset.rendererQuality = mobileQuality.tier;
   let disposed = false;
   let renderer: WebGLRenderer | undefined;
   let renderHarness: RenderHarness | undefined;
@@ -211,10 +249,10 @@ if (canvas && cases && hero) {
       canvas,
       renderer,
       maxPixelRatio: isSmallViewport
-        ? 1.5
+        ? mobileQuality.maxPixelRatio
         : sceneTuning.maxPixelRatio,
       maxPixelCount: isSmallViewport
-        ? Math.min(1_200_000, sceneTuning.maxPixelCount)
+        ? Math.min(mobileQuality.maxPixelCount, sceneTuning.maxPixelCount)
         : sceneTuning.maxPixelCount,
       maxContinuousFrames: sceneTuning.maxContinuousFrames,
       maxDrawCalls: sceneTuning.maxDrawCalls,
@@ -360,9 +398,23 @@ if (canvas && cases && hero) {
       markLayoutDirty();
     };
 
-    const roughGlassTextures = loadRoughGlassTextures();
-    const roughGlassBump = roughGlassTextures.bump;
-    const roughGlassCaustic = roughGlassTextures.caustic;
+    const makePlaceholderTexture = (fillStyle: string) => {
+      const source = document.createElement('canvas');
+      source.width = 1;
+      source.height = 1;
+      const context = source.getContext('2d');
+      if (!context) throw new Error('Unable to create placeholder texture');
+      context.fillStyle = fillStyle;
+      context.fillRect(0, 0, 1, 1);
+      return new CanvasTexture(source);
+    };
+    let roughGlassTextures: ReturnType<typeof loadRoughGlassTextures> | undefined = (
+      isSmallViewport ? undefined : loadRoughGlassTextures()
+    );
+    const roughGlassBump = roughGlassTextures?.bump
+      ?? makePlaceholderTexture('#808080');
+    const roughGlassCaustic = roughGlassTextures?.caustic
+      ?? makePlaceholderTexture('rgba(0, 0, 0, 0)');
     const gemFloorCaustic = makeGemFloorCausticTexture();
     const gemPrism = makeGemPrismTexture();
     [
@@ -373,6 +425,10 @@ if (canvas && cases && hero) {
     ]
       .forEach((texture) => trackedTextures.add(texture));
     const shadowMaps = new Map<MaterialKind, Texture>();
+    const shadowPlaceholderTexture = isSmallViewport
+      ? makePlaceholderTexture('rgba(0, 0, 0, 0)')
+      : undefined;
+    if (shadowPlaceholderTexture) trackedTextures.add(shadowPlaceholderTexture);
     const getShadowMap = (kind: MaterialKind) => {
       const existing = shadowMaps.get(kind);
       if (existing) return existing;
@@ -476,6 +532,14 @@ if (canvas && cases && hero) {
       transparent: true,
       opacity: .58,
       side: DoubleSide,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    const roughGlassCausticMaterial = new MeshBasicMaterial({
+      map: roughGlassCaustic,
+      color: 0xffffff,
+      transparent: true,
+      opacity: .78,
       depthWrite: false,
       toneMapped: false,
     });
@@ -677,6 +741,7 @@ if (canvas && cases && hero) {
     cardElements.forEach((element) => {
       const kind = element.dataset.material as MaterialKind;
       const definition = getCardDefinition(kind);
+      const initiallyPrepared = !isSmallViewport || cardStates.length === 0;
       const group = new Group();
       const materialByKind = {
         gem: [gemFaceMaterial, sideMaterials.gem],
@@ -714,7 +779,9 @@ if (canvas && cases && hero) {
       const shadow = new Mesh(
         new PlaneGeometry(1, 1),
         new MeshBasicMaterial({
-          map: getShadowMap(kind),
+          map: initiallyPrepared
+            ? getShadowMap(kind)
+            : shadowPlaceholderTexture ?? getShadowMap(kind),
           color: definition.shadowColor,
           transparent: true,
           opacity: 1,
@@ -731,14 +798,7 @@ if (canvas && cases && hero) {
         : definition.caustic === 'rough-glass'
         ? new Mesh(
           new PlaneGeometry(1, 1),
-          new MeshBasicMaterial({
-            map: roughGlassCaustic,
-            color: 0xffffff,
-            transparent: true,
-            opacity: .78,
-            depthWrite: false,
-            toneMapped: false,
-          }),
+          roughGlassCausticMaterial,
         )
         : undefined;
       const prism = definition.hasPrism
@@ -787,7 +847,6 @@ if (canvas && cases && hero) {
         pressed: false,
         keyboardFocused: false,
       };
-      const initiallyPrepared = !isSmallViewport || cardStates.length === 0;
       state.renderables.forEach((object) => {
         object.visible = initiallyPrepared;
       });
@@ -849,6 +908,18 @@ if (canvas && cases && hero) {
       }, { signal: eventController.signal });
     });
 
+    const prepareRoughGlassTextures = () => {
+      if (!roughGlassTextures) {
+        roughGlassTextures = loadRoughGlassTextures();
+        trackedTextures.add(roughGlassTextures.bump);
+        trackedTextures.add(roughGlassTextures.caustic);
+        roughGlassFaceMaterial.uniforms.uBump.value = roughGlassTextures.bump;
+        roughGlassCausticMaterial.map = roughGlassTextures.caustic;
+        roughGlassCausticMaterial.needsUpdate = true;
+      }
+      return roughGlassTextures.ready;
+    };
+
     const initialCardDefinitionsReady = Promise.all(
       (isSmallViewport ? cardStates.slice(0, 1) : cardStates)
         .map(({ kind }) => prepareCardDefinition(kind)),
@@ -880,8 +951,18 @@ if (canvas && cases && hero) {
       if (!state || !activeRenderer || !activeScene) return Promise.resolve();
 
       const preparation = (async () => {
-        await prepareCardDefinition(kind);
+        await Promise.all([
+          prepareCardDefinition(kind),
+          kind === 'rough-glass'
+            ? prepareRoughGlassTextures()
+            : Promise.resolve(),
+        ]);
         if (disposed) return;
+        const shadowMaterial = state.shadow.material as MeshBasicMaterial;
+        if (shadowMaterial.map === shadowPlaceholderTexture) {
+          shadowMaterial.map = getShadowMap(kind);
+          shadowMaterial.needsUpdate = true;
+        }
         delete state.element.dataset.materialPbrError;
         state.renderables.forEach((object) => {
           object.visible = true;
@@ -907,14 +988,14 @@ if (canvas && cases && hero) {
         });
         failedCardKinds.add(kind);
         state.element.dataset.materialPbrError = '';
-      })().finally(() => {
+      }).finally(() => {
         preparingCardKinds.delete(kind);
       });
       preparingCardKinds.set(kind, preparation);
       return preparation;
     };
 
-    const scheduleNextMobileCardPreparation = () => {
+    const scheduleInitialAdjacentCardPreparation = () => {
       if (
         !isSmallViewport
         || disposed
@@ -923,18 +1004,19 @@ if (canvas && cases && hero) {
       ) {
         return;
       }
-      const nextState = cardStates.find(({ kind }) => (
-        !preparedCardKinds.has(kind)
-        && !preparingCardKinds.has(kind)
-        && !failedCardKinds.has(kind)
-      ));
-      if (!nextState) return;
+      const nextState = cardStates[1];
+      if (
+        !nextState
+        || preparedCardKinds.has(nextState.kind)
+        || preparingCardKinds.has(nextState.kind)
+        || failedCardKinds.has(nextState.kind)
+      ) {
+        return;
+      }
 
       cancelMobileCardPreparation = scheduleIdleWork(() => {
         cancelMobileCardPreparation = undefined;
-        void prepareMobileCard(nextState.kind).finally(() => {
-          scheduleNextMobileCardPreparation();
-        });
+        void prepareMobileCard(nextState.kind);
       }, {
         timeoutMs: 1_500,
         fallbackDelayMs: 160,
@@ -1880,7 +1962,7 @@ if (canvas && cases && hero) {
       dirty.clear(RenderDirtyFlag.transform);
       if (isSmallViewport && !mobileInitialFrameRendered) {
         mobileInitialFrameRendered = true;
-        scheduleNextMobileCardPreparation();
+        scheduleInitialAdjacentCardPreparation();
       }
       if (sceneMotion.isAnimating && renderHarness?.allowNextAnimationFrame()) {
         invalidate(RenderDirtyFlag.transform);
@@ -1889,7 +1971,7 @@ if (canvas && cases && hero) {
     };
 
     const finishInitialization = async () => {
-      const texturesReady = roughGlassTextures.ready;
+      const texturesReady = roughGlassTextures?.ready ?? Promise.resolve();
       await initialCardDefinitionsReady;
       if (disposed) return;
       if (!syncLayout(true)) {

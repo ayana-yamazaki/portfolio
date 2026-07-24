@@ -1,6 +1,7 @@
 ---
 import { getCaseStudies } from '../data/site';
 import { getLocalizedPath, stripLocalePrefix, type Locale } from '../i18n/locale';
+import ResponsiveImage from './ResponsiveImage.astro';
 
 interface Props {
   locale: Locale;
@@ -23,6 +24,12 @@ const footer: {
   href: string;
   action: string;
   image?: string;
+  imageSet?: {
+    base: string;
+    widths: number[];
+    width: number;
+    height: number;
+  };
   cardImage?: string;
 } = nextCase
   ? {
@@ -31,6 +38,7 @@ const footer: {
     href: getLocalizedPath(nextCase.href, locale),
     action: 'View next case',
     image: nextCase.footerImage,
+    imageSet: nextCase.footerImageSet,
     cardImage: nextCase.footerCardImage,
   }
   : {
@@ -51,7 +59,31 @@ const footer: {
     ]}
     href={footer.href}
   >
-    {footer.image && <img class="case-footer__image" src={footer.image} alt="" aria-hidden="true" />}
+    {footer.imageSet ? (
+      <ResponsiveImage
+        class="case-footer__image"
+        base={footer.imageSet.base}
+        widths={footer.imageSet.widths}
+        width={footer.imageSet.width}
+        height={footer.imageSet.height}
+        sizes="(max-width: 720px) 72vw, 48vw"
+        alt=""
+        ariaHidden
+        loading="lazy"
+        decoding="async"
+        fetchpriority="low"
+      />
+    ) : footer.image && (
+      <img
+        class="case-footer__image"
+        src={footer.image}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        fetchpriority="low"
+      />
+    )}
     <div class="case-footer__feature-inner">
       <div class="case-footer__title-row">
         {footer.cardImage && (

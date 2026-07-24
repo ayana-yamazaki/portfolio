@@ -16,6 +16,12 @@ export interface CaseStudy {
   alt: string;
   footerDescription: string;
   footerImage?: string;
+  footerImageSet?: {
+    base: string;
+    widths: number[];
+    width: number;
+    height: number;
+  };
   footerCardImage?: string;
 }
 
@@ -36,7 +42,12 @@ const caseStudiesJa = [
     image: panel01,
     alt: 'Working with soil in the field',
     footerDescription: '前提を疑い、現場から解くべき問題を定める。',
-    footerImage: panel01.src,
+    footerImageSet: {
+      base: '/images/optimized/panel01',
+      widths: [480, 768, 1020],
+      width: 1020,
+      height: 1500,
+    },
     footerCardImage: '/images/materials/footer-gem.webp',
   },
   {
@@ -50,7 +61,12 @@ const caseStudiesJa = [
     image: panel02,
     alt: 'Dental product interface prototypes',
     footerDescription: '現場の事実から、作るべきものと順序を決める。',
-    footerImage: '/images/reposaku-report-hero.jpg',
+    footerImageSet: {
+      base: '/images/optimized/reposaku-report-hero',
+      widths: [640, 1200, 1920],
+      width: 2496,
+      height: 1800,
+    },
   },
   {
     number: '03',
@@ -63,7 +79,7 @@ const caseStudiesJa = [
     image: null,
     alt: '',
     footerDescription: '歯科医師と試作を重ね、紙より速い操作へ磨き込む。',
-    footerImage: '/images/medical-ui/hero-interaction.gif',
+    footerImage: '/images/medical-ui/hero-interaction-poster.webp',
   },
   {
     number: '04',
@@ -76,7 +92,12 @@ const caseStudiesJa = [
     image: panel03,
     alt: 'Building a product in the terminal',
     footerDescription: 'AIとコードで、仕様の曖昧さを実装前に潰す。',
-    footerImage: panel03.src,
+    footerImageSet: {
+      base: '/images/optimized/panel03',
+      widths: [480, 768, 1020],
+      width: 1020,
+      height: 1500,
+    },
   },
 ] satisfies readonly CaseStudy[];
 
@@ -92,7 +113,12 @@ const caseStudiesEn = [
     image: panel01,
     alt: 'Working with soil in the field',
     footerDescription: 'Question assumptions and define the right problem from the field.',
-    footerImage: panel01.src,
+    footerImageSet: {
+      base: '/images/optimized/panel01',
+      widths: [480, 768, 1020],
+      width: 1020,
+      height: 1500,
+    },
     footerCardImage: '/images/materials/footer-gem.webp',
   },
   {
@@ -106,7 +132,12 @@ const caseStudiesEn = [
     image: panel02,
     alt: 'Daily reporting product interface',
     footerDescription: 'Use field evidence to decide what to build, and in what order.',
-    footerImage: '/images/reposaku-report-hero.jpg',
+    footerImageSet: {
+      base: '/images/optimized/reposaku-report-hero',
+      widths: [640, 1200, 1920],
+      width: 2496,
+      height: 1800,
+    },
   },
   {
     number: '03',
@@ -119,7 +150,7 @@ const caseStudiesEn = [
     image: null,
     alt: '',
     footerDescription: 'Iterate with dentists until the experience is faster than paper.',
-    footerImage: '/images/medical-ui/hero-interaction.gif',
+    footerImage: '/images/medical-ui/hero-interaction-poster.webp',
   },
   {
     number: '04',
@@ -132,7 +163,12 @@ const caseStudiesEn = [
     image: panel03,
     alt: 'Building a product in the terminal',
     footerDescription: 'Use AI and code to resolve ambiguity before implementation.',
-    footerImage: panel03.src,
+    footerImageSet: {
+      base: '/images/optimized/panel03',
+      widths: [480, 768, 1020],
+      width: 1020,
+      height: 1500,
+    },
   },
 ] satisfies readonly CaseStudy[];
 
@@ -154,7 +190,6 @@ const aboutJa = {
     '農業やカスタマーサクセス領域のプロダクトに、立ち上げ期から携わってきました。現場に入り、業務や制約を理解するところから、課題の定義、ロードマップの検討、プロトタイピング、UI設計までを横断して担います。現在はAIとコードを活用し、画面だけでなく仕様そのものを、触れて検証できる形で設計しています。',
     '2021年に東京から北海道へ移住。製造業、農業、医療、鉄道など、複雑な業務と現場固有の制約を持つBtoBプロダクトを中心に活動しています。',
   ],
-  profileImage: '/images/ayana-yamazaki.jpg',
   experience: [
     { period: '2026 - Present', organization: 'キャディ株式会社', description: '製造業AIプラットフォームのプロダクトデザインを担当。Claude CodeとStorybookを使ったAI-Nativeな仕様設計にも取り組む。' },
     { period: '2022 - 2025', organization: 'エゾウィン株式会社', description: '1人目のデザイナーとして、農業法人向けプロダクトを担当。ユーザーリサーチからUX・UI、オンボーディングまでをリードし、グッドデザイン金賞を受賞。' },
@@ -174,7 +209,6 @@ const aboutEn = {
     'I have helped build products in agriculture and customer success from their earliest stages. My work spans field research, understanding operational constraints, problem definition, roadmap planning, prototyping, and UI design. Today, I use AI and code to make not only screens but product behavior tangible and testable.',
     'I moved from Tokyo to Hokkaido in 2021. I focus on B2B products shaped by complex workflows and domain-specific constraints, including manufacturing, agriculture, healthcare, and rail.',
   ],
-  profileImage: '/images/ayana-yamazaki.jpg',
   experience: [
     { period: '2026 - Present', organization: 'CADDi Inc.', description: 'Product design for an AI platform for manufacturing. I also explore AI-native specification design using Claude Code and Storybook.' },
     { period: '2022 - 2025', organization: 'EZOWIN Inc.', description: 'Joined as the first designer for an agricultural operations product. Led user research, UX and UI design, and onboarding, contributing to a Good Design Gold Award.' },

@@ -22,6 +22,7 @@ body:has(.home-main) {
   position: relative;
   display: flex;
   flex-direction: column;
+  contain: paint;
   min-height: 80svh;
   padding: clamp(32px, 5vw, 72px) clamp(24px, 7vw, 112px);
   overflow: hidden;
@@ -62,43 +63,49 @@ body:has(.home-main) {
 .home-hero__name {
   margin: 0;
   color: #000;
-  font-size: clamp(38px, 3.6vw, 52px);
-  font-weight: 300;
-  line-height: 1;
-}
-
-.home-hero__role {
-  margin: 0;
-  color: #000;
-  font-size: clamp(28px, 2.4vw, 38px);
-  font-weight: 700;
+  font-size: clamp(14px, 1vw, 15px);
+  font-weight: 500;
   line-height: 1.4;
 }
 
-.home-hero__role-break {
-  display: none;
+.home-hero__role {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: .4em;
+  margin: 4px 0 0;
+  color: var(--text-color-secondary);
+  font-size: clamp(13px, 1vw, 14px);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.home-hero__role-secondary {
+  display: inline-flex;
+  gap: .4em;
 }
 
 .home-hero__description {
   width: 100%;
-  max-width: none;
-  margin: 10px 0 0;
+  max-width: 16em;
+  margin: clamp(28px, 3vw, 36px) 0 0;
   color: #181818;
-  font-size: clamp(15px, 1vw, 18px);
+  font-family: var(--heading-font);
+  font-size: clamp(32px, 4vw, 56px);
   font-weight: 500;
-  line-height: 1.65;
-  white-space: nowrap;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  text-wrap: balance;
 }
 
 .home-hero__capability {
   width: 100%;
-  max-width: none;
-  margin: 4px 0 0;
+  max-width: 44em;
+  margin: clamp(16px, 1.5vw, 20px) 0 0;
   color: var(--text-color-secondary);
-  font-size: clamp(12px, .9vw, 14px);
+  font-size: clamp(14px, 1.15vw, 16px);
   font-weight: 400;
-  line-height: 1.65;
-  white-space: nowrap;
+  line-height: 1.75;
 }
 
 .home-hero__title {
@@ -916,23 +923,6 @@ body:has(.home-main) {
     padding-right: 24px;
   }
 
-  .home-hero__role {
-    line-height: 1;
-  }
-
-  .home-hero__role-break {
-    display: initial;
-  }
-
-  .home-hero__name {
-    margin-bottom: 8px;
-  }
-
-  .home-hero__description,
-  .home-hero__capability {
-    white-space: normal;
-  }
-
   .home-hero__title {
     font-size: clamp(36px, 11vw, 48px);
     white-space: nowrap;
@@ -977,10 +967,14 @@ body:has(.home-main) {
     width: min(76vw, 460px);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: rgba(144, 193, 255, .3);
-    filter: blur(54px);
+    background: radial-gradient(
+      circle,
+      rgba(144, 193, 255, .34) 0,
+      rgba(144, 193, 255, .18) 42%,
+      transparent 72%
+    );
     transform: translateX(-50%);
-    transition: left 650ms cubic-bezier(.2, .75, .2, 1);
+    transition: left 450ms cubic-bezier(.2, .75, .2, 1);
     pointer-events: none;
     content: '';
   }

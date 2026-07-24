@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import '../styles/case-study.css';
 import CaseFooter from '../components/CaseFooter.astro';
+import FontLinks from '../components/FontLinks.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import RevealObserver from '../components/RevealObserver.astro';
 import LocaleRedirect from '../components/LocaleRedirect.astro';
@@ -28,6 +29,7 @@ const englishUrl = getLocaleUrl(Astro.url.pathname, 'en');
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <FontLinks />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="article" />
