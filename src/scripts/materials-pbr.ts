@@ -626,6 +626,62 @@ if (canvas && cases && hero) {
     gemPrismMaterial.uniforms.uCaustic.value = gemPrism;
     gemPrismMaterial.uniforms.uOpacity.value = 1;
     gemPrismMaterial.uniforms.uSpectralStrength.value = 1.38;
+    const glassCausticMaterial = new ShaderMaterial({
+      uniforms: {
+        uStrength: { value: .72 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        uniform float uStrength;
+        varying vec2 vUv;
+
+        float band(float value, float center, float width) {
+          float offset = (value - center) / width;
+          return exp(-offset * offset);
+        }
+
+        void main() {
+          float broken = .62 + .38 * smoothstep(
+            -.25,
+            .45,
+            sin(vUv.x * 31.0 + vUv.y * 13.0)
+          );
+          float lowerFocus = band(vUv.y, .09, .032)
+            * smoothstep(.05, .22, vUv.x)
+            * (1.0 - smoothstep(.84, .98, vUv.x));
+          float rightFocus = band(vUv.x, .91, .026)
+            * smoothstep(.12, .48, vUv.y)
+            * (1.0 - smoothstep(.78, .98, vUv.y));
+          float cornerPool = exp(
+            -pow((vUv.x - .79) / .2, 2.0)
+            -pow((vUv.y - .13) / .07, 2.0)
+          );
+          float intensity = (
+            lowerFocus * .48
+              + rightFocus * .2
+              + cornerPool * .12
+          ) * broken * uStrength;
+          vec3 color = mix(
+            vec3(.63, .82, 1.0),
+            vec3(1.0, .95, .78),
+            smoothstep(.2, .88, vUv.x)
+          );
+          gl_FragColor = vec4(color, clamp(intensity, 0.0, .28));
+          #include <colorspace_fragment>
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+    });
 
     const cardLiftPx = 12;
     const cardLiftDurationMs = 360;
@@ -815,6 +871,11 @@ if (canvas && cases && hero) {
         ? new Mesh(
           new PlaneGeometry(1, 1),
           roughGlassCausticMaterial,
+        )
+        : definition.caustic === 'glass'
+        ? new Mesh(
+          new PlaneGeometry(1, 1),
+          glassCausticMaterial,
         )
         : undefined;
       const prism = definition.hasPrism
@@ -1644,17 +1705,26 @@ if (canvas && cases && hero) {
           -0.65,
         );
         if (state.caustic) {
+          const isGlass = state.kind === 'glass';
           state.caustic.scale.set(
-            width * (isGem ? 1.26 : 1.08),
-            height * (isGem ? 1.13 : 1.04),
+            width * (isGem ? 1.26 : isGlass ? 1.12 : 1.08),
+            height * (isGem ? 1.13 : isGlass ? 1.065 : 1.04),
             1,
           );
           state.baseCausticY = centerY + height * (
-            isGem ? -.055 : lightingTuning.causticOffset.yRatio
+            isGem
+              ? -.055
+              : isGlass
+                ? glassContactShadowProfile.offset.yRatio
+                : lightingTuning.causticOffset.yRatio
           );
           state.caustic.position.set(
             centerX + width * (
-              isGem ? .115 : lightingTuning.causticOffset.xRatio
+              isGem
+                ? .115
+                : isGlass
+                  ? glassContactShadowProfile.offset.xRatio
+                  : lightingTuning.causticOffset.xRatio
             ),
             state.baseCausticY + state.liftPx * pxY * .5,
             -0.64,

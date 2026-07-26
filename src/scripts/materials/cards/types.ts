@@ -3,7 +3,7 @@ import type { MaterialKind } from '../config';
 
 export type CardMeshMaterialKind = 'gem' | 'sea-glass' | 'glass' | 'body';
 export type CardSurfaceKind = 'rough-glass' | null;
-export type CardCausticKind = 'gem' | 'rough-glass' | null;
+export type CardCausticKind = 'gem' | 'rough-glass' | 'glass' | null;
 export type CardShadowProfileKind = 'gem' | 'sea-glass' | 'rough-glass' | 'glass';
 
 export type CardGeometryFactory = (

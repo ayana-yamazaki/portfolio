@@ -134,9 +134,7 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     || kind === 'rough-glass'
     || kind === 'glass'
   ) {
-    const profile = kind === 'glass'
-      ? simpleShadowProfiles['rough-glass']
-      : simpleShadowProfiles[kind];
+    const profile = simpleShadowProfiles[kind];
     drawLayer(
       profile.layers.soft.blur,
       profile.layers.soft.opacity,

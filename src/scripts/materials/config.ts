@@ -9,7 +9,7 @@ export const materialProfiles: Record<MaterialKind, {
   gem: { radiusPx: 22, thicknessPx: gemThicknessPx },
   'sea-glass': { radiusPx: 8, thicknessPx: 110 },
   'rough-glass': { radiusPx: 4, thicknessPx: gemThicknessPx },
-  glass: { radiusPx: 32, thicknessPx: 80 },
+  glass: { radiusPx: 32, thicknessPx: 68 },
 };
 
 export const sceneTuning = {
@@ -98,7 +98,7 @@ type SimpleShadowProfile = {
 };
 
 export const simpleShadowProfiles: Record<
-  'sea-glass' | 'rough-glass',
+  'sea-glass' | 'rough-glass' | 'glass',
   SimpleShadowProfile
 > = {
   'sea-glass': {
@@ -119,11 +119,20 @@ export const simpleShadowProfiles: Record<
       contact: { blur: .45, opacity: .28, x: 4, y: 3 },
     },
   },
+  glass: {
+    scale: [1.34, 1.18],
+    offset: { xRatio: .082, yRatio: -.012 },
+    layers: {
+      soft: { blur: 32, opacity: .14, x: 54, y: 29 },
+      middle: { blur: 10, opacity: .22, x: 34, y: 17 },
+      contact: { blur: .45, opacity: .28, x: 8, y: 3 },
+    },
+  },
 };
 
 export const glassContactShadowProfile = {
-  scale: [1.3, 1.18],
-  offset: { xRatio: .08, yRatio: -.012 },
+  scale: simpleShadowProfiles.glass.scale,
+  offset: simpleShadowProfiles.glass.offset,
 } as const;
 
 type BackgroundReflectionProfile = {
@@ -137,7 +146,7 @@ export const backgroundReflectionTuning = {
     gem: { strength: .66, rayDistance: .17 },
     'sea-glass': { strength: .5, rayDistance: .23 },
     'rough-glass': { strength: .58, rayDistance: .17 },
-    glass: { strength: .62, rayDistance: .18 },
+    glass: { strength: .48, rayDistance: .13 },
   } satisfies Record<
     'gem' | 'sea-glass' | 'rough-glass' | 'glass',
     BackgroundReflectionProfile
@@ -156,7 +165,7 @@ export const glintProfiles = {
     strength: 0.9,
   },
   glass: {
-    strength: 1.9,
+    strength: 1.5,
   },
 } as const;
 
@@ -170,14 +179,14 @@ export const gemTuning = {
 } as const;
 
 export const glassTuning = {
-  rimWidthPx: 12,
-  shoulderWidthPx: 22,
-  refractionPx: 48,
-  ior: 1.47,
-  absorptionStrength: .24,
-  dispersionStrength: .12,
-  tiltDeg: -4.5,
-  yawDeg: -2.5,
+  rimWidthPx: 8,
+  shoulderWidthPx: 18,
+  refractionPx: 54,
+  ior: 1.51,
+  absorptionStrength: .38,
+  dispersionStrength: .07,
+  tiltDeg: -5.2,
+  yawDeg: -4,
 } as const;
 
 export const seaGlassTuning = {

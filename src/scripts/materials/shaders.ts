@@ -476,8 +476,8 @@ export const glassFragmentShader = `
     return mix(scene,text.rgb,text.a);
   }
 
-  vec3 glassRay(vec3 incident,vec3 surfaceNormal,float ior){
-    vec3 transmitted=refract(incident,surfaceNormal,1.0/ior);
+  vec3 safeRefract(vec3 incident,vec3 surfaceNormal,float eta){
+    vec3 transmitted=refract(incident,surfaceNormal,eta);
     float hasTransmission=step(.0001,dot(transmitted,transmitted));
     return mix(reflect(incident,surfaceNormal),transmitted,hasTransmission);
   }
@@ -494,11 +494,30 @@ export const glassFragmentShader = `
       localNormal=-localNormal;
       worldNormal=-worldNormal;
     }
+    float profile=clamp(vSurfaceRegion,0.0,1.0);
+    float frontFace=1.0-smoothstep(.015,.09,profile);
+    vec2 centered=local-.5;
+    float centralField=1.0-smoothstep(
+      .37,
+      .51,
+      max(abs(centered.x),abs(centered.y))
+    );
+    vec2 bowSlope=centered*vec2(.052,.032)*centralField*frontFace;
+    float surfaceRipple=sin(local.x*43.0+local.y*11.0)
+      *sin(local.y*37.0-local.x*9.0);
+    float crossRipple=sin(local.x*19.0-local.y*31.0);
+    float frontRipple=1.0-smoothstep(.08,.42,profile);
+    worldNormal=normalize(
+      worldNormal
+        +vec3(bowSlope,0.0)
+        +vec3(surfaceRipple,crossRipple,0.0)*.0065*frontRipple
+    );
+    vec3 exitNormal=normalize(
+      -worldNormal+vec3(-bowSlope*.7,0.0)
+    );
     vec3 incident=normalize(vWorldPosition-cameraPosition);
     vec3 viewDirection=-incident;
-    float profile=clamp(vSurfaceRegion,0.0,1.0);
     float lateralNormal=clamp(vBevelProgress,0.0,1.0);
-    float frontFace=1.0-smoothstep(.015,.09,profile);
     float innerShoulder=smoothstep(.025,.12,profile)
       *(1.0-smoothstep(.48,.62,profile));
     float outerShoulder=smoothstep(.24,.48,profile)
@@ -537,21 +556,35 @@ export const glassFragmentShader = `
     )/max(totalWeight,.0001);
 
     float opticalRegion=clamp(
-      frontFace*.16+innerShoulder*.58+outerShoulder*.86+sideMask,
-      .12,
+      frontFace*(.12+centralField*.09)
+        +innerShoulder*.72
+        +outerShoulder*.96
+        +sideMask,
+      .08,
       1.0
     );
     float iorSpread=uDispersionStrength*.11;
     vec2 incidentSlope=raySlope(incident);
+    float redIor=uIor-iorSpread;
+    float blueIor=uIor+iorSpread;
+    vec3 redEntry=safeRefract(incident,worldNormal,1.0/redIor);
+    vec3 greenEntry=safeRefract(incident,worldNormal,1.0/uIor);
+    vec3 blueEntry=safeRefract(incident,worldNormal,1.0/blueIor);
+    vec3 redExit=safeRefract(redEntry,exitNormal,redIor);
+    vec3 greenExit=safeRefract(greenEntry,exitNormal,uIor);
+    vec3 blueExit=safeRefract(blueEntry,exitNormal,blueIor);
     vec2 redBend=(
-      raySlope(glassRay(incident,worldNormal,uIor-iorSpread))-incidentSlope
-    )*uRefraction*opticalPath*opticalRegion;
+      (raySlope(redEntry)-incidentSlope)*opticalPath*.78
+        +(raySlope(redExit)-incidentSlope)*.38
+    )*uRefraction*opticalRegion;
     vec2 greenBend=(
-      raySlope(glassRay(incident,worldNormal,uIor))-incidentSlope
-    )*uRefraction*opticalPath*opticalRegion;
+      (raySlope(greenEntry)-incidentSlope)*opticalPath*.78
+        +(raySlope(greenExit)-incidentSlope)*.38
+    )*uRefraction*opticalRegion;
     vec2 blueBend=(
-      raySlope(glassRay(incident,worldNormal,uIor+iorSpread))-incidentSlope
-    )*uRefraction*opticalPath*opticalRegion;
+      (raySlope(blueEntry)-incidentSlope)*opticalPath*.78
+        +(raySlope(blueExit)-incidentSlope)*.38
+    )*uRefraction*opticalRegion;
     float bandBoundaryProximity=1.0-smoothstep(
       .018,
       .11,
@@ -570,6 +603,53 @@ export const glassFragmentShader = `
       sceneAt(vScreenUv+greenBend/uCanvasSize).g,
       sceneAt(vScreenUv+blueBend/uCanvasSize).b
     );
+    float leftFrontLens=(
+      1.0-smoothstep(.018,.16,local.x)
+    )*frontFace;
+    float botanicalSideLens=clamp(
+      leftFrontLens*.82
+        +leftSurface*(
+          innerShoulder*.64
+            +outerShoulder*.96
+            +sideMask
+        )
+        +bottomSurface*sideMask
+          *(1.0-smoothstep(.32,.68,local.x))*.48,
+      0.0,
+      1.0
+    );
+    vec2 botanicalCurve=vec2(
+      -uRefraction*(
+        .48
+          +leftFrontLens*.72
+          +outerShoulder*.38
+          +sideMask*.32
+      ),
+      (local.y-.5)*uRefraction*(
+        .28+leftFrontLens*.34
+      )
+    )*botanicalSideLens;
+    vec3 bentBotanical=sceneAt(
+      vScreenUv+botanicalCurve/uCanvasSize
+    );
+    transmitted=mix(
+      transmitted,
+      bentBotanical,
+      botanicalSideLens*(.46+grazing*.24)
+    );
+    vec2 internalShift=(
+      raySlope(reflect(incident,worldNormal))-incidentSlope
+    )*uRefraction*opticalPath*.14;
+    vec3 internalScene=sceneAt(vScreenUv+internalShift/uCanvasSize);
+    float internalReflection=clamp(
+      frontFace*.025
+        +innerShoulder*.11
+        +outerShoulder*.075
+        +sideMask*.04,
+      0.0,
+      .13
+    )*(.45+.55*grazing);
+    transmitted=mix(transmitted,internalScene,internalReflection);
 
     vec3 absorptionCoefficient=vec3(.055,.018,.008)
       *uAbsorptionStrength*opticalPath;
@@ -599,12 +679,12 @@ export const glassFragmentShader = `
     vec3 environment=textureCube(uEnvironment,reflectionRay).rgb;
     environment=vec3(1.0)-exp(-environment*.82);
     float reflectionWeight=clamp(
-      fresnel*(.72+sideMask*.72+rearShoulder*.28)
-        +lateralNormal*.025
-        +keyBroad*.16
-        +keySharp*.24,
+      fresnel*(.62+sideMask*.66+rearShoulder*.22)
+        +lateralNormal*.012
+        +keyBroad*.12
+        +keySharp*.2,
       0.0,
-      .86
+      .72
     );
     vec3 color=mix(transmitted,environment,reflectionWeight);
 
@@ -612,13 +692,59 @@ export const glassFragmentShader = `
       *innerShoulder*upperSide;
     float outerRail=gaussian(profile,.49,.085)
       *outerShoulder*(.45+upperSide*.55);
+    float topTaper=smoothstep(.06,.22,local.x)
+      *(1.0-smoothstep(.76,.96,local.x));
+    float stripBreak=.58+.42*smoothstep(
+      -.28,
+      .42,
+      sin(local.x*24.0+local.y*5.0)
+    );
+    float topSoftbox=topSurface
+      *gaussian(profile,.2,.052)
+      *topTaper
+      *stripBreak;
+    float rightSoftbox=rightSurface
+      *gaussian(profile,.47,.1)
+      *smoothstep(.48,.88,local.y)
+      *(1.0-smoothstep(.91,.99,local.y));
+    float diagonalSoftbox=frontFace
+      *gaussian(local.x+local.y*.16,.43,.038)
+      *smoothstep(.2,.76,local.y)
+      *(1.0-smoothstep(.78,.96,local.y))
+      *(.5+.5*smoothstep(-.1,.5,sin(local.y*38.0)));
+    float frontWindow=frontFace
+      *gaussian(local.x,.27,.25)
+      *smoothstep(.01,.48,local.y)
+      *(1.0-smoothstep(.52,.99,local.y))
+      *(.94+.06*smoothstep(-.5,.75,sin(local.y*13.0+1.1)));
+    float windowMullion=frontFace
+      *gaussian(local.x,.39,.018)
+      *smoothstep(.24,.42,local.y)
+      *(1.0-smoothstep(.66,.82,local.y));
     float lightStrength=clamp(uGlintStrength*.34,0.0,1.2);
     color+=vec3(1.0,.995,.975)*(
       keyBroad*.26
         +keySharp*.46
         +innerRail*.14
         +outerRail*.11
+        +topSoftbox*.3
+        +rightSoftbox*.12
+        +diagonalSoftbox*.1
+        +frontWindow*.07
+        +windowMullion*.045
     )*lightStrength;
+    float coolInnerContour=innerShoulder
+      *(leftSurface*.32+rightSurface*.5+topSurface*.18)
+      *(.45+.55*grazing);
+    color=mix(
+      color,
+      vec3(.66,.84,.94),
+      clamp(coolInnerContour*.1,0.0,.085)
+    );
+    float rearContour=gaussian(profile,.9,.052)
+      *rearShoulder
+      *(leftSurface*.34+rightSurface*.52+bottomSurface*.44);
+    color*=1.0-clamp(rearContour*.13,0.0,.1);
 
     float spectralStrength=clamp(
       uDispersionStrength*opticalPath*(
@@ -628,7 +754,7 @@ export const glassFragmentShader = `
           +bottomSurface*.12
       )*(.45+grazing*.55),
       0.0,
-      .12
+      .038
     );
     color=mix(color,spectralColor,spectralStrength);
 

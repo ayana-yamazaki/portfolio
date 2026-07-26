@@ -46,7 +46,7 @@ export const cardDefinitions: Record<MaterialKind, CardDefinition> = {
     meshMaterial: 'glass',
     surface: null,
     hasBottomSurface: false,
-    caustic: null,
+    caustic: 'glass',
     hasPrism: false,
     shadowColor: 0x000000,
     shadowProfile: 'glass',
