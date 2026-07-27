@@ -6,6 +6,7 @@ import '../styles/case-study.css';
 import About from '../components/About.astro';
 import CaseFooter from '../components/CaseFooter.astro';
 import FontLinks from '../components/FontLinks.astro';
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import LocaleRedirect from '../components/LocaleRedirect.astro';
 import { getCaseStudies } from '../data/site';
@@ -51,6 +52,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
     <link rel="alternate" hreflang="en" href={englishUrl} />
     <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
     <LocaleRedirect locale={locale} />
+    <GoogleAnalytics />
     <title>Ayana Yamazaki — Product Builder</title>
     <script>
       import '../scripts/home-carousel';
