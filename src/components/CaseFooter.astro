@@ -11,7 +11,8 @@ const { locale } = Astro.props;
 const caseStudies = getCaseStudies(locale);
 const currentPath = stripLocalePrefix(Astro.url.pathname);
 const isHome = currentPath === '/';
-const currentCaseIndex = caseStudies.findIndex((caseStudy) => caseStudy.href === currentPath);
+const registeredPath = currentPath.endsWith('-old') ? currentPath.slice(0, -4) : currentPath;
+const currentCaseIndex = caseStudies.findIndex((caseStudy) => caseStudy.href === registeredPath);
 
 if (currentCaseIndex === -1 && !isHome) {
   throw new Error(`Case study is not registered: ${currentPath}`);

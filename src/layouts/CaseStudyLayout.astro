@@ -21,7 +21,8 @@ const ogTitle = `${title} — Ayana Yamazaki`;
 const canonicalUrl = getLocaleUrl(Astro.url.pathname, locale);
 const japaneseUrl = getLocaleUrl(Astro.url.pathname, 'ja');
 const englishUrl = getLocaleUrl(Astro.url.pathname, 'en');
-const casePath = stripLocalePrefix(Astro.url.pathname);
+const rawCasePath = stripLocalePrefix(Astro.url.pathname);
+const casePath = rawCasePath.endsWith('-old') ? rawCasePath.slice(0, -4) : rawCasePath;
 const twitterImages: Record<string, string> = {
   '/reframe-the-problem': '/images/optimized/reposaku-keyvisual-1440.webp',
   '/decide-what-to-build': '/images/optimized/reposaku-report-hero-1200.webp',
