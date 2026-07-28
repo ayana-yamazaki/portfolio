@@ -114,7 +114,7 @@ body:has(.home-main) {
 .home-hero__capability {
   width: 100%;
   max-width: none;
-  margin: clamp(4px, .4vw, 6px) 0 0;
+  margin: clamp(0px, .15vw, 2px) 0 0;
   color: var(--text-color-secondary);
   font-size: clamp(15px, 1.05vw, 16px);
   font-weight: 400;
@@ -1120,8 +1120,8 @@ html:lang(ja) .home-hero__case-text {
 
   .home-hero__case-number {
     display: block;
-    color: transparent;
-    font-size: 28px;
+    color: #fff;
+    font-size: 14px;
     font-weight: 400;
   }
 
@@ -1160,7 +1160,7 @@ html:lang(ja) .home-hero__case-text {
 
   .home-hero__case-text .home-hero__case-heading {
     color: #111;
-    font-size: clamp(24px, 2vw, 28px);
+    font-size: clamp(22px, 1.8vw, 26px);
     font-weight: 600;
     line-height: 1.05;
   }
@@ -1174,7 +1174,7 @@ html:lang(ja) .home-hero__case-text {
 
   .home-hero__case-card-title {
     margin: 6px 0 4px;
-    font-size: clamp(13px, 1.05vw, 15px);
+    font-size: clamp(12px, 1vw, 14px);
     font-weight: 500;
   }
 
