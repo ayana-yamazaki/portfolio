@@ -8,7 +8,6 @@ import {
   type Texture,
 } from 'three';
 import roughGlassBumpUrl from '../../assets/materials/rough-glass-bump.png?url';
-import roughGlassCausticUrl from '../../assets/materials/rough-glass-caustic.png?url';
 import {
   lightingTuning,
   materialProfiles,
@@ -39,20 +38,16 @@ export const loadRoughGlassTextures = () => {
     texture.magFilter = LinearFilter;
     texture.anisotropy = 2;
   });
-  const caustic = loadStaticTexture(roughGlassCausticUrl, (texture) => {
-    texture.minFilter = LinearFilter;
-    texture.magFilter = LinearFilter;
-    texture.generateMipmaps = false;
-  });
-
   return {
     bump: bump.texture,
-    caustic: caustic.texture,
-    ready: Promise.all([bump.ready, caustic.ready]).then(() => undefined),
+    ready: bump.ready.then(() => undefined),
   };
 };
 
-export const makeCardShadowTexture = (kind: MaterialKind) => {
+export const makeCardShadowTexture = (
+  kind: MaterialKind,
+  profileOverride?: (typeof simpleShadowProfiles)['rough-glass'],
+) => {
   const source = document.createElement('canvas');
   source.width = 512;
   source.height = 768;
@@ -66,7 +61,13 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     const height = 640;
     context.beginPath();
     if (kind === 'sea-glass') {
-      const points = makeSeaGlassOutline(width, height);
+      const points = makeSeaGlassOutline(
+        width,
+        height,
+        profileOverride
+          ? materialProfiles['sea-glass'].radiusPx * width / 240
+          : -1,
+      );
       const centerX = left + width / 2;
       const centerY = top + height / 2;
       context.moveTo(centerX + points[0].x, centerY - points[0].y);
@@ -134,7 +135,7 @@ export const makeCardShadowTexture = (kind: MaterialKind) => {
     || kind === 'rough-glass'
     || kind === 'glass'
   ) {
-    const profile = simpleShadowProfiles[kind];
+    const profile = profileOverride ?? simpleShadowProfiles[kind];
     drawLayer(
       profile.layers.soft.blur,
       profile.layers.soft.opacity,
@@ -326,6 +327,47 @@ export const makeGemPrismTexture = () => {
     trace([tailStartA, tailStartB, tip], color, 7);
     trace([startA, startB, sharpTip], color, .7);
   });
+
+  const texture = new CanvasTexture(source);
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.generateMipmaps = false;
+  return texture;
+};
+
+export const makeSeaGlassPrismTexture = (enhanced = false) => {
+  const sharpPrism = makeGemPrismTexture();
+  const sharpSource = sharpPrism.image as HTMLCanvasElement;
+  const source = document.createElement('canvas');
+  source.width = 512;
+  source.height = 768;
+  const context = source.getContext('2d');
+  if (!context) {
+    sharpPrism.dispose();
+    throw new Error('Unable to create sea glass prism light');
+  }
+
+  context.save();
+  context.globalCompositeOperation = 'screen';
+  context.globalAlpha = enhanced ? .9 : .62;
+  context.filter = enhanced ? 'blur(22px)' : 'blur(30px)';
+  context.drawImage(
+    sharpSource,
+    enhanced ? -18 : -24,
+    enhanced ? -22 : -28,
+    enhanced ? 548 : 560,
+    enhanced ? 812 : 824,
+  );
+  context.globalAlpha = enhanced ? .55 : .28;
+  context.filter = enhanced ? 'blur(10px)' : 'blur(14px)';
+  context.drawImage(sharpSource, -10, -14, 532, 796);
+  if (enhanced) {
+    context.globalAlpha = .3;
+    context.filter = 'blur(4px)';
+    context.drawImage(sharpSource, -4, -6, 520, 780);
+  }
+  context.restore();
+  sharpPrism.dispose();
 
   const texture = new CanvasTexture(source);
   texture.minFilter = LinearFilter;

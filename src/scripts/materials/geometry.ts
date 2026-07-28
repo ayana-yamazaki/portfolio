@@ -45,23 +45,44 @@ const makeGemShape = (width: number, height: number) => new Shape(
   makeGemPoints(width, height),
 );
 
-export const makeSeaGlassOutline = (width: number, height: number, segments = 96) => {
+export const makeSeaGlassOutline = (
+  width: number,
+  height: number,
+  radius = -1,
+  segments = 96,
+) => {
   const points = makeGemPoints(width, height);
   const wear = Math.min(width, height);
-  const cornerRadii = [.16, .13, .18, .15, .2, .13, .17].map((ratio) => wear * ratio);
+  const radiusMultipliers = [1, .82, 1.12, .94, 1.25, .82, 1.06];
+  const fallbackCornerRadii = [.16, .13, .18, .15, .2, .13, .17].map(
+    (ratio) => wear * ratio,
+  );
+  const radiusProgress = radius >= 0
+    ? 1 - Math.exp(-radius / Math.max(wear * .35, 1e-4))
+    : 0;
   const entries: Vector2[] = [];
   const exits: Vector2[] = [];
 
   points.forEach((point, index) => {
     const previous = points[(index - 1 + points.length) % points.length];
     const next = points[(index + 1) % points.length];
-    const radius = Math.min(
-      cornerRadii[index],
-      point.distanceTo(previous) * .3,
-      point.distanceTo(next) * .3,
-    );
-    entries.push(point.clone().add(previous.clone().sub(point).normalize().multiplyScalar(radius)));
-    exits.push(point.clone().add(next.clone().sub(point).normalize().multiplyScalar(radius)));
+    const previousDistance = point.distanceTo(previous);
+    const nextDistance = point.distanceTo(next);
+    const cornerRadius = radius >= 0
+      ? Math.min(previousDistance, nextDistance)
+        * .49
+        * Math.min(radiusProgress * radiusMultipliers[index], 1)
+      : Math.min(
+          fallbackCornerRadii[index],
+          previousDistance * .3,
+          nextDistance * .3,
+        );
+    entries.push(point.clone().add(
+      previous.clone().sub(point).normalize().multiplyScalar(cornerRadius),
+    ));
+    exits.push(point.clone().add(
+      next.clone().sub(point).normalize().multiplyScalar(cornerRadius),
+    ));
   });
 
   const shape = new Shape();
@@ -212,6 +233,137 @@ export const makeRoughGlassGeometry = (
   geometry.addGroup(
     bodyVertexCount + sideVertexCount,
     edgeVertexCount,
+    2,
+  );
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+};
+
+export const makeBeveledRoughGlassGeometry = (
+  width: number,
+  height: number,
+  depth: number,
+  radius: number,
+) => {
+  type Point = readonly [number, number, number];
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const halfDepth = depth / 2;
+  const bevel = getRoughGlassChamferSize(
+    width,
+    height,
+    depth,
+    radius,
+  );
+  const innerWidth = halfWidth - bevel;
+  const innerHeight = halfHeight - bevel;
+  const frontZ = halfDepth;
+  const outerFrontZ = frontZ - bevel;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const edgeProgress: number[] = [];
+
+  const addVertex = ([x, y, z]: Point) => {
+    positions.push(x, y, z);
+    uvs.push(x / width + .5, y / height + .5);
+    edgeProgress.push(x / width + .5);
+  };
+  const addTriangle = (a: Point, b: Point, c: Point) => {
+    addVertex(a);
+    addVertex(b);
+    addVertex(c);
+  };
+  const addQuad = (a: Point, b: Point, c: Point, d: Point) => {
+    addTriangle(a, b, c);
+    addTriangle(a, c, d);
+  };
+
+  const innerBottomLeft: Point = [-innerWidth, -innerHeight, frontZ];
+  const innerBottomRight: Point = [innerWidth, -innerHeight, frontZ];
+  const innerTopLeft: Point = [-innerWidth, innerHeight, frontZ];
+  const innerTopRight: Point = [innerWidth, innerHeight, frontZ];
+  const outerBottomLeft: Point = [-halfWidth, -halfHeight, outerFrontZ];
+  const outerBottomRight: Point = [halfWidth, -halfHeight, outerFrontZ];
+  const outerTopLeft: Point = [-halfWidth, halfHeight, outerFrontZ];
+  const outerTopRight: Point = [halfWidth, halfHeight, outerFrontZ];
+  const backBottomLeft: Point = [-halfWidth, -halfHeight, -halfDepth];
+  const backBottomRight: Point = [halfWidth, -halfHeight, -halfDepth];
+  const backTopLeft: Point = [-halfWidth, halfHeight, -halfDepth];
+  const backTopRight: Point = [halfWidth, halfHeight, -halfDepth];
+
+  addQuad(
+    innerBottomLeft,
+    innerBottomRight,
+    innerTopRight,
+    innerTopLeft,
+  );
+  addQuad(
+    backBottomLeft,
+    backTopLeft,
+    backTopRight,
+    backBottomRight,
+  );
+  const bodyVertexCount = positions.length / 3;
+
+  addQuad(outerTopLeft, outerTopRight, backTopRight, backTopLeft);
+  addQuad(
+    backBottomLeft,
+    backBottomRight,
+    outerBottomRight,
+    outerBottomLeft,
+  );
+  addQuad(outerBottomLeft, outerTopLeft, backTopLeft, backBottomLeft);
+  addQuad(
+    outerBottomRight,
+    backBottomRight,
+    backTopRight,
+    outerTopRight,
+  );
+  const sideVertexCount = positions.length / 3 - bodyVertexCount;
+
+  addQuad(innerTopLeft, innerTopRight, outerTopRight, outerTopLeft);
+  addQuad(
+    innerBottomLeft,
+    outerBottomLeft,
+    outerBottomRight,
+    innerBottomRight,
+  );
+  addQuad(
+    innerBottomLeft,
+    innerTopLeft,
+    outerTopLeft,
+    outerBottomLeft,
+  );
+  addQuad(
+    innerBottomRight,
+    outerBottomRight,
+    outerTopRight,
+    innerTopRight,
+  );
+  const bevelVertexCount = positions.length / 3
+    - bodyVertexCount
+    - sideVertexCount;
+
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    'position',
+    new Float32BufferAttribute(positions, 3),
+  );
+  geometry.setAttribute(
+    'uv',
+    new Float32BufferAttribute(uvs, 2),
+  );
+  geometry.setAttribute(
+    'aEdgeProgress',
+    new Float32BufferAttribute(edgeProgress, 1),
+  );
+  geometry.addGroup(0, bodyVertexCount, 0);
+  geometry.addGroup(bodyVertexCount, sideVertexCount, 1);
+  geometry.addGroup(
+    bodyVertexCount + sideVertexCount,
+    bevelVertexCount,
     2,
   );
   geometry.computeVertexNormals();
@@ -572,8 +724,13 @@ export const makeGemGeometry = (width: number, height: number, depth: number) =>
   return geometry;
 };
 
-export const makeSeaGlassGeometry = (width: number, height: number, depth: number) => {
-  const outline = makeSeaGlassOutline(width, height);
+export const makeSeaGlassGeometry = (
+  width: number,
+  height: number,
+  depth: number,
+  radius = -1,
+) => {
+  const outline = makeSeaGlassOutline(width, height, radius);
   const ringCount = 12;
   const positions: number[] = [];
   const uvs: number[] = [];

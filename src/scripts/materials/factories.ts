@@ -16,7 +16,6 @@ import {
   glassTuning,
   lightingTuning,
   roughGlassTuning,
-  sceneTuning,
   seaGlassTuning,
 } from './config';
 import {
@@ -24,6 +23,8 @@ import {
   gemVertexShader,
   glassFragmentShader,
   glassVertexShader,
+  roughGlassCausticFragmentShader,
+  roughGlassCausticVertexShader,
   seaGlassFragmentShader,
   seaGlassVertexShader,
   roughGlassFragmentShader,
@@ -79,16 +80,17 @@ export const createGemFaceMaterial = (
     uIorGreen: { value: gemTuning.iorGreen },
     uIorBlue: { value: gemTuning.iorBlue },
     uRefraction: { value: gemTuning.refractionPx },
+    uRefractionScale: { value: gemTuning.refractionScale },
     uDispersionBoost: { value: gemTuning.dispersionBoost },
     uRoughness: { value: glintProfiles.gem.roughness },
     uEnvironmentIntensity: { value: glintProfiles.gem.envMapIntensity },
-    uReflectionExposure: { value: sceneTuning.exposure },
+    uReflectionExposure: { value: gemTuning.reflectionExposure },
     uFloorY: { value: 0.1 },
     uLightDirection: {
       value: new Vector3(...lightingTuning.key.position).normalize(),
     },
     uKeyColor: { value: new Color(lightingTuning.key.color) },
-    uKeyIntensity: { value: lightingTuning.key.intensity },
+    uKeyIntensity: { value: gemTuning.keyIntensity },
     ...createIntroLightUniforms(),
     ...createBackgroundReflectionUniforms('gem'),
   },
@@ -138,18 +140,32 @@ export const createRoughGlassFaceMaterial = (
   roughGlassBump: Texture,
   backdropTexture: Texture,
   domRefractionTexture: Texture,
+  environmentTexture: CubeTexture,
+  enhancedSurface: boolean,
 ) => new ShaderMaterial({
   uniforms: {
     uBump: { value: roughGlassBump },
     uBackdrop: { value: backdropTexture },
     uDomRefraction: { value: domRefractionTexture },
+    uEnvironment: { value: environmentTexture },
     uTexel: { value: new Vector2(1 / 384, 1 / 576) },
     uRefractionStrength: { value: roughGlassTuning.refractionStrength },
+    uGlassTransmission: { value: roughGlassTuning.glassTransmission },
+    uGlassBrightness: { value: roughGlassTuning.glassBrightness },
+    uGlassRoughness: { value: roughGlassTuning.glassRoughness },
+    uGlassReflection: { value: roughGlassTuning.glassReflection },
+    uGlassEdgeLight: { value: roughGlassTuning.glassEdgeLight },
+    uProjectionStrength: { value: roughGlassTuning.projectionStrength },
+    uHammeredStrength: { value: roughGlassTuning.hammeredStrength },
+    uWaveScale: { value: roughGlassTuning.waveScale },
+    uWaveRandomness: { value: roughGlassTuning.waveRandomness },
+    uWaveAmplitude: { value: roughGlassTuning.waveAmplitude },
+    uWaveEdgeStrength: { value: roughGlassTuning.waveEdgeStrength },
+    uWaveRefraction: { value: roughGlassTuning.waveRefraction },
+    uWaveShadow: { value: roughGlassTuning.waveShadow },
+    uEnhancedSurface: { value: enhancedSurface ? 1 : 0 },
     uLightDirection: {
-      value: new Vector2(
-        lightingTuning.key.position[0],
-        lightingTuning.key.position[1],
-      ).normalize(),
+      value: new Vector3(...lightingTuning.key.position).normalize(),
     },
     uFloorY: { value: 0.1 },
     uBandBottomY: { value: 0.1 },
@@ -165,6 +181,26 @@ export const createRoughGlassFaceMaterial = (
   toneMapped: false,
 });
 
+export const createRoughGlassCausticMaterial = (
+  surfaceMaterial: ShaderMaterial,
+) => new ShaderMaterial({
+  uniforms: {
+    uHammeredStrength: surfaceMaterial.uniforms.uHammeredStrength,
+    uWaveScale: surfaceMaterial.uniforms.uWaveScale,
+    uWaveRandomness: surfaceMaterial.uniforms.uWaveRandomness,
+    uWaveAmplitude: surfaceMaterial.uniforms.uWaveAmplitude,
+    uWaveEdgeStrength: surfaceMaterial.uniforms.uWaveEdgeStrength,
+    uWaveShadow: surfaceMaterial.uniforms.uWaveShadow,
+    uProjectionStrength: surfaceMaterial.uniforms.uProjectionStrength,
+    uLightDirection: surfaceMaterial.uniforms.uLightDirection,
+  },
+  vertexShader: roughGlassCausticVertexShader,
+  fragmentShader: roughGlassCausticFragmentShader,
+  transparent: true,
+  depthWrite: false,
+  toneMapped: false,
+});
+
 export const createSeaGlassMaterial = (
   backdropTexture: Texture,
   blurredBackdropTexture: Texture,
@@ -174,7 +210,13 @@ export const createSeaGlassMaterial = (
     uBackdropBlurred: { value: blurredBackdropTexture },
     uCanvasSize: { value: new Vector2(1, 1) },
     uRefraction: { value: seaGlassTuning.refractionPx },
+    uRefractionScale: { value: seaGlassTuning.refractionScale },
+    uBlurStrength: { value: seaGlassTuning.blurStrength },
+    uVeilStrength: { value: seaGlassTuning.veilStrength },
+    uSurfaceNoiseStrength: { value: seaGlassTuning.surfaceNoiseStrength },
+    uSpectralStrength: { value: seaGlassTuning.spectralStrength },
     ...createGlintUniforms(glintProfiles['sea-glass'].strength),
+    uGlintStrength: { value: seaGlassTuning.glintStrength },
     ...createIntroLightUniforms(),
     ...createBackgroundReflectionUniforms('sea-glass'),
   },
@@ -187,44 +229,48 @@ export const createSeaGlassMaterial = (
   toneMapped: false,
 });
 
-export const createBodyMaterials = () => ({
+export const createBodyMaterials = (enhancedRoughGlass = true) => ({
   'rough-glass': new MeshPhysicalMaterial({
-    color: 0xbcd2d5,
-    roughness: 0.12,
+    color: enhancedRoughGlass ? 0xdcebed : 0xbcd2d5,
+    roughness: enhancedRoughGlass ? 0.09 : 0.12,
     metalness: 0,
     clearcoat: 1,
-    clearcoatRoughness: 0.08,
-    envMapIntensity: 0.9,
+    clearcoatRoughness: enhancedRoughGlass ? 0.035 : 0.08,
+    envMapIntensity: enhancedRoughGlass ? 1.35 : 0.9,
     transparent: true,
-    opacity: 0.035,
+    opacity: enhancedRoughGlass ? 0.045 : 0.035,
     depthWrite: false,
   }),
 });
 
-const createRoughGlassSideMaterial = () => new MeshPhysicalMaterial({
-  color: 0x9fb9bd,
-  roughness: 0.16,
+const createRoughGlassSideMaterial = (
+  enhancedRoughGlass: boolean,
+) => new MeshPhysicalMaterial({
+  color: enhancedRoughGlass ? 0xd7e8eb : 0x9fb9bd,
+  roughness: enhancedRoughGlass ? 0.1 : 0.16,
   metalness: 0,
   clearcoat: 1,
-  clearcoatRoughness: 0.06,
-  envMapIntensity: 0.7,
+  clearcoatRoughness: enhancedRoughGlass ? 0.025 : 0.06,
+  envMapIntensity: enhancedRoughGlass ? 1.4 : 0.7,
   transparent: true,
-  opacity: 0.38,
+  opacity: enhancedRoughGlass ? 0.3 : 0.38,
   depthWrite: false,
 });
 
-const createRoughGlassEdgeMaterial = () => {
+const createRoughGlassEdgeMaterial = (
+  enhancedRoughGlass: boolean,
+) => {
   const settleLightStrength = { value: 0 };
   const edgeLightPosition = { value: .5 };
   const material = new MeshPhysicalMaterial({
-    color: 0xa9c0c3,
-    roughness: 0.025,
+    color: enhancedRoughGlass ? 0xf0f8f8 : 0xa9c0c3,
+    roughness: enhancedRoughGlass ? 0.018 : 0.025,
     metalness: 0,
     clearcoat: 1,
-    clearcoatRoughness: 0.008,
-    envMapIntensity: 1.55,
+    clearcoatRoughness: enhancedRoughGlass ? 0.004 : 0.008,
+    envMapIntensity: enhancedRoughGlass ? 2.25 : 1.55,
     transparent: true,
-    opacity: 1,
+    opacity: enhancedRoughGlass ? 0.86 : 1,
     depthWrite: false,
   });
   material.userData.settleLightStrength = settleLightStrength;
@@ -279,8 +325,11 @@ const createRoughGlassEdgeMaterial = () => {
   return material;
 };
 
-export const createSideMaterials = (gemMaterial: Material) => ({
+export const createSideMaterials = (
+  gemMaterial: Material,
+  enhancedRoughGlass = true,
+) => ({
   gem: gemMaterial,
-  'rough-glass': createRoughGlassSideMaterial(),
-  'rough-glass-edge': createRoughGlassEdgeMaterial(),
+  'rough-glass': createRoughGlassSideMaterial(enhancedRoughGlass),
+  'rough-glass-edge': createRoughGlassEdgeMaterial(enhancedRoughGlass),
 });

@@ -36,6 +36,7 @@ export const gemFragmentShader = `
   uniform float uIorGreen;
   uniform float uIorBlue;
   uniform float uRefraction;
+  uniform float uRefractionScale;
   uniform float uDispersionBoost;
   uniform float uRoughness;
   uniform float uEnvironmentIntensity;
@@ -70,7 +71,9 @@ export const gemFragmentShader = `
     vec2 direction=mix(facetSlope,projected,.58);
     direction=clamp(direction,vec2(-2.2),vec2(2.2));
     float grazing=1.0-abs(dot(normal,viewDirection));
-    float distancePx=uRefraction*(.42+grazing*.88);
+    float distancePx=uRefraction
+      *uRefractionScale
+      *(.42+grazing*.88);
     return direction*distancePx/uCanvasSize;
   }
 
@@ -805,10 +808,20 @@ export const glassFragmentShader = `
 export const roughGlassVertexShader = `
   varying vec2 vUv;
   varying vec2 vScreenUv;
+  varying vec3 vWorldPosition;
+  varying vec3 vWorldNormal;
+  varying vec3 vWorldTangent;
+  varying vec3 vWorldBitangent;
+
   void main(){
     vUv=uv;
-    vec4 clip=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+    vec4 worldPosition=modelMatrix*vec4(position,1.0);
+    vec4 clip=projectionMatrix*viewMatrix*worldPosition;
     vScreenUv=clip.xy/clip.w*.5+.5;
+    vWorldPosition=worldPosition.xyz;
+    vWorldNormal=normalize(mat3(modelMatrix)*normal);
+    vWorldTangent=normalize(mat3(modelMatrix)*vec3(1.0,0.0,0.0));
+    vWorldBitangent=normalize(mat3(modelMatrix)*vec3(0.0,1.0,0.0));
     gl_Position=clip;
   }
 `;
@@ -839,6 +852,11 @@ export const seaGlassFragmentShader = `
   uniform sampler2D uBackdropBlurred;
   uniform vec2 uCanvasSize;
   uniform float uRefraction;
+  uniform float uRefractionScale;
+  uniform float uBlurStrength;
+  uniform float uVeilStrength;
+  uniform float uSurfaceNoiseStrength;
+  uniform float uSpectralStrength;
   uniform vec2 uLightDirection;
   uniform float uGlintStrength;
   uniform float uSettleLightPosition;
@@ -852,6 +870,27 @@ export const seaGlassFragmentShader = `
   varying vec3 vViewNormal;
   varying vec3 vViewPosition;
   varying float vOpticalThickness;
+
+  float seaGlassGaussian(float value,float center,float width){
+    float distanceFromCenter=(value-center)/width;
+    return exp(-distanceFromCenter*distanceFromCenter);
+  }
+
+  vec3 seaGlassSpectralColor(float position){
+    float blueWeight=seaGlassGaussian(position,.02,.18);
+    float greenWeight=seaGlassGaussian(position,.25,.17);
+    float yellowWeight=seaGlassGaussian(position,.49,.15);
+    float orangeWeight=seaGlassGaussian(position,.71,.16);
+    float redWeight=seaGlassGaussian(position,.96,.19);
+    float totalWeight=blueWeight+greenWeight+yellowWeight+orangeWeight+redWeight;
+    return (
+      vec3(.38,.62,1.0)*blueWeight
+      +vec3(.38,.9,.67)*greenWeight
+      +vec3(1.0,.88,.3)*yellowWeight
+      +vec3(1.0,.48,.25)*orangeWeight
+      +vec3(.95,.3,.57)*redWeight
+    )/max(totalWeight,.0001);
+  }
 
   void main(){
     vec3 normal=normalize(vViewNormal);
@@ -867,12 +906,15 @@ export const seaGlassFragmentShader = `
       1.0
     );
 
-    float microNoise=sin(vUv.x*67.0+vUv.y*31.0)*sin(vUv.y*53.0-vUv.x*19.0);
+    float microNoise=sin(vUv.x*67.0+vUv.y*31.0)
+      *sin(vUv.y*53.0-vUv.x*19.0)
+      *uSurfaceNoiseStrength;
     vec2 refractionDirection=normal.xy;
     refractionDirection+=vec2(microNoise,-microNoise*.63)*.025;
     vec2 broadLens=(vUv-vec2(.5))*.34;
     refractionDirection+=broadLens*smoothstep(.08,.62,opticalThickness);
-    float refractionPx=mix(5.0,uRefraction,pow(opticalThickness,.6));
+    float refractionPx=mix(5.0,uRefraction,pow(opticalThickness,.6))
+      *uRefractionScale;
     refractionPx*=.68+grazing*.72;
     vec2 refractedUv=vScreenUv-refractionDirection*refractionPx/uCanvasSize;
 
@@ -882,7 +924,12 @@ export const seaGlassFragmentShader = `
     vec3 backdropBase=vec3(.976,.972,.965);
     vec3 sharpScene=mix(backdropBase,sharpSample.rgb,sharpSample.a);
     vec3 blurredScene=mix(backdropBase,blurredSample.rgb,blurredSample.a);
-    float blurAmount=mix(.2,1.0,smoothstep(.28,.74,opticalThickness));
+    float blurAmount=clamp(
+      mix(.2,1.0,smoothstep(.28,.74,opticalThickness))
+        *uBlurStrength,
+      0.0,
+      1.0
+    );
     vec3 color=mix(sharpScene,blurredScene,blurAmount);
 
     float luminance=dot(color,vec3(.2126,.7152,.0722));
@@ -891,7 +938,11 @@ export const seaGlassFragmentShader = `
     color=clamp(color,vec3(0.0),vec3(1.0));
     color=pow(color,vec3(.94));
     float thicknessVeil=pow(smoothstep(.32,1.0,opticalThickness),1.2);
-    float milkyVeil=mix(.5,.7,thicknessVeil);
+    float milkyVeil=clamp(
+      mix(.5,.7,thicknessVeil)*uVeilStrength,
+      0.0,
+      .94
+    );
     color=mix(color,vec3(1.0,.998,.99),milkyVeil);
 
     vec2 lightDirection=normalize(uLightDirection);
@@ -899,6 +950,26 @@ export const seaGlassFragmentShader = `
     float directionalShade=max(dot(normal.xy,-lightDirection),0.0);
     float fresnel=pow(1.0-facing,2.2);
     vec3 topPanelRay=reflect(-viewDirection,normal);
+    float spectrumPosition=clamp(
+      topPanelRay.y*.46+topPanelRay.x*.2+.5+organicVariation*1.4,
+      0.0,
+      1.0
+    );
+    float topBlue=smoothstep(.12,.92,vUv.y);
+    float bottomPink=smoothstep(.12,.92,1.0-vUv.y);
+    spectrumPosition=mix(spectrumPosition,.02,topBlue*.82);
+    spectrumPosition=mix(spectrumPosition,.96,bottomPink*.82);
+    vec3 spectralColor=seaGlassSpectralColor(spectrumPosition);
+    float spectralSweep=exp(
+      -pow((vUv.x-(.16+vUv.y*.68))/.16,2.0)
+    )*smoothstep(.2,.9,opticalThickness);
+    float spectralStrength=clamp(
+      (fresnel*.52+spectralSweep*.32)
+        *uSpectralStrength
+        *mix(.88,1.18,bottomPink),
+      0.0,
+      .38
+    );
     float topFacing=smoothstep(.14,.68,normal.y);
     float reflectionReach=uBackgroundReflectionRayDistance
       *(.9+max(topPanelRay.y,0.0)*.1)
@@ -968,6 +1039,9 @@ export const seaGlassFragmentShader = `
       reflectedBackground,
       clamp(backgroundReflection,0.0,.62)
     );
+    vec3 spectralTint=mix(vec3(1.0),spectralColor,.68);
+    color*=mix(vec3(1.0),spectralTint,spectralStrength);
+    color+=spectralColor*spectralStrength*.065;
     color*=1.0-directionalShade*fresnel*.025;
     float settleSeaTopSurface=smoothstep(.04,.56,normal.y);
     float settleSeaGlow=exp(
@@ -988,21 +1062,41 @@ export const roughGlassFragmentShader = `
   uniform sampler2D uBump;
   uniform sampler2D uBackdrop;
   uniform sampler2D uDomRefraction;
+  uniform samplerCube uEnvironment;
   uniform vec2 uTexel;
   uniform float uRefractionStrength;
+  uniform float uGlassTransmission;
+  uniform float uGlassBrightness;
+  uniform float uGlassRoughness;
+  uniform float uGlassReflection;
+  uniform float uGlassEdgeLight;
+  uniform float uProjectionStrength;
+  uniform float uHammeredStrength;
+  uniform float uWaveScale;
+  uniform float uWaveRandomness;
+  uniform float uWaveAmplitude;
+  uniform float uWaveEdgeStrength;
+  uniform float uWaveRefraction;
+  uniform float uWaveShadow;
+  uniform float uEnhancedSurface;
   uniform float uFloorY;
   uniform float uBandBottomY;
+  uniform float uBandTopY;
   uniform vec3 uWallColor;
   uniform vec3 uFloorColor;
-  uniform vec2 uLightDirection;
+  uniform vec3 uLightDirection;
   uniform float uSettleLightPosition;
   uniform float uSettleLightStrength;
-  uniform vec3 uBackgroundReflectionFallback;
-  uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
   uniform float uBackgroundReflectionRayDistance;
   varying vec2 vUv;
   varying vec2 vScreenUv;
+  varying vec3 vWorldPosition;
+  varying vec3 vWorldNormal;
+  varying vec3 vWorldTangent;
+  varying vec3 vWorldBitangent;
+
+  const float PI=3.14159265359;
 
   vec3 sceneAt(vec2 uv){
     uv=clamp(uv,vec2(.002),vec2(.998));
@@ -1018,16 +1112,191 @@ export const roughGlassFragmentShader = `
     return mix(scene,dom.rgb,dom.a);
   }
 
-  void main(){
+  float distributionGgx(float nDotH,float roughness){
+    float alpha=roughness*roughness;
+    float alphaSquared=alpha*alpha;
+    float denominator=nDotH*nDotH*(alphaSquared-1.0)+1.0;
+    return alphaSquared/max(PI*denominator*denominator,.0001);
+  }
+
+  float geometrySchlickGgx(float nDotDirection,float roughness){
+    float r=roughness+1.0;
+    float k=r*r*.125;
+    return nDotDirection/max(nDotDirection*(1.0-k)+k,.0001);
+  }
+
+  vec2 roughGlassHash(vec2 point){
+    vec3 seed=fract(
+      vec3(point.xyx)*vec3(.1031,.103,.0973)
+    );
+    seed+=dot(seed,seed.yzx+33.33);
+    return fract((seed.xx+seed.yz)*seed.zy);
+  }
+
+  float roughGlassValueNoise(vec2 point){
+    vec2 cell=floor(point);
+    vec2 localPosition=fract(point);
+    vec2 blend=localPosition*localPosition*localPosition
+      *(localPosition*(localPosition*6.0-15.0)+10.0);
+    float bottomLeft=roughGlassHash(cell).x;
+    float bottomRight=roughGlassHash(cell+vec2(1.0,0.0)).x;
+    float topLeft=roughGlassHash(cell+vec2(0.0,1.0)).x;
+    float topRight=roughGlassHash(cell+vec2(1.0,1.0)).x;
+    return mix(
+      mix(bottomLeft,bottomRight,blend.x),
+      mix(topLeft,topRight,blend.x),
+      blend.y
+    );
+  }
+
+  float roughGlassFbm(vec2 point){
+    float value=0.0;
+    float amplitude=.56;
+    mat2 rotation=mat2(.8,-.6,.6,.8);
+    for(int octave=0;octave<4;octave++){
+      value+=roughGlassValueNoise(point)*amplitude;
+      point=rotation*point*1.82+vec2(3.7,6.2);
+      amplitude*=.42;
+    }
+    return value;
+  }
+
+  float localLiquidWave(
+    vec2 point,
+    vec2 center,
+    vec2 direction,
+    float frequency,
+    float radius,
+    float phase
+  ){
+    vec2 delta=point-center;
+    vec2 waveDirection=normalize(direction);
+    vec2 waveNormal=vec2(-waveDirection.y,waveDirection.x);
+    float envelope=exp(
+      -dot(delta,delta)/max(radius*radius*1.8,.0001)
+    );
+    float randomFlowA=roughGlassFbm(
+      point*vec2(4.7,5.3)+center*11.7+phase
+    )-.5;
+    float randomFlowB=roughGlassFbm(
+      point.yx*vec2(8.1,6.4)+center.yx*7.9-phase
+    )-.5;
+    float localBend=(
+      randomFlowA*4.2
+      +randomFlowB*2.1
+      +sin(dot(delta,waveNormal)*frequency*.19+phase)*.32
+    )*uWaveRandomness;
+    float wavePhase=
+      dot(delta,waveDirection)*frequency
+      +localBend
+      +phase;
+    float shapedWave=
+      sin(wavePhase)
+      +sin(wavePhase*2.0+localBend*.34)*.2
+      +sin(wavePhase*3.0-phase*.27)*.055;
+    return shapedWave*envelope;
+  }
+
+  float hammeredHeight(vec2 uv){
+    vec2 surfacePoint=(
+      (uv-vec2(.5))*uWaveScale+vec2(.5)
+    )*vec2(1.0,1.46);
+    vec2 surfaceWarp=vec2(
+      roughGlassFbm(surfacePoint*3.1+vec2(1.7,5.3)),
+      roughGlassFbm(surfacePoint*3.3+vec2(7.1,2.4))
+    )-.5;
+    vec2 warpedPoint=surfacePoint
+      +surfaceWarp*.035*(.4+uWaveRandomness*.6);
+    float waveHeight=0.0;
+    waveHeight+=localLiquidWave(
+      warpedPoint,
+      vec2(.08,1.31),
+      vec2(.91,-.42),
+      31.0,
+      .58,
+      .7
+    )*.92;
+    waveHeight+=localLiquidWave(
+      warpedPoint,
+      vec2(.82,1.18),
+      vec2(-.56,-.83),
+      37.0,
+      .52,
+      2.1
+    )*.78;
+    waveHeight+=localLiquidWave(
+      warpedPoint,
+      vec2(.24,.87),
+      vec2(.38,-.93),
+      34.0,
+      .47,
+      4.3
+    )*.86;
+    waveHeight+=localLiquidWave(
+      warpedPoint,
+      vec2(.76,.72),
+      vec2(-.95,.31),
+      41.0,
+      .5,
+      1.4
+    )*.7;
+    waveHeight+=localLiquidWave(
+      warpedPoint,
+      vec2(.1,.38),
+      vec2(.74,.67),
+      36.0,
+      .46,
+      5.6
+    )*.8;
+    waveHeight+=localLiquidWave(
+      warpedPoint,
+      vec2(.88,.24),
+      vec2(-.31,.95),
+      39.0,
+      .49,
+      3.2
+    )*.74;
+    waveHeight+=localLiquidWave(
+      warpedPoint,
+      vec2(.48,.52),
+      vec2(.87,.5),
+      29.0,
+      .62,
+      6.1
+    )*.58;
+    float quietSurface=
+      roughGlassFbm(warpedPoint*7.4+vec2(2.8,8.1))-.5;
+    return .5+(
+      waveHeight*.052
+      +quietSurface*.038
+    )*uWaveAmplitude;
+  }
+
+  vec3 legacySurface(){
     vec2 reliefStep=uTexel*3.0;
-    float leftHeight=texture2D(uBump,vUv-vec2(reliefStep.x,0.0)).r;
-    float rightHeight=texture2D(uBump,vUv+vec2(reliefStep.x,0.0)).r;
-    float downHeight=texture2D(uBump,vUv-vec2(0.0,reliefStep.y)).r;
-    float upHeight=texture2D(uBump,vUv+vec2(0.0,reliefStep.y)).r;
+    float leftHeight=texture2D(
+      uBump,
+      vUv-vec2(reliefStep.x,0.0)
+    ).r;
+    float rightHeight=texture2D(
+      uBump,
+      vUv+vec2(reliefStep.x,0.0)
+    ).r;
+    float downHeight=texture2D(
+      uBump,
+      vUv-vec2(0.0,reliefStep.y)
+    ).r;
+    float upHeight=texture2D(
+      uBump,
+      vUv+vec2(0.0,reliefStep.y)
+    ).r;
     float centerHeight=texture2D(uBump,vUv).r;
-    vec2 slope=vec2(rightHeight-leftHeight,upHeight-downHeight)*5.8;
+    vec2 slope=vec2(
+      rightHeight-leftHeight,
+      upHeight-downHeight
+    )*5.8;
     vec3 surfaceNormal=normalize(vec3(-slope.x,-slope.y,1.0));
-    vec3 overheadLight=normalize(vec3(uLightDirection,.24));
+    vec3 overheadLight=normalize(vec3(normalize(uLightDirection.xy),.24));
     vec3 halfVector=normalize(overheadLight+vec3(0.0,0.0,1.0));
     float flatLight=overheadLight.z;
     float waveLight=dot(surfaceNormal,overheadLight);
@@ -1035,11 +1304,23 @@ export const roughGlassFragmentShader = `
     float waveHighlight=smoothstep(.035,.48,waveLighting);
     float waveShadow=smoothstep(.025,.5,-waveLighting);
     float waveSpecular=pow(max(dot(surfaceNormal,halfVector),0.0),30.0);
-    float neighborHeight=(leftHeight+rightHeight+downHeight+upHeight)*.25;
-    float cavityShadow=smoothstep(.018,.13,neighborHeight-centerHeight);
-    float crestLight=smoothstep(.025,.14,centerHeight-neighborHeight);
+    float neighborHeight=(
+      leftHeight+rightHeight+downHeight+upHeight
+    )*.25;
+    float cavityShadow=smoothstep(
+      .018,
+      .13,
+      neighborHeight-centerHeight
+    );
+    float crestLight=smoothstep(
+      .025,
+      .14,
+      centerHeight-neighborHeight
+    );
 
-    vec2 refractionOffset=slope*vec2(.0075,.006)*uRefractionStrength;
+    vec2 refractionOffset=slope
+      *vec2(.0075,.006)
+      *uRefractionStrength;
     float bandBoundaryProximity=1.0-smoothstep(
       .018,
       .105,
@@ -1051,19 +1332,19 @@ export const roughGlassFragmentShader = `
       *bandBoundaryProximity
       *uRefractionStrength;
     float relief=centerHeight-.5;
-    vec2 irregularBend=vec2(
+    refractionOffset+=vec2(
       slope.y-slope.x*.35,
       -slope.x-slope.y*.25
     )*relief*.0018*uRefractionStrength;
-    refractionOffset+=irregularBend;
     vec2 refractedUv=clamp(
       vScreenUv-refractionOffset,
       vec2(.002),
       vec2(.998)
     );
-    vec2 chromaticVector=slope+vec2(.001);
-    vec2 chromaticDirection=chromaticVector/max(length(chromaticVector),.0001);
-    vec2 chromaticOffset=chromaticDirection*(.00028+length(slope)*.00016);
+    vec2 chromaticDirection=(slope+vec2(.001))
+      /max(length(slope+vec2(.001)),.0001);
+    vec2 chromaticOffset=chromaticDirection
+      *(.00028+length(slope)*.00016);
     vec3 refractedRed=sceneAt(refractedUv+chromaticOffset);
     vec3 refractedGreen=sceneAt(refractedUv);
     vec3 refractedBlue=sceneAt(refractedUv-chromaticOffset);
@@ -1072,27 +1353,47 @@ export const roughGlassFragmentShader = `
       refractedGreen.g,
       refractedBlue.b
     );
-    vec3 color=refractedBackdrop;
-    vec2 bottomFaceOffset=vec2(.006,-.018)*(1.0+abs(relief)*.45);
-    vec3 bottomFace=sceneAt(refractedUv+bottomFaceOffset+refractionOffset*.22);
+    vec3 color=mix(
+      refractedBackdrop,
+      sceneAt(vScreenUv),
+      .82
+    );
+    vec2 bottomFaceOffset=vec2(.006,-.018)
+      *(1.0+abs(relief)*.45);
+    vec3 bottomFace=sceneAt(
+      refractedUv+bottomFaceOffset+refractionOffset*.22
+    );
     bottomFace=mix(bottomFace,vec3(.84,.91,.93),.12);
     float bottomPlane=1.0-smoothstep(.025,.27,vUv.y);
     float bottomSeam=exp(-pow((vUv.y-.12)/.028,2.0));
     color=mix(color,bottomFace,.16+bottomPlane*.56);
     color*=1.0-bottomSeam*.09;
     color=mix(color,vec3(.985,.99,.99),abs(relief)*.04);
-    float blueBackdrop=smoothstep(.06,.28,color.b-max(color.r,color.g));
+    float blueBackdrop=smoothstep(
+      .06,
+      .28,
+      color.b-max(color.r,color.g)
+    );
     float cavityStrength=mix(.19,.3,blueBackdrop);
     color*=1.0-waveShadow*.16-cavityShadow*cavityStrength;
-    float microSurfaceHighlight=waveHighlight*.028
-      +waveSpecular*.075
-      +crestLight*.016;
+    float upperFaceLight=smoothstep(-.08,.62,surfaceNormal.y)
+      *mix(.045,.2,smoothstep(.2,1.0,vUv.y));
+    float topEdgeLight=exp(-pow((vUv.y-.94)/.105,2.0))
+      *exp(-pow((vUv.x-.42)/.58,2.0));
+    float microSurfaceHighlight=waveHighlight*.1
+      +waveSpecular*.24
+      +crestLight*.065
+      +upperFaceLight
+      +topEdgeLight*.34;
     color=mix(
       color,
-      vec3(1.0,.998,.99),
-      clamp(microSurfaceHighlight,0.0,.12)
+      vec3(1.0,.997,.975),
+      clamp(microSurfaceHighlight,0.0,.46)
     );
-    float distanceToUpperBackground=max(uBandTopY-vScreenUv.y,0.0);
+    float distanceToUpperBackground=max(
+      uBandTopY-vScreenUv.y,
+      0.0
+    );
     float upperBackgroundReach=uBackgroundReflectionRayDistance
       *(.9+max(surfaceNormal.y,0.0)*.18);
     float upperBackgroundBand=1.0-smoothstep(
@@ -1100,23 +1401,374 @@ export const roughGlassFragmentShader = `
       upperBackgroundReach,
       distanceToUpperBackground
     );
-    float upwardFacet=smoothstep(-.42,.28,surfaceNormal.y);
-    float upperFaceBias=.68+.32*smoothstep(.42,.96,vUv.y);
     float roughUpperReflection=clamp(
       upperBackgroundBand
-        *upwardFacet
-        *upperFaceBias
+        *smoothstep(-.42,.28,surfaceNormal.y)
+        *(.68+.32*smoothstep(.42,.96,vUv.y))
         *uBackgroundReflectionStrength,
       0.0,
       .56
     );
-    color=mix(
+    vec3 roughReflectedBackdrop=sceneAt(
+      clamp(
+        vScreenUv+surfaceNormal.xy*.0015,
+        vec2(.002),
+        vec2(.998)
+      )
+    );
+    return mix(
       color,
-      uBackgroundReflectionFallback,
+      roughReflectedBackdrop,
       roughUpperReflection
     );
-    gl_FragColor=vec4(color,1.0);
+  }
+
+  void main(){
+    if(uEnhancedSurface<.5){
+      gl_FragColor=vec4(legacySurface(),1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+      return;
+    }
+
+    float bevelWidth=.028;
+    float leftBevel=1.0-smoothstep(0.0,bevelWidth,vUv.x);
+    float rightBevel=1.0-smoothstep(0.0,bevelWidth,1.0-vUv.x);
+    float bottomBevel=1.0-smoothstep(0.0,bevelWidth,vUv.y);
+    float topBevel=1.0-smoothstep(0.0,bevelWidth,1.0-vUv.y);
+    float edgeBand=max(
+      max(leftBevel,rightBevel),
+      max(topBevel,bottomBevel)
+    );
+    vec2 hammeredStep=vec2(.0045,.003);
+    float hammeredCenter=hammeredHeight(vUv);
+    float hammeredLeft=hammeredHeight(
+      vUv-vec2(hammeredStep.x,0.0)
+    );
+    float hammeredRight=hammeredHeight(
+      vUv+vec2(hammeredStep.x,0.0)
+    );
+    float hammeredDown=hammeredHeight(
+      vUv-vec2(0.0,hammeredStep.y)
+    );
+    float hammeredUp=hammeredHeight(
+      vUv+vec2(0.0,hammeredStep.y)
+    );
+    vec2 hammeredGradient=vec2(
+      (hammeredRight-hammeredLeft)/(hammeredStep.x*2.0),
+      (hammeredUp-hammeredDown)/(hammeredStep.y*2.0)
+    );
+    vec2 hammeredSlope=hammeredGradient
+      *.068
+      *uHammeredStrength;
+    vec3 localNormal=normalize(vec3(
+      (leftBevel-rightBevel)*.72-hammeredSlope.x,
+      (topBevel-bottomBevel)*.72-hammeredSlope.y,
+      1.0
+    ));
+    vec3 normal=normalize(
+      vWorldTangent*localNormal.x
+        +vWorldBitangent*localNormal.y
+        +vWorldNormal*localNormal.z
+    );
+    vec3 viewDirection=normalize(cameraPosition-vWorldPosition);
+    vec3 lightDirection=normalize(uLightDirection);
+    vec3 halfDirection=normalize(lightDirection+viewDirection);
+    float nDotL=max(dot(normal,lightDirection),0.0);
+    float nDotV=max(dot(normal,viewDirection),.001);
+    float nDotH=max(dot(normal,halfDirection),0.0);
+    vec2 reliefLightDirection=normalize(vec2(
+      dot(lightDirection,vWorldTangent),
+      dot(lightDirection,vWorldBitangent)
+    )+vec2(.0001));
+    float reliefHeightNear=hammeredHeight(clamp(
+      vUv+reliefLightDirection*.009,
+      vec2(.0),
+      vec2(1.0)
+    ));
+    float reliefHeightMiddle=hammeredHeight(clamp(
+      vUv+reliefLightDirection*.019,
+      vec2(.0),
+      vec2(1.0)
+    ));
+    float reliefHeightFar=hammeredHeight(clamp(
+      vUv+reliefLightDirection*.034,
+      vec2(.0),
+      vec2(1.0)
+    ));
+    float reliefSelfShadow=max(
+      smoothstep(.008,.075,reliefHeightNear-hammeredCenter),
+      max(
+        smoothstep(.014,.095,reliefHeightMiddle-hammeredCenter),
+        smoothstep(.022,.12,reliefHeightFar-hammeredCenter)
+      )
+    );
+
+    vec2 hammeredRefraction=hammeredGradient
+      *uHammeredStrength
+      *uWaveRefraction
+      *vec2(.00019,.00015);
+    vec2 clearSampleUv=clamp(
+      vScreenUv-hammeredRefraction,
+      vec2(.002),
+      vec2(.998)
+    );
+    vec3 clearTransmission=sceneAt(clearSampleUv);
+    vec3 color=clearTransmission;
+    color=mix(
+      vec3(.975,.985,.99),
+      color,
+      clamp(uGlassTransmission,0.0,1.0)
+    )*uGlassBrightness;
+    float flatNdotL=max(
+      dot(normalize(vWorldNormal),lightDirection),
+      0.0
+    );
+    float reliefLight=clamp(nDotL-flatNdotL,-.32,.32);
+    float hammeredCurvature=(
+      hammeredLeft
+      +hammeredRight
+      +hammeredDown
+      +hammeredUp
+      -hammeredCenter*4.0
+    );
+    float hammeredValleyShadow=smoothstep(
+      .002,
+      .026,
+      hammeredCurvature
+    );
+    float waveEdgeSlope=smoothstep(
+      .48,
+      1.75,
+      length(hammeredGradient)
+    );
+    float waveEdgeCurvature=smoothstep(
+      .003,
+      .028,
+      abs(hammeredCurvature)
+    );
+    float waveEdgeMask=waveEdgeSlope
+      *mix(.42,1.0,waveEdgeCurvature);
+    float hammeredDepthShadow=
+      1.0-smoothstep(.16,.43,hammeredCenter);
+    color*=1.0
+      +reliefLight*.2
+      -hammeredValleyShadow*.12*uWaveShadow
+      -hammeredDepthShadow*.052*uWaveShadow
+      -reliefSelfShadow*.15*uWaveShadow;
+    color=mix(
+      color,
+      color*vec3(.84,.91,.97),
+      reliefSelfShadow*.12*uWaveShadow
+    );
+    float bottomInnerShadow=exp(-vUv.y/.032);
+    color*=1.0
+      -rightBevel*.065
+      -bottomBevel*.085
+      -bottomInnerShadow*.105;
+
+    float hammeredCrest=smoothstep(.58,.88,hammeredCenter);
+    float hammeredValley=1.0-smoothstep(.18,.42,hammeredCenter);
+    float clearRoughness=clamp(
+      (
+        .12-hammeredCrest*.04+hammeredValley*.025
+      )*uGlassRoughness,
+      .07,
+      .34
+    );
+    float roughness=clearRoughness;
+    float distribution=distributionGgx(nDotH,roughness);
+    float geometry=geometrySchlickGgx(nDotV,roughness)
+      *geometrySchlickGgx(nDotL,roughness);
+    float viewHalf=max(dot(viewDirection,halfDirection),0.0);
+    vec3 fresnel=vec3(.04)
+      +(vec3(1.0)-vec3(.04))*pow(1.0-viewHalf,5.0);
+    vec3 directSpecular=fresnel
+      *distribution
+      *geometry
+      /max(4.0*nDotV*nDotL,.001);
+
+    vec3 reflectionDirection=reflect(-viewDirection,normal);
+    vec3 environmentReflection=textureCube(
+      uEnvironment,
+      reflectionDirection
+    ).rgb;
+    float edgeFresnel=.04+.96*pow(1.0-nDotV,5.0);
+    color+=environmentReflection
+      *(.06+edgeFresnel*.46+edgeBand*.16)
+      *uGlassReflection;
+    color+=directSpecular
+      *nDotL
+      *.9
+      *uGlassReflection;
+
+    vec3 panelHalfA=normalize(
+      normalize(vec3(-.62,.76,.38))+viewDirection
+    );
+    vec3 panelHalfB=normalize(
+      normalize(vec3(.38,.88,.28))+viewDirection
+    );
+    vec3 panelHalfC=normalize(
+      normalize(vec3(-.08,.58,.8))+viewDirection
+    );
+    float panelHighlightA=pow(
+      max(dot(normal,panelHalfA),0.0),
+      30.0
+    );
+    float panelHighlightB=pow(
+      max(dot(normal,panelHalfB),0.0),
+      46.0
+    );
+    float panelHighlightC=pow(
+      max(dot(normal,panelHalfC),0.0),
+      22.0
+    );
+    float castGlassHighlight=(
+      panelHighlightA*.38
+      +panelHighlightB*.62
+      +panelHighlightC*.2
+    );
+    color+=vec3(1.0,.99,.95)*castGlassHighlight;
+    float waveEdgeLighting=max(
+      pow(max(dot(normal,panelHalfA),0.0),12.0),
+      pow(max(dot(normal,panelHalfB),0.0),16.0)
+    );
+    color+=vec3(1.0,.995,.97)
+      *waveEdgeMask
+      *waveEdgeLighting
+      *.34
+      *uWaveEdgeStrength
+      *uGlassReflection;
+
+    float topRim=topBevel
+      *(.35+.65*smoothstep(.12,.88,vUv.x));
+    float leftRim=leftBevel
+      *(1.0-smoothstep(.72,1.0,vUv.y));
+    vec3 highlightColor=vec3(1.0,.985,.93);
+    color+=highlightColor*(
+      topRim*.19
+      +leftRim*.075
+    )*uGlassEdgeLight;
+
+    float settleBand=exp(
+      -pow((vScreenUv.x-uSettleLightPosition)/.026,2.0)
+    );
+    color+=highlightColor
+      *settleBand
+      *(.18+edgeBand*.82)
+      *uSettleLightStrength;
+
+    gl_FragColor=vec4(max(color,vec3(0.0)),1.0);
     #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
+
+const roughGlassWaveShaderChunk = roughGlassFragmentShader.slice(
+  roughGlassFragmentShader.indexOf('  vec2 roughGlassHash'),
+  roughGlassFragmentShader.indexOf('  vec3 legacySurface'),
+);
+
+export const roughGlassCausticVertexShader = `
+  varying vec2 vUv;
+
+  void main(){
+    vUv=uv;
+    gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+  }
+`;
+
+export const roughGlassCausticFragmentShader = `
+  precision highp float;
+  uniform float uHammeredStrength;
+  uniform float uWaveScale;
+  uniform float uWaveRandomness;
+  uniform float uWaveAmplitude;
+  uniform float uWaveEdgeStrength;
+  uniform float uWaveShadow;
+  uniform float uProjectionStrength;
+  uniform vec3 uLightDirection;
+  varying vec2 vUv;
+
+${roughGlassWaveShaderChunk}
+
+  void main(){
+    vec2 reliefStep=vec2(.0045,.003);
+    float centerHeight=hammeredHeight(vUv);
+    float leftHeight=hammeredHeight(
+      vUv-vec2(reliefStep.x,0.0)
+    );
+    float rightHeight=hammeredHeight(
+      vUv+vec2(reliefStep.x,0.0)
+    );
+    float downHeight=hammeredHeight(
+      vUv-vec2(0.0,reliefStep.y)
+    );
+    float upHeight=hammeredHeight(
+      vUv+vec2(0.0,reliefStep.y)
+    );
+    vec2 gradient=vec2(
+      (rightHeight-leftHeight)/(reliefStep.x*2.0),
+      (upHeight-downHeight)/(reliefStep.y*2.0)
+    );
+    float curvature=(
+      leftHeight
+      +rightHeight
+      +downHeight
+      +upHeight
+      -centerHeight*4.0
+    );
+    float edgeSlope=smoothstep(
+      .42,
+      1.6,
+      length(gradient)*uHammeredStrength
+    );
+    float edgeCurvature=smoothstep(.0025,.026,abs(curvature));
+    float edgeMask=edgeSlope*mix(.38,1.0,edgeCurvature);
+
+    vec2 lightDirection=normalize(uLightDirection.xy+vec2(.0001));
+    float slopeFacing=dot(
+      normalize(-gradient+vec2(.0001)),
+      lightDirection
+    );
+    float lightEdge=edgeMask
+      *smoothstep(-.08,.72,slopeFacing)
+      *uWaveEdgeStrength;
+    float scatteredEdge=edgeMask
+      *(.42+.58*smoothstep(-.72,.58,slopeFacing))
+      *uWaveEdgeStrength;
+    float focusedLight=max(lightEdge,scatteredEdge);
+    float lightPool=smoothstep(.006,.034,abs(curvature))
+      *(.38+.62*edgeSlope);
+
+    float edgeFade=
+      smoothstep(.015,.075,vUv.x)
+      *smoothstep(.015,.075,vUv.y)
+      *smoothstep(.015,.075,1.0-vUv.x)
+      *smoothstep(.015,.075,1.0-vUv.y);
+    float lightAlpha=clamp(
+      (
+        focusedLight*.14
+        +lightPool*.07*uWaveEdgeStrength
+      )*edgeFade*uProjectionStrength,
+      0.0,
+      .46
+    );
+    float colorVariation=roughGlassValueNoise(
+      vUv*vec2(17.0,23.0)+vec2(4.2,8.6)
+    );
+    vec3 projectionColor=mix(
+      vec3(.68,.9,1.0),
+      vec3(1.0,.995,.91),
+      smoothstep(.38,.78,colorVariation)
+    );
+    projectionColor=mix(
+      projectionColor,
+      vec3(1.0),
+      lightPool*.38
+    );
+
+    gl_FragColor=vec4(projectionColor,lightAlpha);
     #include <colorspace_fragment>
   }
 `;

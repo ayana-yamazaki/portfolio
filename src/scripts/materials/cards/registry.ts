@@ -23,7 +23,7 @@ export const cardDefinitions: Record<MaterialKind, CardDefinition> = {
     surface: null,
     hasBottomSurface: false,
     caustic: null,
-    hasPrism: false,
+    hasPrism: true,
     shadowColor: 0x000000,
     shadowProfile: 'sea-glass',
     shadowFollowsLift: true,

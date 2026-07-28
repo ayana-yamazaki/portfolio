@@ -7,10 +7,12 @@ export const seaGlassCardDefinition: PreparedCardDefinition = {
   surface: null,
   hasBottomSurface: false,
   caustic: null,
-  hasPrism: false,
+  hasPrism: true,
   shadowColor: 0x000000,
   shadowProfile: 'sea-glass',
   shadowFollowsLift: true,
   cacheDuringMotion: false,
-  createGeometry: (width, height, depth) => makeSeaGlassGeometry(width, height, depth),
+  createGeometry: (width, height, depth, radius) => (
+    makeSeaGlassGeometry(width, height, depth, radius)
+  ),
 };

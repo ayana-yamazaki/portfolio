@@ -16,6 +16,7 @@ import {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
+  MeshPhysicalMaterial,
   PMREMGenerator,
   PerspectiveCamera,
   PlaneGeometry,
@@ -36,6 +37,8 @@ import {
   glassTuning,
   lightingTuning,
   materialProfiles,
+  roughGlassDesktopShadowProfile,
+  seaGlassDesktopShadowProfile,
   sceneTuning,
   simpleShadowProfiles,
   type MaterialKind,
@@ -44,12 +47,14 @@ import {
   createBodyMaterials,
   createGemFaceMaterial,
   createGlassMaterial,
+  createRoughGlassCausticMaterial,
   createSeaGlassMaterial,
   createRoughGlassFaceMaterial,
   createSideMaterials,
 } from './materials/factories';
 import {
   getRoughGlassChamferSize,
+  makeBeveledRoughGlassGeometry,
   makeRoundedFaceGeometry,
 } from './materials/geometry';
 import {
@@ -72,11 +77,145 @@ import {
   loadRoughGlassTextures,
   makeGemFloorCausticTexture,
   makeGemPrismTexture,
+  makeSeaGlassPrismTexture,
   makeCardShadowTexture,
 } from './materials/textures';
+import { createRoughGlassControls } from './materials/rough-glass-controls';
+import { createSeaGlassControls } from './materials/sea-glass-controls';
+import { createGemControls } from './materials/gem-controls';
+import {
+  createRoughGlassMaterialControls,
+  type RoughGlassPresentation,
+} from './materials/rough-glass-material-controls';
 
 type ManagedCanvas = HTMLCanvasElement & {
   materialsPbrCleanup?: () => void;
+};
+
+type MeshBackdropVariant = 'spring' | 'summer' | 'winter' | 'plain';
+
+type MeshBackdropField = {
+  center: [number, number];
+  radius: [number, number];
+  color: string;
+  edge: string;
+};
+
+type MeshBackdropProfile = {
+  base: string;
+  fields: MeshBackdropField[];
+};
+
+const meshBackdropProfiles: Record<MeshBackdropVariant, MeshBackdropProfile> = {
+  spring: {
+    base: '#263c76',
+    fields: [
+      {
+        center: [.46, -.08],
+        radius: [.78, .48],
+        color: 'rgba(248, 237, 218, .98)',
+        edge: 'rgba(248, 226, 203, 0)',
+      },
+      {
+        center: [-.08, .28],
+        radius: [.6, .42],
+        color: 'rgba(246, 210, 179, .82)',
+        edge: 'rgba(244, 198, 164, 0)',
+      },
+      {
+        center: [.52, .59],
+        radius: [.68, .46],
+        color: 'rgba(247, 155, 111, .7)',
+        edge: 'rgba(245, 132, 95, 0)',
+      },
+      {
+        center: [.22, 1.02],
+        radius: [.62, .5],
+        color: 'rgba(246, 121, 79, .76)',
+        edge: 'rgba(245, 138, 87, 0)',
+      },
+      {
+        center: [1.08, 1.03],
+        radius: [.56, .44],
+        color: 'rgba(230, 78, 68, .86)',
+        edge: 'rgba(239, 101, 77, 0)',
+      },
+    ],
+  },
+  summer: {
+    base: '#3582c6',
+    fields: [
+      {
+        center: [.52, -.1],
+        radius: [.82, .5],
+        color: 'rgba(151, 192, 232, .94)',
+        edge: 'rgba(167, 201, 232, 0)',
+      },
+      {
+        center: [.18, .46],
+        radius: [.52, .32],
+        color: 'rgba(226, 228, 224, .88)',
+        edge: 'rgba(230, 225, 216, 0)',
+      },
+      {
+        center: [.84, .51],
+        radius: [.56, .34],
+        color: 'rgba(238, 229, 215, .84)',
+        edge: 'rgba(231, 216, 202, 0)',
+      },
+      {
+        center: [-.08, .92],
+        radius: [.66, .44],
+        color: 'rgba(248, 183, 128, .78)',
+        edge: 'rgba(242, 167, 116, 0)',
+      },
+      {
+        center: [.74, 1.08],
+        radius: [.7, .5],
+        color: 'rgba(244, 140, 89, .82)',
+        edge: 'rgba(247, 165, 103, 0)',
+      },
+    ],
+  },
+  winter: {
+    base: '#589adc',
+    fields: [
+      {
+        center: [.46, -.12],
+        radius: [.8, .48],
+        color: 'rgba(5, 12, 64, .98)',
+        edge: 'rgba(8, 19, 88, 0)',
+      },
+      {
+        center: [-.08, .56],
+        radius: [.62, .44],
+        color: 'rgba(15, 39, 134, .78)',
+        edge: 'rgba(17, 50, 153, 0)',
+      },
+      {
+        center: [.78, .68],
+        radius: [.68, .48],
+        color: 'rgba(18, 57, 172, .82)',
+        edge: 'rgba(14, 52, 162, 0)',
+      },
+      {
+        center: [.56, 1.08],
+        radius: [.56, .44],
+        color: 'rgba(23, 83, 208, .78)',
+        edge: 'rgba(18, 65, 180, 0)',
+      },
+      {
+        center: [.94, 1.02],
+        radius: [.38, .3],
+        color: 'rgba(49, 116, 229, .46)',
+        edge: 'rgba(49, 116, 229, 0)',
+      },
+    ],
+  },
+  plain: {
+    base: '#c6dce8',
+    fields: [],
+  },
 };
 
 type CardState = {
@@ -169,6 +308,10 @@ if (canvas && cases && hero) {
   let motionCache: MotionCache | undefined;
   let cancelMotionCacheWarm: (() => void) | undefined;
   let cancelMobileCardPreparation: (() => void) | undefined;
+  let cleanupRoughGlassControls: (() => void) | undefined;
+  let cleanupSeaGlassControls: (() => void) | undefined;
+  let cleanupGemControls: (() => void) | undefined;
+  let cleanupRoughGlassMaterialControls: (() => void) | undefined;
   let scene: Scene | undefined;
   let environmentTarget: WebGLRenderTarget | undefined;
   let gemEnvironmentTarget: WebGLCubeRenderTarget | undefined;
@@ -191,6 +334,14 @@ if (canvas && cases && hero) {
     cancelMotionCacheWarm = undefined;
     cancelMobileCardPreparation?.();
     cancelMobileCardPreparation = undefined;
+    cleanupRoughGlassControls?.();
+    cleanupRoughGlassControls = undefined;
+    cleanupSeaGlassControls?.();
+    cleanupSeaGlassControls = undefined;
+    cleanupGemControls?.();
+    cleanupGemControls = undefined;
+    cleanupRoughGlassMaterialControls?.();
+    cleanupRoughGlassMaterialControls = undefined;
     if (mobileScrollFrameId !== undefined) {
       cancelAnimationFrame(mobileScrollFrameId);
       mobileScrollFrameId = undefined;
@@ -416,15 +567,14 @@ if (canvas && cases && hero) {
     let roughGlassTextures: ReturnType<typeof loadRoughGlassTextures> | undefined;
     const roughGlassBump = roughGlassTextures?.bump
       ?? makePlaceholderTexture('#808080');
-    const roughGlassCaustic = roughGlassTextures?.caustic
-      ?? makePlaceholderTexture('rgba(0, 0, 0, 0)');
     const gemFloorCaustic = makeGemFloorCausticTexture();
     const gemPrism = makeGemPrismTexture();
+    const seaGlassPrism = makeSeaGlassPrismTexture(!isSmallViewport);
     [
       roughGlassBump,
-      roughGlassCaustic,
       gemFloorCaustic,
       gemPrism,
+      seaGlassPrism,
     ]
       .forEach((texture) => trackedTextures.add(texture));
     const shadowMaps = new Map<MaterialKind, Texture>();
@@ -435,7 +585,14 @@ if (canvas && cases && hero) {
     const getShadowMap = (kind: MaterialKind) => {
       const existing = shadowMaps.get(kind);
       if (existing) return existing;
-      const texture = makeCardShadowTexture(kind);
+      const texture = makeCardShadowTexture(
+        kind,
+        !isSmallViewport && kind === 'rough-glass'
+          ? roughGlassDesktopShadowProfile
+          : !isSmallViewport && kind === 'sea-glass'
+            ? seaGlassDesktopShadowProfile
+            : undefined,
+      );
       shadowMaps.set(kind, texture);
       trackedTextures.add(texture);
       return texture;
@@ -448,6 +605,20 @@ if (canvas && cases && hero) {
     );
     const observedTextSources = [...refractionSources];
     const backdropImage = cases.querySelector<HTMLImageElement>('[data-glass-backdrop-image-source]');
+    const meshBackdropSources = Array.from(
+      cases.querySelectorAll<HTMLElement>('[data-mesh-gradient-card]'),
+    );
+    const nanakamadoSwatchImage = cases.querySelector<HTMLImageElement>(
+      '[data-nanakamado-swatch-image]',
+    );
+    nanakamadoSwatchImage?.addEventListener('load', () => {
+      lastBackdropSignature = '';
+      invalidate(
+        RenderDirtyFlag.backdrop
+        | RenderDirtyFlag.appearance
+        | RenderDirtyFlag.motionCache,
+      );
+    }, { signal: eventController.signal });
     const domRefractionCanvas = document.createElement('canvas');
     domRefractionCanvas.width = 2;
     domRefractionCanvas.height = 2;
@@ -527,31 +698,103 @@ if (canvas && cases && hero) {
       roughGlassBump,
       glassBackdropTexture,
       domRefractionTexture,
+      gemEnvironmentTarget.texture,
+      !isSmallViewport,
     );
+    const roughGlassCausticMaterial = createRoughGlassCausticMaterial(
+      roughGlassFaceMaterial,
+    );
+    if (
+      import.meta.env.DEV
+      && !isSmallViewport
+    ) {
+      cleanupGemControls = createGemControls(
+        gemFaceMaterial.uniforms,
+        () => invalidate(
+          RenderDirtyFlag.appearance
+          | RenderDirtyFlag.motionCache,
+        ),
+      );
+    }
+    if (
+      import.meta.env.DEV
+      && !isSmallViewport
+      && new URLSearchParams(window.location.search).has('seaGlassControls')
+    ) {
+      cleanupSeaGlassControls = createSeaGlassControls({
+        uniforms: seaGlassMaterial.uniforms,
+        getRadius: () => materialProfiles['sea-glass'].radiusPx,
+        setRadius: (value) => {
+          materialProfiles['sea-glass'].radiusPx = value;
+        },
+        onAppearanceChange: () => invalidate(
+          RenderDirtyFlag.appearance
+          | RenderDirtyFlag.motionCache,
+        ),
+        onGeometryChange: () => {
+          lastSignature = '';
+          markLayoutDirty();
+        },
+      });
+    }
+    if (
+      import.meta.env.DEV
+      && !isSmallViewport
+      && new URLSearchParams(window.location.search).has('roughGlassControls')
+    ) {
+      cleanupRoughGlassControls = createRoughGlassControls(
+        roughGlassFaceMaterial.uniforms,
+        () => invalidate(
+          RenderDirtyFlag.appearance
+          | RenderDirtyFlag.motionCache,
+        ),
+      );
+    }
     const baseRefraction = {
       gem: gemFaceMaterial.uniforms.uRefraction.value as number,
       'sea-glass': seaGlassMaterial.uniforms.uRefraction.value as number,
       'rough-glass': roughGlassFaceMaterial.uniforms.uRefractionStrength.value as number,
       glass: glassMaterial.uniforms.uRefraction.value as number,
     } as const;
-    const bodyMaterials = createBodyMaterials();
-    const sideMaterials = createSideMaterials(gemFaceMaterial);
-    const roughGlassBottomMaterial = new MeshBasicMaterial({
-      color: 0xa9c4c9,
-      transparent: true,
-      opacity: .58,
-      side: DoubleSide,
-      depthWrite: false,
-      toneMapped: false,
-    });
-    const roughGlassCausticMaterial = new MeshBasicMaterial({
-      map: roughGlassCaustic,
-      color: 0xffffff,
-      transparent: true,
-      opacity: .78,
-      depthWrite: false,
-      toneMapped: false,
-    });
+    const bodyMaterials = createBodyMaterials(!isSmallViewport);
+    const sideMaterials = createSideMaterials(
+      gemFaceMaterial,
+      !isSmallViewport,
+    );
+    const roughGlassPresentation: RoughGlassPresentation = {
+      bodyOpacity: 1.42,
+      shadowOpacity: 1.07,
+      shadowSpread: 1.01,
+      shadowDistance: 1.04,
+      projectionSpread: .84,
+    };
+    const roughGlassBodyBaseOpacity = bodyMaterials['rough-glass'].opacity;
+    const roughGlassSideBaseOpacity = sideMaterials['rough-glass'].opacity;
+    const roughGlassEdgeBaseOpacity = sideMaterials['rough-glass-edge'].opacity;
+    const roughGlassBottomMaterial = isSmallViewport
+      ? new MeshBasicMaterial({
+          color: 0xa9c4c9,
+          transparent: true,
+          opacity: .58,
+          side: DoubleSide,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      : new MeshPhysicalMaterial({
+          color: 0xdde9eb,
+          roughness: .07,
+          metalness: 0,
+          transmission: .79,
+          thickness: .18,
+          ior: 1.5,
+          clearcoat: 1,
+          clearcoatRoughness: .018,
+          envMapIntensity: 1.85,
+          transparent: true,
+          opacity: 1,
+          side: DoubleSide,
+          depthWrite: false,
+        });
     const gemFloorCausticMaterial = new ShaderMaterial({
       uniforms: {
         uBackdrop: { value: glassBackdropTexture },
@@ -626,6 +869,14 @@ if (canvas && cases && hero) {
     gemPrismMaterial.uniforms.uCaustic.value = gemPrism;
     gemPrismMaterial.uniforms.uOpacity.value = 1;
     gemPrismMaterial.uniforms.uSpectralStrength.value = 1.38;
+    const seaGlassPrismMaterial = gemFloorCausticMaterial.clone();
+    seaGlassPrismMaterial.uniforms.uCaustic.value = seaGlassPrism;
+    seaGlassPrismMaterial.uniforms.uOpacity.value = isSmallViewport
+      ? .62
+      : 1;
+    seaGlassPrismMaterial.uniforms.uSpectralStrength.value = isSmallViewport
+      ? .92
+      : 1.48;
     const glassCausticMaterial = new ShaderMaterial({
       uniforms: {
         uStrength: { value: .72 },
@@ -867,7 +1118,7 @@ if (canvas && cases && hero) {
           new PlaneGeometry(1, 1),
           gemFloorCausticMaterial,
         )
-        : definition.caustic === 'rough-glass'
+        : definition.caustic === 'rough-glass' && !isSmallViewport
         ? new Mesh(
           new PlaneGeometry(1, 1),
           roughGlassCausticMaterial,
@@ -881,7 +1132,9 @@ if (canvas && cases && hero) {
       const prism = definition.hasPrism
         ? new Mesh(
           new PlaneGeometry(1, 1),
-          gemPrismMaterial,
+          definition.kind === 'sea-glass'
+            ? seaGlassPrismMaterial
+            : gemPrismMaterial,
         )
         : undefined;
       if (caustic) caustic.position.z = -0.49;
@@ -985,14 +1238,53 @@ if (canvas && cases && hero) {
       }, { signal: eventController.signal });
     });
 
+    if (
+      import.meta.env.DEV
+      && !isSmallViewport
+      && new URLSearchParams(window.location.search).has(
+        'roughGlassMaterialControls',
+      )
+    ) {
+      const applyRoughGlassPresentation = () => {
+        bodyMaterials['rough-glass'].opacity = (
+          roughGlassBodyBaseOpacity * roughGlassPresentation.bodyOpacity
+        );
+        sideMaterials['rough-glass'].opacity = Math.min(
+          1,
+          roughGlassSideBaseOpacity * roughGlassPresentation.bodyOpacity,
+        );
+        sideMaterials['rough-glass-edge'].opacity = Math.min(
+          1,
+          roughGlassEdgeBaseOpacity * roughGlassPresentation.bodyOpacity,
+        );
+        const roughGlassState = cardStates.find(
+          ({ kind }) => kind === 'rough-glass',
+        );
+        const shadowMaterial = roughGlassState?.shadow.material;
+        if (shadowMaterial && !Array.isArray(shadowMaterial)) {
+          shadowMaterial.opacity = roughGlassPresentation.shadowOpacity;
+        }
+        invalidate(
+          RenderDirtyFlag.appearance
+          | RenderDirtyFlag.motionCache,
+        );
+      };
+      cleanupRoughGlassMaterialControls = createRoughGlassMaterialControls({
+        uniforms: roughGlassFaceMaterial.uniforms,
+        presentation: roughGlassPresentation,
+        onAppearanceChange: applyRoughGlassPresentation,
+        onLayoutChange: () => {
+          lastSignature = '';
+          markLayoutDirty();
+        },
+      });
+    }
+
     const prepareRoughGlassTextures = () => {
       if (!roughGlassTextures) {
         roughGlassTextures = loadRoughGlassTextures();
         trackedTextures.add(roughGlassTextures.bump);
-        trackedTextures.add(roughGlassTextures.caustic);
         roughGlassFaceMaterial.uniforms.uBump.value = roughGlassTextures.bump;
-        roughGlassCausticMaterial.map = roughGlassTextures.caustic;
-        roughGlassCausticMaterial.needsUpdate = true;
       }
       return roughGlassTextures.ready;
     };
@@ -1302,6 +1594,15 @@ if (canvas && cases && hero) {
       const backdropClipRect = backdropClipStyle?.overflow === 'hidden'
         ? backdropClip?.getBoundingClientRect()
         : undefined;
+      const meshBackdropData = meshBackdropSources.map((element) => ({
+        element,
+        rect: element.getBoundingClientRect(),
+        swatchRect: element
+          .querySelector<HTMLElement>('.mesh-gradient-card__swatch')
+          ?.getBoundingClientRect(),
+        style: getComputedStyle(element),
+        variant: element.dataset.meshGradientCard as MeshBackdropVariant,
+      }));
       const signature = [
         canvasRect.left,
         canvasRect.top,
@@ -1332,6 +1633,27 @@ if (canvas && cases && hero) {
         backdropClipRect?.width,
         backdropClipRect?.height,
         backdropClipStyle?.borderRadius,
+        nanakamadoSwatchImage?.currentSrc,
+        nanakamadoSwatchImage?.naturalWidth,
+        nanakamadoSwatchImage?.naturalHeight,
+        meshBackdropData.map(({
+          rect: meshRect,
+          swatchRect,
+          style: meshStyle,
+          variant,
+        }) => [
+          variant,
+          meshStyle.display,
+          meshRect.left,
+          meshRect.top,
+          meshRect.width,
+          meshRect.height,
+          meshStyle.borderTopLeftRadius,
+          swatchRect?.left,
+          swatchRect?.top,
+          swatchRect?.width,
+          swatchRect?.height,
+        ].join('|')).join('::'),
       ].join('::');
       if (signature === lastBackdropSignature) return;
       lastBackdropSignature = signature;
@@ -1389,6 +1711,137 @@ if (canvas && cases && hero) {
       glassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
       roughGlassFaceMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;
       glassMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;
+
+      const drawMeshBackdrop = ({
+        rect: meshRect,
+        swatchRect,
+        style: meshStyle,
+        variant,
+      }: (typeof meshBackdropData)[number]) => {
+        const profile = meshBackdropProfiles[variant];
+        if (
+          !profile
+          || meshStyle.display === 'none'
+          || meshRect.width <= 0
+          || meshRect.height <= 0
+        ) return;
+
+        const x = meshRect.left - canvasRect.left;
+        const y = meshRect.top - canvasRect.top;
+        const radius = Number.parseFloat(meshStyle.borderTopLeftRadius) || 0;
+        glassBackdropContext.save();
+        glassBackdropContext.beginPath();
+        glassBackdropContext.roundRect(x, y, meshRect.width, meshRect.height, radius);
+        glassBackdropContext.clip();
+        glassBackdropContext.fillStyle = '#fff';
+        glassBackdropContext.fillRect(x, y, meshRect.width, meshRect.height);
+
+        if (!swatchRect) {
+          glassBackdropContext.restore();
+          return;
+        }
+
+        const swatchX = swatchRect.left - canvasRect.left;
+        const swatchY = swatchRect.top - canvasRect.top;
+        glassBackdropContext.beginPath();
+        glassBackdropContext.rect(
+          swatchX,
+          swatchY,
+          swatchRect.width,
+          swatchRect.height,
+        );
+        glassBackdropContext.clip();
+        glassBackdropContext.fillStyle = profile.base;
+        glassBackdropContext.fillRect(
+          swatchX,
+          swatchY,
+          swatchRect.width,
+          swatchRect.height,
+        );
+
+        /* Restore this field loop when the CSS mesh gradients are re-enabled.
+        profile.fields.forEach((field) => {
+          glassBackdropContext.save();
+          glassBackdropContext.translate(
+            swatchX + swatchRect.width * field.center[0],
+            swatchY + swatchRect.height * field.center[1],
+          );
+          glassBackdropContext.scale(
+            Math.max(1, swatchRect.width * field.radius[0]),
+            Math.max(1, swatchRect.height * field.radius[1]),
+          );
+          const gradient = glassBackdropContext.createRadialGradient(0, 0, 0, 0, 0, 1);
+          gradient.addColorStop(0, field.color);
+          gradient.addColorStop(.56, field.color);
+          gradient.addColorStop(1, field.edge);
+          glassBackdropContext.fillStyle = gradient;
+          glassBackdropContext.fillRect(-1.25, -1.25, 2.5, 2.5);
+          glassBackdropContext.restore();
+        });
+        */
+        glassBackdropContext.restore();
+      };
+
+      meshBackdropData.forEach(drawMeshBackdrop);
+      const visibleSwatches = meshBackdropData
+        .map(({ swatchRect, style: meshStyle }) => (
+          meshStyle.display !== 'none' && swatchRect && swatchRect.width > 0
+            ? swatchRect
+            : undefined
+        ))
+        .filter((swatchRect): swatchRect is DOMRect => Boolean(swatchRect));
+      if (
+        nanakamadoSwatchImage?.complete
+        && nanakamadoSwatchImage.naturalWidth
+        && nanakamadoSwatchImage.naturalHeight
+        && visibleSwatches.length
+      ) {
+        const opticalLeft = Math.min(...visibleSwatches.map(({ left }) => left))
+          - canvasRect.left;
+        const opticalRight = Math.max(...visibleSwatches.map(({ right }) => right))
+          - canvasRect.left;
+        const opticalTop = Math.min(...visibleSwatches.map(({ top }) => top))
+          - canvasRect.top;
+        const opticalBottom = Math.max(...visibleSwatches.map(({ bottom }) => bottom))
+          - canvasRect.top;
+        const opticalWidth = opticalRight - opticalLeft;
+        const opticalHeight = opticalBottom - opticalTop;
+        const sourceAspect = (
+          nanakamadoSwatchImage.naturalWidth
+          / nanakamadoSwatchImage.naturalHeight
+        );
+        const opticalImageWidth = opticalWidth * .9;
+        const opticalImageHeight = opticalImageWidth / sourceAspect;
+        const opticalImageX = opticalLeft;
+        const opticalImageY = (
+          opticalTop
+          + (opticalHeight - opticalImageHeight) / 2
+          + opticalHeight * .2
+        );
+        glassBackdropContext.save();
+        glassBackdropContext.beginPath();
+        glassBackdropContext.rect(
+          opticalLeft,
+          opticalTop,
+          opticalWidth,
+          opticalHeight,
+        );
+        glassBackdropContext.clip();
+        glassBackdropContext.drawImage(
+          nanakamadoSwatchImage,
+          opticalImageX,
+          opticalImageY,
+          opticalImageWidth,
+          opticalImageHeight,
+        );
+        glassBackdropContext.restore();
+      }
+      if (visibleSwatches.length) {
+        gemFaceMaterial.uniforms.uBandTopY.value = 0;
+        seaGlassMaterial.uniforms.uBandTopY.value = 0;
+        roughGlassFaceMaterial.uniforms.uBandTopY.value = 0;
+        glassMaterial.uniforms.uBandTopY.value = 0;
+      }
 
       if (!backdropImage || !rect || !style) {
         glassBackdropTexture.needsUpdate = true;
@@ -1576,7 +2029,11 @@ if (canvas && cases && hero) {
         const height = rect.height * pxY;
         const profile = materialProfiles[state.kind];
         const depth = profile.thicknessPx * pxY;
-        const radiusPx = profile.radiusPx;
+        const radiusPx = (
+          state.kind === 'sea-glass' && isSmallViewport
+            ? -1
+            : profile.radiusPx
+        );
         const radius = radiusPx * pxY;
         const shoulderWidth = (
           state.kind === 'glass'
@@ -1598,20 +2055,34 @@ if (canvas && cases && hero) {
         if (!createGeometry) return;
         if (state.geometrySignature !== geometrySignature) {
           state.mesh.geometry.dispose();
-          state.mesh.geometry = createGeometry(
-            width,
-            height,
-            depth,
-            radius,
-            shoulderWidth,
-          );
+          state.mesh.geometry = state.kind === 'rough-glass'
+            && !isSmallViewport
+            ? makeBeveledRoughGlassGeometry(
+                width,
+                height,
+                depth,
+                radius,
+              )
+            : createGeometry(
+                width,
+                height,
+                depth,
+                radius,
+                shoulderWidth,
+              );
           if (state.surface) {
             state.surface.geometry.dispose();
-            state.surface.geometry = makeRoundedFaceGeometry(
-              width - radius * 0.2,
-              height - roughGlassChamfer - radius * 0.2,
-              radius * 0.9,
-            );
+            state.surface.geometry = !isSmallViewport
+              ? makeRoundedFaceGeometry(
+                  width - roughGlassChamfer * 2,
+                  height - roughGlassChamfer * 2,
+                  Math.min(radius * .45, roughGlassChamfer * .35),
+                )
+              : makeRoundedFaceGeometry(
+                  width - radius * 0.2,
+                  height - roughGlassChamfer - radius * 0.2,
+                  radius * 0.9,
+                );
           }
           if (state.bottomSurface) {
             state.bottomSurface.geometry.dispose();
@@ -1662,7 +2133,7 @@ if (canvas && cases && hero) {
         if (state.surface) {
           state.surface.position.set(
             0,
-            -roughGlassChamfer / 2,
+            isSmallViewport ? -roughGlassChamfer / 2 : 0,
             depth / 2 + 0.001,
           );
         }
@@ -1670,20 +2141,32 @@ if (canvas && cases && hero) {
           state.bottomSurface.position.set(0, -height / 2 + radius * .08, 0);
         }
         const isGem = state.definition.shadowProfile === 'gem';
-        const simpleShadowProfile = state.definition.shadowProfile === 'sea-glass'
-          || state.definition.shadowProfile === 'rough-glass'
-          ? simpleShadowProfiles[state.definition.shadowProfile]
-          : undefined;
+        const simpleShadowProfile = state.definition.shadowProfile === 'rough-glass'
+          && !isSmallViewport
+          ? roughGlassDesktopShadowProfile
+          : state.definition.shadowProfile === 'sea-glass'
+            || state.definition.shadowProfile === 'rough-glass'
+            ? simpleShadowProfiles[state.definition.shadowProfile]
+            : undefined;
         const shadowProfile = state.definition.shadowProfile === 'glass'
           ? glassContactShadowProfile
           : simpleShadowProfile;
+        const adjustableRoughGlass = (
+          state.kind === 'rough-glass' && !isSmallViewport
+        );
+        const shadowSpread = adjustableRoughGlass
+          ? roughGlassPresentation.shadowSpread
+          : 1;
+        const shadowDistance = adjustableRoughGlass
+          ? roughGlassPresentation.shadowDistance
+          : 1;
         state.shadow.scale.set(
           width * (
             isGem ? 1.28 : shadowProfile?.scale[0] ?? 1.1
-          ),
+          ) * shadowSpread,
           height * (
             isGem ? 1.16 : shadowProfile?.scale[1] ?? 1.06
-          ),
+          ) * shadowSpread,
           1,
         );
         state.baseShadowY = centerY + height * (
@@ -1691,29 +2174,51 @@ if (canvas && cases && hero) {
             ? -.06
             : shadowProfile?.offset.yRatio
               ?? lightingTuning.shadowOffset.yRatio
-        );
+        ) * shadowDistance;
         state.shadow.position.set(
           centerX + width * (
             isGem
               ? .12
               : shadowProfile?.offset.xRatio
                 ?? lightingTuning.shadowOffset.xRatio
-          ),
+          ) * shadowDistance,
           state.baseShadowY + state.liftPx * pxY * (
             state.definition.shadowFollowsLift ? .5 : 0
           ),
           -0.65,
         );
+        if (adjustableRoughGlass && !Array.isArray(state.shadow.material)) {
+          state.shadow.material.opacity = roughGlassPresentation.shadowOpacity;
+        }
         if (state.caustic) {
           const isGlass = state.kind === 'glass';
+          const isRoughGlass = state.kind === 'rough-glass';
           state.caustic.scale.set(
-            width * (isGem ? 1.26 : isGlass ? 1.12 : 1.08),
-            height * (isGem ? 1.13 : isGlass ? 1.065 : 1.04),
+            width * (
+              isGem
+                ? 1.26
+                : isRoughGlass
+                  ? 1.24 * roughGlassPresentation.projectionSpread
+                : isGlass
+                  ? 1.12
+                  : 1.08
+            ),
+            height * (
+              isGem
+                ? 1.13
+                : isRoughGlass
+                  ? 1.1 * roughGlassPresentation.projectionSpread
+                : isGlass
+                  ? 1.065
+                  : 1.04
+            ),
             1,
           );
           state.baseCausticY = centerY + height * (
             isGem
               ? -.055
+              : isRoughGlass
+                ? -.035 * roughGlassPresentation.shadowDistance
               : isGlass
                 ? glassContactShadowProfile.offset.yRatio
                 : lightingTuning.causticOffset.yRatio
@@ -1722,6 +2227,8 @@ if (canvas && cases && hero) {
             centerX + width * (
               isGem
                 ? .115
+                : isRoughGlass
+                  ? .13 * roughGlassPresentation.shadowDistance
                 : isGlass
                   ? glassContactShadowProfile.offset.xRatio
                   : lightingTuning.causticOffset.xRatio
@@ -1731,14 +2238,42 @@ if (canvas && cases && hero) {
           );
         }
         if (state.prism) {
+          const isFrostedPrism = state.kind === 'sea-glass';
+          const enhancedFrostedPrism = isFrostedPrism && !isSmallViewport;
           state.prism.scale.set(
-            width * .78,
-            height * .48,
+            width * (
+              enhancedFrostedPrism
+                ? .82
+                : isFrostedPrism
+                  ? .98
+                  : .78
+            ),
+            height * (
+              enhancedFrostedPrism
+                ? .52
+                : isFrostedPrism
+                  ? .64
+                  : .48
+            ),
             1,
           );
-          state.basePrismY = centerY - height * .36 + 30 * pxY;
+          state.basePrismY = centerY
+            -height * (
+              enhancedFrostedPrism
+                ? .35
+                : isFrostedPrism
+                  ? .3
+                  : .36
+            )
+            +(enhancedFrostedPrism ? 28 : isFrostedPrism ? 20 : 30) * pxY;
           state.prism.position.set(
-            centerX + width * .35,
+            centerX+width*(
+              enhancedFrostedPrism
+                ? .33
+                : isFrostedPrism
+                  ? .24
+                  : .35
+            ),
             state.basePrismY + state.liftPx * pxY * .5,
             -0.63,
           );
@@ -1765,7 +2300,7 @@ if (canvas && cases && hero) {
       keyLight.position.copy(lightPosition);
       gemFaceMaterial.uniforms.uLightDirection.value.copy(lightDirection3);
       seaGlassMaterial.uniforms.uLightDirection.value.copy(lightDirection2);
-      roughGlassFaceMaterial.uniforms.uLightDirection.value.copy(lightDirection2);
+      roughGlassFaceMaterial.uniforms.uLightDirection.value.copy(lightDirection3);
       glassMaterial.uniforms.uLightDirection.value.copy(lightDirection2);
       cancelMotionCacheWarm?.();
       cancelMotionCacheWarm = undefined;

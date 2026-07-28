@@ -11,6 +11,7 @@ import SiteHeader from '../components/SiteHeader.astro';
 import LocaleRedirect from '../components/LocaleRedirect.astro';
 import { getCaseStudies } from '../data/site';
 import { getLocaleUrl, getLocalizedPath, type Locale } from '../i18n/locale';
+import { materialCardNames } from '../scripts/materials/config';
 // import codeXmlIcon from '../assets/code-xml.svg';
 
 interface Props {
@@ -20,6 +21,32 @@ interface Props {
 const { locale = 'ja' } = Astro.props;
 const caseStudies = getCaseStudies(locale);
 const materials = ['gem', 'sea-glass', 'rough-glass', 'glass'] as const;
+const heroCardCopyJa = [
+  {
+    number: '01',
+    title: 'REFRAME',
+    product: 'Reposaku / Agriculture SaaS',
+    metric: '無線連絡 −84%',
+  },
+  {
+    number: '02',
+    title: 'DECIDE',
+    product: 'Reposaku / Agriculture SaaS',
+    metric: '100件超の要望を3段階へ',
+  },
+  {
+    number: '03',
+    title: 'ITERATE',
+    product: 'Dental / Clinical UX',
+    metric: '紙より入力速度 ＋24%',
+  },
+  {
+    number: '04',
+    title: 'BUILD with AI',
+    product: 'Manufacturing SaaS',
+    metric: 'Claude CodeでStorybook実装',
+  },
+];
 const ogTitle = locale === 'ja'
   ? 'Ayana Yamazaki｜複雑な現場を、動くプロダクトへ翻訳'
   : 'Ayana Yamazaki | Product Builder and Product Designer';
@@ -187,7 +214,12 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
           ></canvas>
           <div class="home-hero__case-track" data-case-carousel>
             {caseStudies.map((caseStudy, index) => (
-              <a class="home-hero__case" href={getLocalizedPath(caseStudy.href, locale)} data-material={materials[index]}>
+              <a
+                class="home-hero__case"
+                href={getLocalizedPath(caseStudy.href, locale)}
+                data-material={materials[index]}
+                data-material-card-name={materialCardNames[materials[index]]}
+              >
                 <span class="home-hero__card-wrap">
                   <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
                   <span class="material-card__shadow" hidden></span>
@@ -203,9 +235,18 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                     <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />
                   )} */}
                   </span>
-                  <span class="home-hero__case-copy">
+                  <span class:list={['home-hero__case-copy', { 'home-hero__case-copy--featured': locale === 'ja' }]}>
                     <span class="home-hero__case-title">
-                      {materials[index] === 'gem'
+                      {locale === 'ja'
+                        ? <>
+                            <span class="home-hero__case-number">{heroCardCopyJa[index].number}</span>
+                            <span class="home-hero__case-heading">
+                              {index === 3
+                                ? <>BUILD <span class="home-hero__case-heading-secondary">with AI</span></>
+                                : heroCardCopyJa[index].title}
+                            </span>
+                          </>
+                        : materials[index] === 'gem'
                         ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
                         : materials[index] === 'sea-glass'
                           ? <>What to<br />Build</>
@@ -216,11 +257,18 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                             : caseStudy.title}
                     </span>
                     <span class="home-hero__case-text">
-                      {caseStudy.text.split('\n').map((line, lineIndex, lines) => (
-                        <>{line}{lineIndex < lines.length - 1 && <br />}</>
-                      ))}
+                      {locale === 'ja'
+                        ? <>
+                            <span class="home-hero__case-meta">{heroCardCopyJa[index].product}</span>
+                            <span class="home-hero__case-metric">{heroCardCopyJa[index].metric}</span>
+                          </>
+                        : caseStudy.text.split('\n').map((line, lineIndex, lines) => (
+                            <>{line}{lineIndex < lines.length - 1 && <br />}</>
+                          ))}
                     </span>
-                    <span class="home-hero__case-link">Case study ↗︎</span>
+                    {locale !== 'ja' && (
+                      <span class="home-hero__case-link">Case study ↗︎</span>
+                    )}
                   </span>
                 </span>
               </a>

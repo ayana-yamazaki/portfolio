@@ -1,5 +1,12 @@
 export type MaterialKind = 'gem' | 'sea-glass' | 'rough-glass' | 'glass';
 
+export const materialCardNames: Record<MaterialKind, string> = {
+  gem: 'ジェム',
+  'sea-glass': 'すりガラス',
+  'rough-glass': 'ラフガラス',
+  glass: 'ラウンドガラス',
+};
+
 const gemThicknessPx = 350;
 
 export const materialProfiles: Record<MaterialKind, {
@@ -7,7 +14,7 @@ export const materialProfiles: Record<MaterialKind, {
   thicknessPx: number;
 }> = {
   gem: { radiusPx: 22, thicknessPx: gemThicknessPx },
-  'sea-glass': { radiusPx: 8, thicknessPx: 110 },
+  'sea-glass': { radiusPx: 130, thicknessPx: 110 },
   'rough-glass': { radiusPx: 4, thicknessPx: gemThicknessPx },
   glass: { radiusPx: 32, thicknessPx: 68 },
 };
@@ -135,6 +142,26 @@ export const glassContactShadowProfile = {
   offset: simpleShadowProfiles.glass.offset,
 } as const;
 
+export const seaGlassDesktopShadowProfile = {
+  scale: [1.32, 1.17],
+  offset: { xRatio: .064, yRatio: -.012 },
+  layers: {
+    soft: { blur: 23, opacity: .15, x: 44, y: 27 },
+    middle: { blur: 5.5, opacity: .27, x: 27, y: 14 },
+    contact: { blur: .3, opacity: .38, x: 7, y: 3 },
+  },
+} as const satisfies SimpleShadowProfile;
+
+export const roughGlassDesktopShadowProfile = {
+  scale: [1.34, 1.18],
+  offset: { xRatio: .074, yRatio: -.012 },
+  layers: {
+    soft: { blur: 25, opacity: .16, x: 48, y: 28 },
+    middle: { blur: 6.5, opacity: .25, x: 31, y: 15 },
+    contact: { blur: .35, opacity: .36, x: 8, y: 3 },
+  },
+} as const satisfies SimpleShadowProfile;
+
 type BackgroundReflectionProfile = {
   strength: number;
   rayDistance: number;
@@ -143,7 +170,7 @@ type BackgroundReflectionProfile = {
 export const backgroundReflectionTuning = {
   fallbackColor: 0xf9f3f0,
   profiles: {
-    gem: { strength: .66, rayDistance: .17 },
+    gem: { strength: 1.5, rayDistance: .17 },
     'sea-glass': { strength: .5, rayDistance: .23 },
     'rough-glass': { strength: .58, rayDistance: .17 },
     glass: { strength: .48, rayDistance: .13 },
@@ -155,11 +182,11 @@ export const backgroundReflectionTuning = {
 
 export const glintProfiles = {
   gem: {
-    roughness: 0.025,
+    roughness: 0.005,
     sideRoughness: 0.04,
     clearcoat: 1,
     clearcoatRoughness: 0.01,
-    envMapIntensity: 1.5,
+    envMapIntensity: 2.15,
   },
   'sea-glass': {
     strength: 0.9,
@@ -170,12 +197,15 @@ export const glintProfiles = {
 } as const;
 
 export const gemTuning = {
-  ior: 1.485,
-  iorRed: 1.45,
-  iorGreen: 1.485,
-  iorBlue: 1.53,
+  ior: 1.43,
+  iorRed: 1.395,
+  iorGreen: 1.43,
+  iorBlue: 1.475,
   refractionPx: 42,
-  dispersionBoost: 3.1,
+  refractionScale: 1.27,
+  dispersionBoost: 2.74,
+  reflectionExposure: .75,
+  keyIntensity: 0,
 } as const;
 
 export const glassTuning = {
@@ -191,8 +221,27 @@ export const glassTuning = {
 
 export const seaGlassTuning = {
   refractionPx: 46,
+  refractionScale: .18,
+  blurStrength: .53,
+  veilStrength: .87,
+  surfaceNoiseStrength: 1.5,
+  spectralStrength: .27,
+  glintStrength: 3,
 } as const;
 
 export const roughGlassTuning = {
   refractionStrength: 1.85,
+  glassTransmission: 1,
+  glassBrightness: 1,
+  glassRoughness: .4,
+  glassReflection: 1.53,
+  glassEdgeLight: 1.08,
+  projectionStrength: 1.45,
+  hammeredStrength: .89,
+  waveScale: 1.02,
+  waveRandomness: .72,
+  waveAmplitude: .86,
+  waveEdgeStrength: 3,
+  waveRefraction: 2.5,
+  waveShadow: 1.35,
 } as const;
