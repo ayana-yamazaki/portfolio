@@ -1002,7 +1002,7 @@ html:lang(ja) .home-hero__case-text {
     bottom: var(--home-hero-glass-card-bottom);
     left: 50%;
     margin: 0;
-    scale: 1.2;
+    scale: 1.14;
     transform: none;
     transform-origin: 50% 0;
     translate: -50% 0;
@@ -1065,6 +1065,12 @@ html:lang(ja) .home-hero__case-text {
     width: 99.5%;
   }
 
+  .home-hero__case[data-material] .home-hero__case-copy--featured {
+    top: 0;
+    bottom: 0;
+    transform: translateX(-50%);
+  }
+
   .home-hero__case-title {
     width: auto;
     height: auto;
@@ -1086,57 +1092,108 @@ html:lang(ja) .home-hero__case-text {
   }
 
   .home-hero__case-copy--featured .home-hero__case-title {
+    position: absolute;
+    left: 0;
+    width: 100%;
     font-size: clamp(16px, 1.25vw, 20px);
     font-weight: 600;
+    transform: translateY(-50%);
     white-space: normal;
+  }
+
+  .home-hero__case[data-material='gem']
+    .home-hero__case-copy--featured .home-hero__case-title,
+  .home-hero__case[data-material='sea-glass']
+    .home-hero__case-copy--featured .home-hero__case-title {
+    top: calc(59.52% - var(--home-hero-glass-card-bottom));
+  }
+
+  .home-hero__case[data-material='rough-glass']
+    .home-hero__case-copy--featured .home-hero__case-title {
+    top: calc(62.4% - var(--home-hero-glass-card-bottom));
+  }
+
+  .home-hero__case[data-material='glass']
+    .home-hero__case-copy--featured .home-hero__case-title {
+    top: calc(64.68% - var(--home-hero-glass-card-bottom));
   }
 
   .home-hero__case-number {
     display: block;
-    font-size: 12px;
+    color: transparent;
+    font-size: 28px;
     font-weight: 400;
   }
 
   .home-hero__case-heading {
     display: block;
-    margin-top: 6px;
+    margin-top: 0;
     white-space: nowrap;
   }
 
   .home-hero__case-heading-secondary {
     font-size: .7em;
-    font-weight: 400;
+    font-weight: 600;
   }
 
   html:lang(ja) .home-hero__case-copy--featured .home-hero__case-text {
-    width: auto;
-    height: auto;
+    position: absolute;
+    top: calc(126% - 23px);
+    right: auto;
+    left: -10%;
+    display: flex;
+    flex-direction: column;
+    width: 120%;
+    height: clamp(92px, 7vw, 104px);
     margin-top: clamp(12px, 1vw, 16px);
     margin-inline: 0;
+    color: #111;
+    text-align: left;
     white-space: normal;
     word-break: normal;
+  }
+
+  html:lang(ja) .home-hero__case:nth-child(n + 3)
+    .home-hero__case-copy--featured .home-hero__case-text {
+    top: calc(126% - 18px);
+  }
+
+  .home-hero__case-text .home-hero__case-heading {
+    color: #111;
+    font-size: clamp(24px, 2vw, 28px);
+    font-weight: 600;
+    line-height: 1.05;
   }
 
   .home-hero__case-meta,
   .home-hero__case-card-title {
     display: block;
-    color: rgba(255, 255, 255, .9);
+    color: #111;
     white-space: nowrap;
   }
 
   .home-hero__case-card-title {
-    margin-top: 8px;
+    margin: 6px 0 4px;
+    font-size: clamp(13px, 1.05vw, 15px);
     font-weight: 500;
   }
 
   .home-hero__case-description {
     display: block;
-    margin-top: 4px;
-    color: rgba(255, 255, 255, .9);
+    margin-top: 0;
+    color: #111;
     font-weight: 300;
     line-break: strict;
     text-wrap: pretty;
+    white-space: nowrap;
     word-break: auto-phrase;
+  }
+
+  .home-hero__case-meta {
+    margin-top: 0;
+    color: var(--text-color-secondary);
+    font-size: clamp(10px, .8vw, 12px);
+    font-weight: 400;
   }
 
 }

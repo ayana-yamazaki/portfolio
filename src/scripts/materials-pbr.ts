@@ -693,6 +693,7 @@ if (canvas && cases && hero) {
     const seaGlassMaterial = createSeaGlassMaterial(
       glassBackdropTexture,
       seaGlassBlurTexture,
+      domRefractionTexture,
     );
     const roughGlassFaceMaterial = createRoughGlassFaceMaterial(
       roughGlassBump,
@@ -763,11 +764,11 @@ if (canvas && cases && hero) {
       !isSmallViewport,
     );
     const roughGlassPresentation: RoughGlassPresentation = {
-      bodyOpacity: 1.42,
-      shadowOpacity: 1.07,
-      shadowSpread: 1.01,
-      shadowDistance: 1.04,
-      projectionSpread: .84,
+      bodyOpacity: 1.3,
+      shadowOpacity: .33,
+      shadowSpread: .89,
+      shadowDistance: 2,
+      projectionSpread: .8,
     };
     const roughGlassBodyBaseOpacity = bodyMaterials['rough-glass'].opacity;
     const roughGlassSideBaseOpacity = sideMaterials['rough-glass'].opacity;
@@ -943,7 +944,7 @@ if (canvas && cases && hero) {
     const introLightStrengthByMaterial = {
       gem: .3,
       'sea-glass': .8,
-      'rough-glass': 1,
+      'rough-glass': .6,
       glass: .6,
     } as const;
     const defaultLightX = lightingTuning.key.position[0] / 7.5;
@@ -1516,7 +1517,8 @@ if (canvas && cases && hero) {
       const sourceData = sources.map((element) => {
         const rect = element.getBoundingClientRect();
         const style = getComputedStyle(element);
-        return { rect, style, lines: readTextLines(element) };
+        const color = element.dataset.refractionColor ?? style.color;
+        return { rect, style, color, lines: readTextLines(element) };
       });
       const signature = [
         canvasRect.left,
@@ -1524,7 +1526,7 @@ if (canvas && cases && hero) {
         canvasRect.width,
         canvasRect.height,
         pixelRatio,
-        sourceData.map(({ rect, style, lines }) => [
+        sourceData.map(({ rect, style, color, lines }) => [
           rect.left,
           rect.top,
           rect.width,
@@ -1534,7 +1536,7 @@ if (canvas && cases && hero) {
           style.fontWeight,
           style.lineHeight,
           style.letterSpacing,
-          style.color,
+          color,
           style.opacity,
           lines.map(({ text, fontWeight }) => `${text}:${fontWeight ?? style.fontWeight}`).join('\n'),
         ].join('|')).join('::'),
@@ -1551,11 +1553,11 @@ if (canvas && cases && hero) {
       targetContext.clearRect(0, 0, canvasRect.width, canvasRect.height);
       targetContext.filter = blurPx > 0 ? `blur(${blurPx}px)` : 'none';
 
-      sourceData.forEach(({ rect, style, lines }) => {
+      sourceData.forEach(({ rect, style, color, lines }) => {
         const fontSize = Number.parseFloat(style.fontSize) || 16;
         const parsedLineHeight = Number.parseFloat(style.lineHeight);
         const lineHeight = Number.isFinite(parsedLineHeight) ? parsedLineHeight : fontSize * 1.2;
-        targetContext.fillStyle = style.color;
+        targetContext.fillStyle = color;
         const parsedOpacity = Number.parseFloat(style.opacity);
         targetContext.globalAlpha = Number.isFinite(parsedOpacity) ? parsedOpacity : 1;
         targetContext.textBaseline = 'top';

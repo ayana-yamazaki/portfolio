@@ -45,6 +45,10 @@ export const gemFragmentShader = `
   uniform vec3 uLightDirection;
   uniform vec3 uKeyColor;
   uniform float uKeyIntensity;
+  uniform float uInternalShadowStrength;
+  uniform float uFacetShadowHardness;
+  uniform float uUpperTransmissionStrength;
+  uniform float uFacetHighlightStrength;
   uniform float uSettleLightPosition;
   uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
@@ -387,6 +391,41 @@ export const gemFragmentShader = `
       reflectedBackground,
       clamp(backgroundReflection,0.0,.72)
     );
+    vec3 internalFacetLightDirection=normalize(vec3(-.58,.7,.42));
+    float facetShadowHalfWidth=mix(
+      .5,
+      .06,
+      clamp(uFacetShadowHardness*.5,0.0,1.0)
+    );
+    float hardFacetLight=smoothstep(
+      .15-facetShadowHalfWidth,
+      .15+facetShadowHalfWidth,
+      dot(normal,internalFacetLightDirection)
+    );
+    float upperFacetMask=max(
+      smoothstep(.22,.66,normal.y),
+      smoothstep(.72,.93,vUv.y)*sideMask
+    );
+    float hardFacetShadow=(1.0-hardFacetLight)
+      *(sideMask*.16+upperFacetMask*.52)
+      *uInternalShadowStrength;
+    vec3 upperFacetTransmission=refracted
+      *volumeTransmittance
+      *mix(vec3(.76,.84,.96),vec3(1.04),hardFacetLight);
+    float upperTransmissionReveal=upperFacetMask
+      *mix(.68,.28,hardFacetLight)
+      *uUpperTransmissionStrength;
+    color=mix(
+      color,
+      upperFacetTransmission,
+      clamp(upperTransmissionReveal,0.0,.72)
+    );
+    color*=1.0-clamp(hardFacetShadow,0.0,.72);
+    color+=vec3(1.0,.985,.95)
+      *upperFacetMask
+      *hardFacetLight
+      *.1
+      *uFacetHighlightStrength;
     vec3 settleGemLightDirection=normalize(vec3(-.38,.78,.62));
     vec3 settleGemHalfVector=normalize(
       settleGemLightDirection+viewDirection
@@ -889,6 +928,7 @@ export const seaGlassFragmentShader = `
   precision highp float;
   uniform sampler2D uBackdrop;
   uniform sampler2D uBackdropBlurred;
+  uniform sampler2D uDomRefraction;
   uniform vec2 uCanvasSize;
   uniform float uRefraction;
   uniform float uRefractionScale;
@@ -960,9 +1000,17 @@ export const seaGlassFragmentShader = `
     vec2 sampleUv=clamp(refractedUv,vec2(.002),vec2(.998));
     vec4 sharpSample=texture2D(uBackdrop,sampleUv);
     vec4 blurredSample=texture2D(uBackdropBlurred,sampleUv);
+    vec2 domBlurStep=vec2(2.5)/uCanvasSize;
+    vec4 domSample=texture2D(uDomRefraction,sampleUv)*.4;
+    domSample+=texture2D(uDomRefraction,sampleUv+vec2(domBlurStep.x,0.0))*.15;
+    domSample+=texture2D(uDomRefraction,sampleUv-vec2(domBlurStep.x,0.0))*.15;
+    domSample+=texture2D(uDomRefraction,sampleUv+vec2(0.0,domBlurStep.y))*.15;
+    domSample+=texture2D(uDomRefraction,sampleUv-vec2(0.0,domBlurStep.y))*.15;
     vec3 backdropBase=vec3(.976,.972,.965);
     vec3 sharpScene=mix(backdropBase,sharpSample.rgb,sharpSample.a);
     vec3 blurredScene=mix(backdropBase,blurredSample.rgb,blurredSample.a);
+    sharpScene=mix(sharpScene,domSample.rgb,domSample.a);
+    blurredScene=mix(blurredScene,domSample.rgb,domSample.a*.72);
     float blurAmount=clamp(
       mix(.2,1.0,smoothstep(.28,.74,opticalThickness))
         *uBlurStrength,
@@ -1690,11 +1738,12 @@ export const roughGlassFragmentShader = `
     )*uGlassEdgeLight;
 
     float settleBand=exp(
-      -pow((vScreenUv.x-uSettleLightPosition)/.026,2.0)
+      -pow((vScreenUv.x-uSettleLightPosition)/.016,2.0)
     );
     color+=highlightColor
       *settleBand
-      *(.18+edgeBand*.82)
+      *topBevel
+      *.54
       *uSettleLightStrength;
 
     gl_FragColor=vec4(max(color,vec3(0.0)),1.0);

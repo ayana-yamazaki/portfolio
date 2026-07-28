@@ -243,11 +243,12 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                     <span class="home-hero__case-title">
                       {locale === 'ja'
                         ? <>
-                            <span class="home-hero__case-number">{heroCardCopyJa[index].number}</span>
-                            <span class="home-hero__case-heading">
-                              {index === 3
-                                ? <>BUILD <span class="home-hero__case-heading-secondary">with AI</span></>
-                                : heroCardCopyJa[index].label}
+                            <span
+                              class="home-hero__case-number"
+                              data-glass-refraction-source
+                              data-refraction-color="#fff"
+                            >
+                              {heroCardCopyJa[index].number}
                             </span>
                           </>
                         : materials[index] === 'gem'
@@ -263,9 +264,14 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                     <span class="home-hero__case-text">
                       {locale === 'ja'
                         ? <>
-                            <span class="home-hero__case-meta">{heroCardCopyJa[index].product}</span>
+                            <span class="home-hero__case-heading">
+                              {index === 3
+                                ? <>BUILD <span class="home-hero__case-heading-secondary">with AI</span></>
+                                : heroCardCopyJa[index].label}
+                            </span>
                             <span class="home-hero__case-card-title">{heroCardCopyJa[index].title}</span>
                             <span class="home-hero__case-description">{heroCardCopyJa[index].description}</span>
+                            <span class="home-hero__case-meta">{heroCardCopyJa[index].product}</span>
                           </>
                         : caseStudy.text.split('\n').map((line, lineIndex, lines) => (
                             <>{line}{lineIndex < lines.length - 1 && <br />}</>

@@ -170,7 +170,7 @@ type BackgroundReflectionProfile = {
 export const backgroundReflectionTuning = {
   fallbackColor: 0xf9f3f0,
   profiles: {
-    gem: { strength: .23, rayDistance: .17 },
+    gem: { strength: .16, rayDistance: .17 },
     'sea-glass': { strength: .5, rayDistance: .23 },
     'rough-glass': { strength: .58, rayDistance: .17 },
     glass: { strength: .48, rayDistance: .13 },
@@ -186,7 +186,7 @@ export const glintProfiles = {
     sideRoughness: 0.04,
     clearcoat: 1,
     clearcoatRoughness: 0.01,
-    envMapIntensity: 1.81,
+    envMapIntensity: 1.89,
   },
   'sea-glass': {
     strength: 0.9,
@@ -197,15 +197,19 @@ export const glintProfiles = {
 } as const;
 
 export const gemTuning = {
-  ior: 2.2,
-  iorRed: 2.165,
-  iorGreen: 2.2,
-  iorBlue: 2.245,
+  ior: 1.935,
+  iorRed: 1.9,
+  iorGreen: 1.935,
+  iorBlue: 1.98,
   refractionPx: 42,
-  refractionScale: 1.4,
-  dispersionBoost: 5.07,
-  reflectionExposure: .81,
+  refractionScale: 1.11,
+  dispersionBoost: 6,
+  reflectionExposure: .84,
   keyIntensity: 8,
+  internalShadowStrength: 1.63,
+  facetShadowHardness: 0,
+  upperTransmissionStrength: .54,
+  facetHighlightStrength: 0,
 } as const;
 
 export const glassTuning = {
@@ -232,15 +236,15 @@ export const seaGlassTuning = {
 export const roughGlassTuning = {
   refractionStrength: 1.85,
   glassTransmission: 1,
-  glassBrightness: 1,
+  glassBrightness: .84,
   glassRoughness: .4,
-  glassReflection: 1.53,
-  glassEdgeLight: 1.08,
-  projectionStrength: 1.45,
-  hammeredStrength: .89,
-  waveScale: 1.02,
-  waveRandomness: .72,
-  waveAmplitude: .86,
+  glassReflection: 1.05,
+  glassEdgeLight: 3,
+  projectionStrength: .67,
+  hammeredStrength: .71,
+  waveScale: 1.17,
+  waveRandomness: .46,
+  waveAmplitude: .87,
   waveEdgeStrength: 3,
   waveRefraction: 2.5,
   waveShadow: 1.35,

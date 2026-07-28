@@ -91,6 +91,10 @@ export const createGemFaceMaterial = (
     },
     uKeyColor: { value: new Color(lightingTuning.key.color) },
     uKeyIntensity: { value: gemTuning.keyIntensity },
+    uInternalShadowStrength: { value: gemTuning.internalShadowStrength },
+    uFacetShadowHardness: { value: gemTuning.facetShadowHardness },
+    uUpperTransmissionStrength: { value: gemTuning.upperTransmissionStrength },
+    uFacetHighlightStrength: { value: gemTuning.facetHighlightStrength },
     ...createIntroLightUniforms(),
     ...createBackgroundReflectionUniforms('gem'),
   },
@@ -204,10 +208,12 @@ export const createRoughGlassCausticMaterial = (
 export const createSeaGlassMaterial = (
   backdropTexture: Texture,
   blurredBackdropTexture: Texture,
+  domRefractionTexture: Texture,
 ) => new ShaderMaterial({
   uniforms: {
     uBackdrop: { value: backdropTexture },
     uBackdropBlurred: { value: blurredBackdropTexture },
+    uDomRefraction: { value: domRefractionTexture },
     uCanvasSize: { value: new Vector2(1, 1) },
     uRefraction: { value: seaGlassTuning.refractionPx },
     uRefractionScale: { value: seaGlassTuning.refractionScale },
