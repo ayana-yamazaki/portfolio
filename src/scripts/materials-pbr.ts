@@ -625,13 +625,33 @@ if (canvas && cases && hero) {
       );
     };
 
+    const revealReadyShadows = () => {
+      if (disposed) return;
+      let changed = false;
+      cardStates.forEach((state) => {
+        if (!state.element.hasAttribute('data-material-pbr-ready')) return;
+        const material = state.shadow.material as MeshBasicMaterial;
+        if (material.opacity === 1) return;
+        material.opacity = 1;
+        changed = true;
+      });
+      if (changed) {
+        invalidate(
+          RenderDirtyFlag.appearance
+          | RenderDirtyFlag.motionCache,
+        );
+      }
+    };
+
     const markTextureReady = () => {
       if (disposed || textureReady) return;
       textureReady = true;
       canvas.dataset.rendererState = 'ready';
       markLayoutDirty();
       requestAnimationFrame(() => {
-        if (!disposed) cases.classList.add('is-materials-pbr-ready');
+        if (disposed) return;
+        cases.classList.add('is-materials-pbr-ready');
+        window.setTimeout(revealReadyShadows, 260);
       });
     };
 
@@ -1232,7 +1252,7 @@ if (canvas && cases && hero) {
             : shadowPlaceholderTexture ?? getShadowMap(kind),
           color: definition.shadowColor,
           transparent: true,
-          opacity: 1,
+          opacity: 0,
           depthWrite: false,
           toneMapped: false,
         }),
@@ -1471,6 +1491,9 @@ if (canvas && cases && hero) {
         if (disposed) return;
         preparedCardKinds.add(kind);
         state.element.dataset.materialPbrReady = '';
+        if (cases.classList.contains('is-materials-pbr-ready')) {
+          window.setTimeout(revealReadyShadows, 260);
+        }
         invalidate(
           RenderDirtyFlag.layout
           | RenderDirtyFlag.appearance

@@ -226,14 +226,15 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
               >
                 <span class="home-hero__card-wrap">
                   <span class={`home-hero__card material-card material-card--${materials[index]}`} aria-hidden="true">
-                  <span class="material-card__shadow"></span>
-                  <span class="material-card__volume">
+                  <span class="material-card__fallback"></span>
+                  <span class="material-card__shadow" hidden></span>
+                  <span class="material-card__volume" hidden>
                     <span class="material-card__front">
                       <span class="material-card__surface"></span>
                       <span class="material-card__sheen"></span>
                     </span>
-                    <span class="material-card__side material-card__side--right"></span>
-                    <span class="material-card__side material-card__side--bottom"></span>
+                    <span class="material-card__side material-card__side--right" hidden></span>
+                    <span class="material-card__side material-card__side--bottom" hidden></span>
                   </span>
                   {/* {materials[index] === 'glass' && (
                     <img class="material-card__glass-icon" src={codeXmlIcon.src} alt="" />

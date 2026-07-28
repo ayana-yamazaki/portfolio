@@ -289,15 +289,8 @@ body:has(.home-main) {
 }
 
 .home-hero__cases.is-materials-pbr-ready
-  .home-hero__case[data-material-pbr-ready] .material-card__volume,
-.home-hero__cases.is-materials-pbr-ready
-  .home-hero__case[data-material-pbr-ready] .material-card__shadow {
+  .home-hero__case[data-material-pbr-ready] .material-card__fallback {
   opacity: 0;
-}
-
-.home-hero__cases.is-materials-pbr-ready
-  .home-hero__case[data-material-pbr-ready] .material-card__volume {
-  transform: none;
 }
 
 .home-hero__cases.is-materials-pbr-ready
@@ -314,6 +307,34 @@ body:has(.home-main) {
   display: block;
   width: 100%;
   aspect-ratio: 1 / 1.618;
+}
+
+.material-card__fallback {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, .36);
+  background: rgba(108, 114, 124, .3);
+  box-shadow: none;
+  opacity: 1;
+  transition: opacity 240ms ease;
+}
+
+.material-card--gem .material-card__fallback {
+  clip-path: var(--gem-outline);
+}
+
+.material-card--sea-glass .material-card__fallback {
+  clip-path: var(--sea-glass-outline);
+}
+
+.material-card--rough-glass .material-card__fallback {
+  border-radius: 10px;
+}
+
+.material-card--glass .material-card__fallback {
+  border-radius: var(--glass-radius);
 }
 
 .material-card__shadow {
@@ -1530,11 +1551,12 @@ html:lang(ja) .home-hero__case-text {
   .home-hero__case[data-material='rough-glass'] .home-hero__case-copy,
   .home-hero__case[data-material='glass'] .home-hero__case-copy {
     top: 50%;
-    right: 18px;
+    right: auto;
     bottom: auto;
-    left: 18px;
-    padding: 0 18px;
-    transform: translateY(-50%);
+    left: 50%;
+    width: 95%;
+    padding: 0;
+    transform: translate(-50%, -50%);
   }
 
   .home-hero__case-link,
@@ -1646,6 +1668,7 @@ html:lang(ja) .home-hero__case-text {
   .home-hero__case-progress-bar > span,
   .home-hero__cases::after,
   .home-hero__cases:not(.is-materials-pbr-ready) .home-hero__case .material-card__volume,
+  .material-card__fallback,
   .material-card__volume,
   .material-card__shadow,
   .material-card__sheen {
