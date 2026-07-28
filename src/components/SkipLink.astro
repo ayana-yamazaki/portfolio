@@ -1,0 +1,34 @@
+---
+import type { Locale } from '../i18n/locale';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<a class="skip-link" href="#main-content">
+  {locale === 'ja' ? '本文へスキップ' : 'Skip to content'}
+</a>
+
+<style>
+  .skip-link {
+    position: fixed;
+    z-index: 1000;
+    top: 8px;
+    left: 8px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    color: #fff;
+    background: #181818;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(calc(-100% - 16px));
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+</style>

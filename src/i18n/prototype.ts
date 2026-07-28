@@ -1,4 +1,5 @@
 export const prototypeTranslations = {
+  '入力を紙より24％速くし、デジタル導入の条件を満たす': `Made input 24% faster than paper, meeting the requirement for digital adoption`,
   '歯科医師と試作を重ね、紙より速い操作を実現': `Iterate with dentists to build an interface faster than paper`,
   '歯科医師と試作を重ね、': `Iterate with dentists`,
   '紙より速い操作を実現': `to build an interface faster than paper`,

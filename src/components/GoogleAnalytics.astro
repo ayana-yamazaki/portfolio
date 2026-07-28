@@ -1,18 +1,23 @@
 ---
 const measurementId = 'G-K1CWLJXHHB';
+const productionHost = 'ayana-works.com';
 const enabled = import.meta.env.PROD;
 ---
 
 {enabled && (
-  <>
-    <script async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
-    <script is:inline define:vars={{ measurementId }}>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        window.dataLayer.push(arguments);
+    <script is:inline define:vars={{ measurementId, productionHost }}>
+      if (window.location.hostname === productionHost) {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+        document.head.append(script);
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          window.dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', measurementId);
       }
-      gtag('js', new Date());
-      gtag('config', measurementId);
     </script>
-  </>
 )}

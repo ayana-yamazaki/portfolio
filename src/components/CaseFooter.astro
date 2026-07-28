@@ -84,12 +84,14 @@ const footer: {
         fetchpriority="low"
       />
     )}
-    <div class="case-footer__feature-inner">
+    <div class="case-footer__feature-inner" data-reveal={isHome ? '' : undefined}>
       <div class="case-footer__title-row">
         {footer.cardImage && (
           <img
             class="case-footer__material"
             src={footer.cardImage}
+            width="458"
+            height="676"
             alt=""
             aria-hidden="true"
             loading="lazy"
@@ -110,7 +112,7 @@ const footer: {
     </div>
   </a>
 
-  <div class="case-footer__utility">
+  <div class="case-footer__utility" data-reveal={isHome ? '' : undefined}>
     <p>Ayana Yamazaki - Product Builder / Product Designer</p>
     <nav aria-label="Footer navigation">
       <a href={getLocalizedPath('/', locale)}>Home</a>

@@ -1,4 +1,5 @@
 export const reframeTranslations = {
+  '全員参加を生む体験を設計し、全国200社規模の導入へ': `Designed for everyone, adopted by roughly 200 companies nationwide`,
   'UX・UI': `UX / UI`,
   '複数の農業車両と走行軌跡を可視化するレポサク': `Reposaku visualizing multiple farm vehicles and their routes`,
   '現場を理解し、プロダクトの前提を変える': `Understand the field, then reframe the product`,

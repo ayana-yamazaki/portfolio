@@ -1571,7 +1571,12 @@ html:lang(ja) .home-hero__case-text {
   .home-hero__case[data-material='sea-glass'] .home-hero__case-copy,
   .home-hero__case[data-material='rough-glass'] .home-hero__case-copy,
   .home-hero__case[data-material='glass'] .home-hero__case-copy {
-    transform: none;
+    transform: translate(-50%, -50%);
+  }
+
+  html:lang(ja) .home-hero__case[data-material]
+    .home-hero__case-copy--featured {
+    transform: translateX(-50%);
   }
 
   .home-hero__case-title,
@@ -1579,10 +1584,15 @@ html:lang(ja) .home-hero__case-text {
   .home-hero__case[data-material='sea-glass'] .home-hero__case-title,
   .home-hero__case[data-material='rough-glass'] .home-hero__case-title,
   .home-hero__case[data-material='glass'] .home-hero__case-title {
-    font-size: 25px;
+    font-size: clamp(18px, 2.05vw, 21px);
   }
 
-  .home-hero__case-text {
+  .home-hero__case-title .home-hero__case-heading--card {
+    font-size: clamp(16px, 2.05vw, 21px);
+  }
+
+  .home-hero__case-text,
+  html:lang(ja) .home-hero__case-copy--featured .home-hero__case-text {
     display: none;
   }
 

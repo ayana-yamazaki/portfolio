@@ -7,7 +7,8 @@ import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import RevealObserver from '../components/RevealObserver.astro';
 import LocaleRedirect from '../components/LocaleRedirect.astro';
-import { getLocaleUrl, type Locale } from '../i18n/locale';
+import SkipLink from '../components/SkipLink.astro';
+import { getLocaleUrl, stripLocalePrefix, type Locale } from '../i18n/locale';
 
 interface Props {
   title: string;
@@ -20,6 +21,29 @@ const ogTitle = `${title} — Ayana Yamazaki`;
 const canonicalUrl = getLocaleUrl(Astro.url.pathname, locale);
 const japaneseUrl = getLocaleUrl(Astro.url.pathname, 'ja');
 const englishUrl = getLocaleUrl(Astro.url.pathname, 'en');
+const casePath = stripLocalePrefix(Astro.url.pathname);
+const twitterImages: Record<string, string> = {
+  '/reframe-the-problem': '/images/optimized/reposaku-keyvisual-1440.webp',
+  '/decide-what-to-build': '/images/optimized/reposaku-report-hero-1200.webp',
+  '/prototype-and-iterate': '/images/medical-ui/hero-interaction-poster.webp',
+  '/build-ai-native': '/images/optimized/build-ai-native-hero-1024.webp',
+};
+const twitterImageUrl = new URL(twitterImages[casePath], canonicalUrl);
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: title,
+  headline: title,
+  description,
+  url: canonicalUrl.toString(),
+  inLanguage: locale,
+  author: {
+    '@type': 'Person',
+    '@id': 'https://ayana-works.com/#person',
+    name: 'Ayana Yamazaki',
+    url: 'https://ayana-works.com/',
+  },
+};
 ---
 
 <!doctype html>
@@ -30,6 +54,9 @@ const englishUrl = getLocaleUrl(Astro.url.pathname, 'en');
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" />
     <FontLinks />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={description} />
@@ -37,18 +64,25 @@ const englishUrl = getLocaleUrl(Astro.url.pathname, 'en');
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:locale" content={locale === 'ja' ? 'ja_JP' : 'en_US'} />
     <meta property="og:locale:alternate" content={locale === 'ja' ? 'en_US' : 'ja_JP'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={twitterImageUrl} />
+    <meta name="twitter:image:alt" content={title} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="alternate" hreflang="ja" href={japaneseUrl} />
     <link rel="alternate" hreflang="en" href={englishUrl} />
     <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
     <LocaleRedirect locale={locale} />
     <GoogleAnalytics />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)}></script>
     <title>{title} — Ayana Yamazaki</title>
   </head>
   <body id="top">
+    <SkipLink locale={locale} />
     <SiteHeader locale={locale} />
 
-    <main class="case-page">
+    <main id="main-content" class="case-page" tabindex="-1">
       <slot />
     </main>
 

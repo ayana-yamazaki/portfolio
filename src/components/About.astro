@@ -12,8 +12,8 @@ const about = getAbout(locale);
 ---
 
 <section id="about" class="about" aria-labelledby="about-title">
-  <h2 id="about-title" class="home-section-heading">{about.label}</h2>
-  <div class="about-intro">
+  <h2 id="about-title" class="home-section-heading" data-reveal>{about.label}</h2>
+  <div class="about-intro" data-reveal>
     <div class="case-prose case-prose--full">
       {about.description.map((line) => <p>{line}</p>)}
       <p class="about-award">
@@ -36,10 +36,10 @@ const about = getAbout(locale);
     />
   </div>
   <div class="experience">
-    <h3 class="home-section-heading">Experience</h3>
+    <h3 class="home-section-heading" data-reveal>Experience</h3>
     <div class="experience-list">
       {about.experience.map((item) => (
-        <article class="experience-item">
+        <article class="experience-item" data-reveal>
           <p class="experience-period">{item.period}</p>
           <div>
             <h4>{item.organization}</h4>

@@ -56,6 +56,10 @@ const englishHref = `${getLocalizedPath(Astro.url.pathname, 'en')}${search}`;
   }
 
   .language-switcher a {
+    display: grid;
+    min-width: 24px;
+    min-height: 24px;
+    place-items: center;
     color: var(--text-color-secondary);
     font-size: clamp(11px, .9vw, 13px);
     font-weight: 500;
@@ -71,5 +75,11 @@ const englishHref = `${getLocalizedPath(Astro.url.pathname, 'en')}${search}`;
   .language-switcher a:hover,
   .language-switcher a:focus-visible {
     color: var(--accent-color);
+  }
+
+  @media (max-width: 360px) {
+    .language-switcher {
+      gap: 2px;
+    }
   }
 </style>

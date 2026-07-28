@@ -9,6 +9,8 @@ import FontLinks from '../components/FontLinks.astro';
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import LocaleRedirect from '../components/LocaleRedirect.astro';
+import RevealObserver from '../components/RevealObserver.astro';
+import SkipLink from '../components/SkipLink.astro';
 import { getCaseStudies } from '../data/site';
 import { getLocaleUrl, getLocalizedPath, type Locale } from '../i18n/locale';
 import { materialCardNames } from '../scripts/materials/config';
@@ -60,6 +62,28 @@ const ogDescription = locale === 'ja'
 const canonicalUrl = getLocaleUrl('/', locale);
 const japaneseUrl = getLocaleUrl('/', 'ja');
 const englishUrl = getLocaleUrl('/', 'en');
+const twitterImageUrl = new URL('/images/optimized/nanakamado-1600.webp', canonicalUrl);
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': 'https://ayana-works.com/#person',
+      name: 'Ayana Yamazaki',
+      url: 'https://ayana-works.com/',
+      jobTitle: ['Product Builder', 'Product Designer'],
+      sameAs: ['https://x.com/ayana_yamazaki'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://ayana-works.com/#website',
+      name: 'Ayana Yamazaki — Product Builder',
+      url: 'https://ayana-works.com/',
+      inLanguage: ['ja', 'en'],
+      author: { '@id': 'https://ayana-works.com/#person' },
+    },
+  ],
+};
 const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 ---
 
@@ -71,6 +95,9 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
     <meta name="description" content={ogDescription} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#f5f5f5" />
     <FontLinks />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={ogDescription} />
@@ -78,12 +105,21 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:locale" content={locale === 'ja' ? 'ja_JP' : 'en_US'} />
     <meta property="og:locale:alternate" content={locale === 'ja' ? 'en_US' : 'ja_JP'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
+    <meta name="twitter:image" content={twitterImageUrl} />
+    <meta
+      name="twitter:image:alt"
+      content={locale === 'ja' ? '山崎文菜のポートフォリオ' : 'Ayana Yamazaki portfolio'}
+    />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="alternate" hreflang="ja" href={japaneseUrl} />
     <link rel="alternate" hreflang="en" href={englishUrl} />
     <link rel="alternate" hreflang="x-default" href={japaneseUrl} />
     <LocaleRedirect locale={locale} />
     <GoogleAnalytics />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)}></script>
     <title>Ayana Yamazaki — Product Builder</title>
     <script>
       import '../scripts/home-carousel';
@@ -111,13 +147,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
         }, isSmallViewport ? 120 : 0);
       };
 
-      if (isSmallViewport) {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => void loadMaterials());
-        });
-      } else {
-        requestDeferredMaterials();
-      }
+      requestDeferredMaterials();
 
       const cases = document.querySelector('[data-case-carousel]');
       const loadMaterialsForInteraction = () => void loadMaterials();
@@ -135,8 +165,9 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
     </script>
   </head>
   <body id="top">
+    <SkipLink locale={locale} />
     <SiteHeader locale={locale} />
-    <main class="home-main">
+    <main id="main-content" class="home-main" tabindex="-1">
       <section class="home-hero" aria-labelledby="home-title">
         <svg class="material-filters" aria-hidden="true">
           <defs>
@@ -162,13 +193,13 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
         <header class="home-hero__heading">
           <div class="home-hero__intro">
             <p class="home-hero__name">Ayana Yamazaki</p>
-            <p class="home-hero__role" aria-label="Product Builder / Product Designer">
+            <h1 id="home-title" class="home-hero__role" aria-label="Product Builder / Product Designer">
               <span class="home-hero__role-primary">
                 <span>Product Builder</span>
                 <span class="home-hero__role-separator" aria-hidden="true">/</span>
               </span>
               <span class="home-hero__role-secondary" aria-hidden="true">Product Designer</span>
-            </p>
+            </h1>
             <p class="home-hero__description">
               {locale === 'ja'
                 ? '複雑な現場を、動くプロダクトへ翻訳する'
@@ -207,9 +238,6 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
               fetchpriority="high"
             />
           </picture>
-          {/* <h1 class="home-hero__title" id="home-title" data-glass-refraction-source>
-            <span>THE WAY <br />I BUILD</span>
-          </h1> */}
           <canvas
             class="home-hero__materials-canvas"
             aria-hidden="true"
@@ -297,6 +325,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
       <About locale={locale} />
     </main>
     <CaseFooter locale={locale} />
+    <RevealObserver />
 
   </body>
 </html>

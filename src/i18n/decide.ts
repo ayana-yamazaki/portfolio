@@ -1,4 +1,5 @@
 export const decideTranslations = {
+  '100件超の要望を成長ロードマップに変え、他業種展開へ': `Turned 100+ requests into a growth roadmap for expansion into new industries`,
   'UX・UI': `UX / UI`,
   '調査と事業課題から、作るべきものと順序を決める': `Turn research and business goals into a product roadmap`,
   '調査と事業課題から、': `Turn research and business goals`,

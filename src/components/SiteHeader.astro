@@ -212,7 +212,7 @@ const useCaseStudyStyle = revealOnScroll || isCaseStudy;
     justify-content: center;
     gap: 0;
     padding: 0 10px;
-    color: #a0a0a0;
+    color: #767676;
   }
 
   .site-header--case-study .site-header__sections a:hover,
@@ -300,7 +300,9 @@ const useCaseStudyStyle = revealOnScroll || isCaseStudy;
     }
 
     .site-header__group {
-      width: 100%;
+      flex: 1;
+      width: auto;
+      min-width: 0;
       align-items: center;
       flex-direction: row;
       gap: 12px;
@@ -335,6 +337,17 @@ const useCaseStudyStyle = revealOnScroll || isCaseStudy;
 
     .site-header-spacer {
       height: 0;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .site-header {
+      gap: 12px;
+      padding-inline: 12px;
+    }
+
+    .site-header__brand {
+      display: none;
     }
   }
 

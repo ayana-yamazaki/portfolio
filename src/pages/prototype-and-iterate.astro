@@ -35,16 +35,18 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
     <Fragment slot="media">
       <figure class="case-figure">
         <video
-          autoplay
           muted
           loop
           playsinline
-          preload="metadata"
+          preload="none"
           poster="/images/medical-ui/hero-interaction-poster.webp"
+          width="720"
+          height="1000"
           aria-label="歯周病検査の数値を連続入力するタブレットUI"
+          data-deferred-hero-video
         >
-          <source src="/images/medical-ui/hero-interaction.webm" type="video/webm" />
-          <source src="/images/medical-ui/hero-interaction.mp4" type="video/mp4" />
+          <source data-src="/images/medical-ui/hero-interaction.webm" type="video/webm" />
+          <source data-src="/images/medical-ui/hero-interaction.mp4" type="video/mp4" />
         </video>
       </figure>
     </Fragment>
@@ -161,6 +163,45 @@ const caseStudy = getCaseStudy('/prototype-and-iterate', locale);
     </section>
   </div>
   </TranslatedContent>
+
+<script>
+  const deferredHeroVideo = document.querySelector<HTMLVideoElement>(
+    'video[data-deferred-hero-video]',
+  );
+
+  const loadDeferredHeroVideo = () => {
+    if (!deferredHeroVideo || deferredHeroVideo.dataset.videoLoaded !== undefined) return;
+    deferredHeroVideo.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((source) => {
+      source.src = source.dataset.src ?? '';
+      source.removeAttribute('data-src');
+    });
+    deferredHeroVideo.dataset.videoLoaded = '';
+    deferredHeroVideo.load();
+    void deferredHeroVideo.play().catch(() => {
+      // Keep the poster when autoplay is restricted.
+    });
+  };
+
+  const scheduleDeferredHeroVideo = () => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(loadDeferredHeroVideo, { timeout: 2_000 });
+    } else {
+      window.setTimeout(loadDeferredHeroVideo, 800);
+    }
+  };
+
+  if (document.readyState === 'complete') {
+    scheduleDeferredHeroVideo();
+  } else {
+    window.addEventListener('load', scheduleDeferredHeroVideo, { once: true });
+  }
+
+  deferredHeroVideo?.addEventListener('pointerdown', loadDeferredHeroVideo, {
+    once: true,
+    passive: true,
+  });
+</script>
+
 </CaseStudyLayout>
 
 <style>

@@ -1,4 +1,5 @@
 export const buildAiTranslations = {
+  '131件の仕様・UX課題を実装前に解き、開発の不確実性を減らす': `Resolved 131 specification and UX issues before implementation, reducing development uncertainty`,
   'Figmaでは': `Close the specification gaps `,
   '見えない': `Figma cannot show`,
   '仕様の穴を、コードで潰す': ` with working code`,
