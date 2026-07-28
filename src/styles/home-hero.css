@@ -779,7 +779,7 @@ html:lang(ja) .home-hero__case-title-text {
   display: none;
 }
 
-.home-hero__case-copy--featured .home-hero__case-link {
+.home-hero__case-link {
   display: none;
 }
 
@@ -1352,9 +1352,7 @@ html:lang(ja) .home-hero__case-text {
     scroll-snap-stop: always;
     transform: none;
     transform-origin: center;
-    transition:
-      opacity 380ms ease,
-      transform 520ms cubic-bezier(.2, .75, .2, 1);
+    transition: opacity 380ms ease;
   }
 
   .home-hero__case[data-material] .home-hero__card {
@@ -1364,12 +1362,12 @@ html:lang(ja) .home-hero__case-text {
 
   .home-hero__case-track[data-carousel-ready] .home-hero__case {
     opacity: .6;
-    transform: translateY(14px);
+    transform: none;
   }
 
   .home-hero__case-track[data-carousel-ready] .home-hero__case[data-active='true'] {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 
   .home-hero__case-progress {
@@ -1419,10 +1417,62 @@ html:lang(ja) .home-hero__case-text {
   }
 
   html:lang(ja) .home-hero__case-title-text {
-    display: contents;
+    display: none;
+  }
+
+  html:lang(ja) .home-hero__case-number {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  html:lang(ja) .home-hero__case-heading--card {
+    display: block;
+    margin-top: 6px;
+    color: #fff;
+    font-size: clamp(32px, 9.5vw, 44px);
+    font-weight: 600;
+    line-height: .96;
+    white-space: nowrap;
+  }
+
+  html:lang(ja) .home-hero__case-heading-secondary {
+    font-size: .7em;
+  }
+
+  html:lang(ja) .home-hero__case-copy--featured,
+  html:lang(ja) .home-hero__case-copy--featured .home-hero__case-title,
+  html:lang(ja) .home-hero__case-copy--featured .home-hero__case-text,
+  html:lang(ja) .home-hero__case-copy--featured .home-hero__case-link {
+    text-align: center;
   }
 
   .home-hero__case-text {
+    display: none;
+  }
+
+  html:lang(ja) .home-hero__case-copy--featured .home-hero__case-text {
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 14px 0 0;
+    color: rgba(255, 255, 255, .9);
+    font-size: clamp(13px, 3.8vw, 16px);
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    white-space: normal;
+  }
+
+  html:lang(ja) .home-hero__case-card-title {
+    display: block;
+  }
+
+  html:lang(ja) .home-hero__case-description,
+  html:lang(ja) .home-hero__case-meta {
     display: none;
   }
 

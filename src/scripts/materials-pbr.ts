@@ -1142,6 +1142,12 @@ if (canvas && cases && hero) {
     };
 
     const updateLiftTarget = (state: CardState) => {
+      if (isSmallViewport) {
+        state.liftPx = 0;
+        state.liftFromPx = 0;
+        state.liftToPx = 0;
+        return;
+      }
       const isActive = (
         state.hovered
         || state.pressed
