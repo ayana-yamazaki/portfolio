@@ -24,31 +24,31 @@ const materials = ['gem', 'sea-glass', 'rough-glass', 'glass'] as const;
 const heroCardCopyJa = [
   {
     number: '01',
-    title: 'REFRAME',
+    label: 'REFRAME',
+    title: '現場から課題を問い直す',
     product: 'Reposaku / Agriculture SaaS',
-    metric: '無線連絡 −84%',
-    description: '高齢者にも使いやすい画面ではなく、操作そのものをなくす',
+    description: '全員参加を実現し、200社規模へ',
   },
   {
     number: '02',
-    title: 'DECIDE',
+    label: 'DECIDE',
+    title: '事業を伸ばす開発順を策定する',
     product: 'Reposaku / Agriculture SaaS',
-    metric: '100件超の要望を3段階へ',
-    description: '利用定着と事業展開の順序から、ロードマップを再構成',
+    description: '利用定着から、他業種展開へ',
   },
   {
     number: '03',
-    title: 'ITERATE',
+    label: 'PROTOTYPE',
+    title: 'プロトタイプで導入条件を満たす',
     product: 'Dental / Clinical UX',
-    metric: '紙より入力速度 ＋24%',
-    description: '指と視線の移動を検証、紙より速く入力できるUI導出',
+    description: '紙より24％速い入力を実現',
   },
   {
     number: '04',
-    title: 'BUILD with AI',
+    label: 'BUILD with AI',
+    title: 'AIとコードで仕様決定を前倒す',
     product: 'Manufacturing SaaS',
-    metric: 'Claude CodeでStorybook実装',
-    description: 'ReactとStorybookで、開発前に131件のUX課題を洗い出し',
+    description: '実装前に課題を潰し、不確実性を減らす',
   },
 ];
 const ogTitle = locale === 'ja'
@@ -247,7 +247,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                             <span class="home-hero__case-heading">
                               {index === 3
                                 ? <>BUILD <span class="home-hero__case-heading-secondary">with AI</span></>
-                                : heroCardCopyJa[index].title}
+                                : heroCardCopyJa[index].label}
                             </span>
                           </>
                         : materials[index] === 'gem'
@@ -264,7 +264,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                       {locale === 'ja'
                         ? <>
                             <span class="home-hero__case-meta">{heroCardCopyJa[index].product}</span>
-                            <span class="home-hero__case-metric">{heroCardCopyJa[index].metric}</span>
+                            <span class="home-hero__case-card-title">{heroCardCopyJa[index].title}</span>
                             <span class="home-hero__case-description">{heroCardCopyJa[index].description}</span>
                           </>
                         : caseStudy.text.split('\n').map((line, lineIndex, lines) => (

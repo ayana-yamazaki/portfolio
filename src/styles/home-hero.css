@@ -1118,14 +1118,15 @@ html:lang(ja) .home-hero__case-text {
   }
 
   .home-hero__case-meta,
-  .home-hero__case-metric {
+  .home-hero__case-card-title {
     display: block;
     color: rgba(255, 255, 255, .9);
     white-space: nowrap;
   }
 
-  .home-hero__case-metric {
+  .home-hero__case-card-title {
     margin-top: 8px;
+    font-weight: 500;
   }
 
   .home-hero__case-description {
