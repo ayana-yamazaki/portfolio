@@ -78,11 +78,8 @@ import {
   type MotionCache,
 } from './materials/engine/motion-cache';
 import {
+  loadBakedMaterialTextures,
   loadRoughGlassTextures,
-  makeGemFloorCausticTexture,
-  makeGemPrismTexture,
-  makeSeaGlassPrismTexture,
-  makeCardShadowTexture,
 } from './materials/textures';
 import { createRoughGlassControls } from './materials/rough-glass-controls';
 import { createSeaGlassControls } from './materials/sea-glass-controls';
@@ -344,19 +341,19 @@ if (canvas && cases && hero) {
   const mobileQuality = isLowPowerDevice
     ? {
       tier: 'low',
-      maxPixelRatio: 1.25,
-      maxPixelCount: 850_000,
+      maxPixelRatio: .9,
+      maxPixelCount: 650_000,
     }
     : isHighPowerDevice
     ? {
       tier: 'high',
-      maxPixelRatio: 1.5,
-      maxPixelCount: 1_200_000,
+      maxPixelRatio: 1.1,
+      maxPixelCount: 900_000,
     }
     : {
       tier: 'balanced',
-      maxPixelRatio: 1.35,
-      maxPixelCount: 1_000_000,
+      maxPixelRatio: 1,
+      maxPixelCount: 800_000,
     };
   if (isSmallViewport) canvas.dataset.rendererQuality = mobileQuality.tier;
   let disposed = false;
@@ -632,8 +629,10 @@ if (canvas && cases && hero) {
       if (disposed || textureReady) return;
       textureReady = true;
       canvas.dataset.rendererState = 'ready';
-      cases.classList.add('is-materials-pbr-ready');
       markLayoutDirty();
+      requestAnimationFrame(() => {
+        if (!disposed) cases.classList.add('is-materials-pbr-ready');
+      });
     };
 
     const makePlaceholderTexture = (fillStyle: string) => {
@@ -649,36 +648,27 @@ if (canvas && cases && hero) {
     let roughGlassTextures: ReturnType<typeof loadRoughGlassTextures> | undefined;
     const roughGlassBump = roughGlassTextures?.bump
       ?? makePlaceholderTexture('#808080');
-    const gemFloorCaustic = makeGemFloorCausticTexture();
-    const gemPrism = makeGemPrismTexture();
-    const seaGlassPrism = makeSeaGlassPrismTexture(!isSmallViewport);
+    const bakedMaterialTextures = loadBakedMaterialTextures(!isSmallViewport);
+    const {
+      gemFloorCaustic,
+      gemPrism,
+      seaGlassPrism,
+    } = bakedMaterialTextures;
     [
       roughGlassBump,
       gemFloorCaustic,
       gemPrism,
       seaGlassPrism,
+      ...Object.values(bakedMaterialTextures.shadows),
     ]
       .forEach((texture) => trackedTextures.add(texture));
-    const shadowMaps = new Map<MaterialKind, Texture>();
     const shadowPlaceholderTexture = isSmallViewport
       ? makePlaceholderTexture('rgba(0, 0, 0, 0)')
       : undefined;
     if (shadowPlaceholderTexture) trackedTextures.add(shadowPlaceholderTexture);
-    const getShadowMap = (kind: MaterialKind) => {
-      const existing = shadowMaps.get(kind);
-      if (existing) return existing;
-      const texture = makeCardShadowTexture(
-        kind,
-        !isSmallViewport && kind === 'rough-glass'
-          ? roughGlassDesktopShadowProfile
-          : !isSmallViewport && kind === 'sea-glass'
-            ? seaGlassDesktopShadowProfile
-            : undefined,
-      );
-      shadowMaps.set(kind, texture);
-      trackedTextures.add(texture);
-      return texture;
-    };
+    const getShadowMap = (kind: MaterialKind) => (
+      bakedMaterialTextures.shadows[kind]
+    );
 
     const refractionSources = Array.from(
       document.querySelectorAll<HTMLElement>(
@@ -2853,6 +2843,13 @@ if (canvas && cases && hero) {
 
     const finishInitialization = async () => {
       const texturesReady = roughGlassTextures?.ready ?? Promise.resolve();
+      const initialBakedTexturesReady = isSmallViewport
+        ? Promise.all([
+          bakedMaterialTextures.shadowReady.gem,
+          bakedMaterialTextures.gemFloorCausticReady,
+          bakedMaterialTextures.gemPrismReady,
+        ])
+        : bakedMaterialTextures.ready;
       await initialCardDefinitionsReady;
       if (disposed) return;
       if (!syncLayout(true)) {
@@ -2869,14 +2866,21 @@ if (canvas && cases && hero) {
       }
       const shadersReady = activeRenderer.compileAsync(activeScene, camera);
       if (isSmallViewport) {
-        void texturesReady.then(() => {
+        await Promise.all([shadersReady, initialBakedTexturesReady]);
+        void Promise.all([
+          texturesReady,
+          bakedMaterialTextures.ready,
+        ]).then(() => {
           if (!disposed) invalidate(RenderDirtyFlag.appearance);
         }).catch(() => {
           if (!disposed) canvas.dataset.rendererTextureState = 'error';
         });
-        await shadersReady;
       } else {
-        await Promise.all([texturesReady, shadersReady]);
+        await Promise.all([
+          texturesReady,
+          shadersReady,
+          initialBakedTexturesReady,
+        ]);
       }
       if (disposed) return;
       markTextureReady();

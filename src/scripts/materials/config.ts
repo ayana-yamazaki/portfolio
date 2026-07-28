@@ -80,8 +80,8 @@ export const materialProfiles: Record<MaterialKind, {
 };
 
 export const sceneTuning = {
-  maxPixelRatio: 1.25,
-  maxPixelCount: 1_100_000,
+  maxPixelRatio: 1,
+  maxPixelCount: 800_000,
   maxContinuousFrames: 180,
   maxDrawCalls: 20,
   maxTriangles: 50_000,

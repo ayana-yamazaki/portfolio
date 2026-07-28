@@ -49,7 +49,7 @@ export const makeSeaGlassOutline = (
   width: number,
   height: number,
   radius = -1,
-  segments = 96,
+  segments = 48,
 ) => {
   const points = makeGemPoints(width, height);
   const wear = Math.min(width, height);
@@ -387,7 +387,7 @@ export const makeGlassPanelGeometry = (
     height * .16,
   );
   const halfDepth = depth / 2;
-  const cornerSegments = 20;
+  const cornerSegments = 10;
   const profile = [
     { inset: shoulder, z: halfDepth, region: 0 },
     { inset: shoulder * .86, z: halfDepth - depth * .008, region: .07 },

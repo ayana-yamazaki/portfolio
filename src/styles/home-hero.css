@@ -288,16 +288,8 @@ body:has(.home-main) {
     translate 360ms cubic-bezier(.45, 0, .55, 1);
 }
 
-.home-hero__materials-canvas[data-renderer-state='initializing']
-  ~ .home-hero__case .material-card__front,
-.home-hero__materials-canvas[data-renderer-state='initializing']
-  ~ .home-hero__case .material-card__side,
-.home-hero__materials-canvas[data-renderer-state='initializing']
-  ~ .home-hero__case .material-card__shadow,
 .home-hero__cases.is-materials-pbr-ready
-  .home-hero__case[data-material-pbr-ready] .material-card__front,
-.home-hero__cases.is-materials-pbr-ready
-  .home-hero__case[data-material-pbr-ready] .material-card__side,
+  .home-hero__case[data-material-pbr-ready] .material-card__volume,
 .home-hero__cases.is-materials-pbr-ready
   .home-hero__case[data-material-pbr-ready] .material-card__shadow {
   opacity: 0;
@@ -361,7 +353,9 @@ body:has(.home-main) {
   transform: rotateX(1.2deg) rotateY(-.8deg) translateZ(0);
   transform-origin: 42% 70%;
   transform-style: preserve-3d;
-  transition: transform 550ms cubic-bezier(.2, .75, .2, 1);
+  transition:
+    opacity 240ms ease,
+    transform 550ms cubic-bezier(.2, .75, .2, 1);
 }
 
 .material-card__front {
