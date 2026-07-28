@@ -27,6 +27,7 @@ export const gemVertexShader = `
 export const gemFragmentShader = `
   precision highp float;
   uniform sampler2D uBackdrop;
+  // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
   uniform sampler2D uDomRefraction;
   uniform sampler2D uFloorInteraction;
   uniform samplerCube uEnvironment;
@@ -52,6 +53,7 @@ export const gemFragmentShader = `
   uniform float uSettleLightPosition;
   uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
+  uniform vec3 uBandColor;
   uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
   uniform float uBackgroundReflectionRayDistance;
@@ -63,8 +65,11 @@ export const gemFragmentShader = `
   varying float vFacetScreenX;
 
   vec3 sceneAt(vec2 uv){
-    vec4 backdrop=texture2D(uBackdrop,clamp(uv,vec2(.002),vec2(.998)));
-    vec4 dom=texture2D(uDomRefraction,clamp(uv,vec2(.002),vec2(.998)));
+    vec2 sampleUv=clamp(uv,vec2(.002),vec2(.998));
+    vec4 backdrop=texture2D(uBackdrop,sampleUv);
+    // EMBEDDED GLASS: vec4 embeddedGlass=texture2D(uEmbeddedGlass,sampleUv);
+    // EMBEDDED GLASS: backdrop.rgb=mix(backdrop.rgb,embeddedGlass.rgb,embeddedGlass.a);
+    vec4 dom=texture2D(uDomRefraction,sampleUv);
     return mix(backdrop.rgb,dom.rgb,dom.a);
   }
 
@@ -325,6 +330,7 @@ export const gemFragmentShader = `
       reflectedBackgroundSample.rgb,
       reflectedBackgroundSample.a
     );
+    reflectedBackground=mix(reflectedBackground,uBandColor,.38);
     reflectedBackground=mix(
       reflectedBackground,
       uBackgroundReflectionFallback,
@@ -508,6 +514,7 @@ export const glassVertexShader = `
 export const glassFragmentShader = `
   precision highp float;
   uniform sampler2D uBackdrop;
+  // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
   uniform sampler2D uDomRefraction;
   uniform samplerCube uEnvironment;
   uniform vec2 uCanvasSize;
@@ -526,6 +533,7 @@ export const glassFragmentShader = `
   uniform float uSettleLightPosition;
   uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
+  uniform vec3 uBandColor;
   uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
   uniform float uBackgroundReflectionRayDistance;
@@ -546,6 +554,8 @@ export const glassFragmentShader = `
   vec3 sceneAt(vec2 uv){
     vec2 sampleUv=clamp(uv,vec2(.002),vec2(.998));
     vec4 backdrop=texture2D(uBackdrop,sampleUv);
+    // EMBEDDED GLASS: vec4 embeddedGlass=texture2D(uEmbeddedGlass,sampleUv);
+    // EMBEDDED GLASS: backdrop.rgb=mix(backdrop.rgb,embeddedGlass.rgb,embeddedGlass.a);
     float floorMask=1.0-smoothstep(
       uFloorY-1.5/uCanvasSize.y,
       uFloorY+1.5/uCanvasSize.y,
@@ -863,7 +873,7 @@ export const glassFragmentShader = `
     );
     color=mix(
       color,
-      uBackgroundReflectionFallback,
+      mix(uBandColor,vec3(1.0),.08),
       upperBackgroundReflection
     );
     float settleGlassBand=exp(
@@ -928,6 +938,7 @@ export const seaGlassFragmentShader = `
   precision highp float;
   uniform sampler2D uBackdrop;
   uniform sampler2D uBackdropBlurred;
+  // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
   uniform sampler2D uDomRefraction;
   uniform vec2 uCanvasSize;
   uniform float uRefraction;
@@ -941,6 +952,7 @@ export const seaGlassFragmentShader = `
   uniform float uSettleLightPosition;
   uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
+  uniform vec3 uBandColor;
   uniform float uBandTopY;
   uniform float uBackgroundReflectionStrength;
   uniform float uBackgroundReflectionRayDistance;
@@ -1000,6 +1012,7 @@ export const seaGlassFragmentShader = `
     vec2 sampleUv=clamp(refractedUv,vec2(.002),vec2(.998));
     vec4 sharpSample=texture2D(uBackdrop,sampleUv);
     vec4 blurredSample=texture2D(uBackdropBlurred,sampleUv);
+    // EMBEDDED GLASS: vec4 embeddedGlass=texture2D(uEmbeddedGlass,sampleUv);
     vec2 domBlurStep=vec2(2.5)/uCanvasSize;
     vec4 domSample=texture2D(uDomRefraction,sampleUv)*.4;
     domSample+=texture2D(uDomRefraction,sampleUv+vec2(domBlurStep.x,0.0))*.15;
@@ -1009,6 +1022,12 @@ export const seaGlassFragmentShader = `
     vec3 backdropBase=vec3(.976,.972,.965);
     vec3 sharpScene=mix(backdropBase,sharpSample.rgb,sharpSample.a);
     vec3 blurredScene=mix(backdropBase,blurredSample.rgb,blurredSample.a);
+    // EMBEDDED GLASS: sharpScene=mix(sharpScene,embeddedGlass.rgb,embeddedGlass.a);
+    // EMBEDDED GLASS: blurredScene=mix(
+    // EMBEDDED GLASS:   blurredScene,
+    // EMBEDDED GLASS:   embeddedGlass.rgb,
+    // EMBEDDED GLASS:   embeddedGlass.a*.82
+    // EMBEDDED GLASS: );
     sharpScene=mix(sharpScene,domSample.rgb,domSample.a);
     blurredScene=mix(blurredScene,domSample.rgb,domSample.a*.72);
     float blurAmount=clamp(
@@ -1096,6 +1115,7 @@ export const seaGlassFragmentShader = `
       reflectedBlurredSample.a
     );
     vec3 reflectedBackground=mix(reflectedSharp,reflectedBlurred,.78);
+    reflectedBackground=mix(reflectedBackground,uBandColor,.34);
     reflectedBackground=mix(
       reflectedBackground,
       uBackgroundReflectionFallback,
@@ -1148,6 +1168,7 @@ export const roughGlassFragmentShader = `
   precision highp float;
   uniform sampler2D uBump;
   uniform sampler2D uBackdrop;
+  // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
   uniform sampler2D uDomRefraction;
   uniform samplerCube uEnvironment;
   uniform vec2 uTexel;
@@ -1176,6 +1197,7 @@ export const roughGlassFragmentShader = `
   uniform float uSettleLightStrength;
   uniform float uBackgroundReflectionStrength;
   uniform float uBackgroundReflectionRayDistance;
+  uniform vec3 uBandColor;
   varying vec2 vUv;
   varying vec2 vScreenUv;
   varying vec3 vWorldPosition;
@@ -1188,6 +1210,8 @@ export const roughGlassFragmentShader = `
   vec3 sceneAt(vec2 uv){
     uv=clamp(uv,vec2(.002),vec2(.998));
     vec4 backdrop=texture2D(uBackdrop,uv);
+    // EMBEDDED GLASS: vec4 embeddedGlass=texture2D(uEmbeddedGlass,uv);
+    // EMBEDDED GLASS: backdrop.rgb=mix(backdrop.rgb,embeddedGlass.rgb,embeddedGlass.a);
     float floorMask=1.0-smoothstep(
       uFloorY-.0025,
       uFloorY+.0025,
@@ -1502,6 +1526,11 @@ export const roughGlassFragmentShader = `
         vec2(.002),
         vec2(.998)
       )
+    );
+    roughReflectedBackdrop=mix(
+      roughReflectedBackdrop,
+      uBandColor,
+      .32
     );
     return mix(
       color,

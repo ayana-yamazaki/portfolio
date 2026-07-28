@@ -7,6 +7,66 @@ export const materialCardNames: Record<MaterialKind, string> = {
   glass: 'ラウンドガラス',
 };
 
+/* EMBEDDED GLASS — BEGIN: restore this block to re-enable the inset glass
+export type EmbeddedGlassShape =
+  | 'square'
+  | 'rounded-square'
+  | 'circle'
+  | 'diamond';
+
+type EmbeddedGlassProfile = {
+  color: string;
+  shape: EmbeddedGlassShape;
+  size: number;
+  position: readonly [number, number];
+  opacity: number;
+  depth: number;
+  reflection: number;
+};
+
+export const embeddedGlassProfiles: Record<
+  MaterialKind,
+  EmbeddedGlassProfile
+> = {
+  gem: {
+    color: '#ed6a2c',
+    shape: 'square',
+    size: .6,
+    position: [.5, .5],
+    opacity: .82,
+    depth: .09,
+    reflection: 1.8,
+  },
+  'sea-glass': {
+    color: '#ed6a2c',
+    shape: 'square',
+    size: .6,
+    position: [.5, .5],
+    opacity: .82,
+    depth: .09,
+    reflection: 1.8,
+  },
+  'rough-glass': {
+    color: '#ed6a2c',
+    shape: 'square',
+    size: .6,
+    position: [.5, .5],
+    opacity: .82,
+    depth: .09,
+    reflection: 1.8,
+  },
+  glass: {
+    color: '#ed6a2c',
+    shape: 'square',
+    size: .6,
+    position: [.5, .5],
+    opacity: .82,
+    depth: .09,
+    reflection: 1.8,
+  },
+};
+EMBEDDED GLASS — END */
+
 const gemThicknessPx = 350;
 
 export const materialProfiles: Record<MaterialKind, {

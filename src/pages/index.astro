@@ -241,13 +241,20 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                   </span>
                   <span class:list={['home-hero__case-copy', { 'home-hero__case-copy--featured': locale === 'ja' }]}>
                     <span class="home-hero__case-title">
-                      {locale === 'ja'
-                        ? <>
-                            <span class="home-hero__case-number">
-                              {heroCardCopyJa[index].number}
-                            </span>
-                          </>
-                        : materials[index] === 'gem'
+                      {locale === 'ja' && (
+                        <>
+                          <span class="home-hero__case-number">
+                            {heroCardCopyJa[index].number}
+                          </span>
+                          <span class="home-hero__case-heading home-hero__case-heading--card">
+                            {index === 3
+                              ? <>BUILD <span class="home-hero__case-heading-secondary">with AI</span></>
+                              : heroCardCopyJa[index].label}
+                          </span>
+                        </>
+                      )}
+                      <span class="home-hero__case-title-text">
+                        {materials[index] === 'gem'
                         ? <><span class="home-hero__embedded-title-strong">Reframe</span><br />the Problem</>
                         : materials[index] === 'sea-glass'
                           ? <>What to<br />Build</>
@@ -256,15 +263,11 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                           : materials[index] === 'glass'
                             ? <>Build<br /><span class="home-hero__embedded-title-strong">AI-Native</span></>
                             : caseStudy.title}
+                      </span>
                     </span>
                     <span class="home-hero__case-text">
                       {locale === 'ja'
                         ? <>
-                            <span class="home-hero__case-heading">
-                              {index === 3
-                                ? <>BUILD <span class="home-hero__case-heading-secondary">with AI</span></>
-                                : heroCardCopyJa[index].label}
-                            </span>
                             <span class="home-hero__case-card-title">{heroCardCopyJa[index].title}</span>
                             <span class="home-hero__case-description">{heroCardCopyJa[index].description}</span>
                             <span class="home-hero__case-meta">{heroCardCopyJa[index].product}</span>
@@ -273,9 +276,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                             <>{line}{lineIndex < lines.length - 1 && <br />}</>
                           ))}
                     </span>
-                    {locale !== 'ja' && (
-                      <span class="home-hero__case-link">Case study ↗︎</span>
-                    )}
+                    <span class="home-hero__case-link">Case study ↗︎</span>
                   </span>
                 </span>
               </a>

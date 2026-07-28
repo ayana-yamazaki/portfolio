@@ -7,6 +7,7 @@ import {
   CubeCamera,
   DirectionalLight,
   DoubleSide,
+  // EMBEDDED GLASS: ExtrudeGeometry,
   Group,
   HalfFloatType,
   HemisphereLight,
@@ -23,6 +24,7 @@ import {
   SRGBColorSpace,
   Scene,
   ShaderMaterial,
+  // EMBEDDED GLASS: Shape,
   Vector2,
   Vector3,
   WebGLCubeRenderTarget,
@@ -33,6 +35,7 @@ import {
   type Texture,
 } from 'three';
 import {
+  // EMBEDDED GLASS: embeddedGlassProfiles,
   glassContactShadowProfile,
   glassTuning,
   lightingTuning,
@@ -41,6 +44,7 @@ import {
   seaGlassDesktopShadowProfile,
   sceneTuning,
   simpleShadowProfiles,
+  // EMBEDDED GLASS: type EmbeddedGlassShape,
   type MaterialKind,
 } from './materials/config';
 import {
@@ -218,12 +222,65 @@ const meshBackdropProfiles: Record<MeshBackdropVariant, MeshBackdropProfile> = {
   },
 };
 
+/* EMBEDDED GLASS — BEGIN: 3D inset geometry
+const makeEmbeddedGlassGeometry = (
+  size: number,
+  depth: number,
+  shape: EmbeddedGlassShape,
+) => {
+  const halfSize = size / 2;
+  const path = new Shape();
+  if (shape === 'circle') {
+    path.absarc(0, 0, halfSize, 0, Math.PI * 2, false);
+  } else if (shape === 'diamond') {
+    path.moveTo(0, halfSize);
+    path.lineTo(halfSize, 0);
+    path.lineTo(0, -halfSize);
+    path.lineTo(-halfSize, 0);
+    path.closePath();
+  } else if (shape === 'rounded-square') {
+    const radius = size * .12;
+    path.moveTo(-halfSize + radius, -halfSize);
+    path.lineTo(halfSize - radius, -halfSize);
+    path.quadraticCurveTo(halfSize, -halfSize, halfSize, -halfSize + radius);
+    path.lineTo(halfSize, halfSize - radius);
+    path.quadraticCurveTo(halfSize, halfSize, halfSize - radius, halfSize);
+    path.lineTo(-halfSize + radius, halfSize);
+    path.quadraticCurveTo(-halfSize, halfSize, -halfSize, halfSize - radius);
+    path.lineTo(-halfSize, -halfSize + radius);
+    path.quadraticCurveTo(-halfSize, -halfSize, -halfSize + radius, -halfSize);
+    path.closePath();
+  } else {
+    path.moveTo(-halfSize, -halfSize);
+    path.lineTo(halfSize, -halfSize);
+    path.lineTo(halfSize, halfSize);
+    path.lineTo(-halfSize, halfSize);
+    path.closePath();
+  }
+
+  const bevelSize = Math.min(size * .018, depth * .12);
+  const geometry = new ExtrudeGeometry(path, {
+    depth,
+    steps: 1,
+    curveSegments: shape === 'circle' ? 48 : 12,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    bevelSize,
+    bevelThickness: bevelSize,
+  });
+  geometry.translate(0, 0, -depth / 2);
+  geometry.computeVertexNormals();
+  return geometry;
+};
+EMBEDDED GLASS — END */
+
 type CardState = {
   element: HTMLElement;
   kind: MaterialKind;
   definition: CardDefinition;
   group: Group;
   mesh: Mesh;
+  // EMBEDDED GLASS: embeddedGlass: Mesh;
   surface?: Mesh;
   bottomSurface?: Mesh;
   shadow: Mesh;
@@ -315,6 +372,7 @@ if (canvas && cases && hero) {
   let scene: Scene | undefined;
   let environmentTarget: WebGLRenderTarget | undefined;
   let gemEnvironmentTarget: WebGLCubeRenderTarget | undefined;
+  // EMBEDDED GLASS: let embeddedGlassTarget: WebGLRenderTarget | undefined;
   let intersectionObserver: IntersectionObserver | undefined;
   let resizeObserver: ResizeObserver | undefined;
   let mutationObserver: MutationObserver | undefined;
@@ -370,6 +428,7 @@ if (canvas && cases && hero) {
     }
     environmentTarget?.dispose();
     gemEnvironmentTarget?.dispose();
+    // EMBEDDED GLASS: embeddedGlassTarget?.dispose();
     renderer?.renderLists.dispose();
     renderer?.dispose();
     cases.classList.remove('is-materials-pbr-ready');
@@ -423,6 +482,12 @@ if (canvas && cases && hero) {
 
     const environmentScene = new Scene();
     environmentScene.background = new Color(lightingTuning.environment.background);
+    const bandEnvironmentColor = new Color(0x1f5dcd);
+    const initialBandColor = getComputedStyle(
+      cases,
+      '::before',
+    ).backgroundColor;
+    if (initialBandColor) bandEnvironmentColor.setStyle(initialBandColor);
     const addEnvironmentPanel = (panel: {
       color: number;
       position: readonly [number, number, number];
@@ -445,6 +510,12 @@ if (canvas && cases && hero) {
     addEnvironmentPanel(lightingTuning.environment.keyPanel);
     addEnvironmentPanel(lightingTuning.environment.glintPanel);
     addEnvironmentPanel(lightingTuning.environment.fillPanel);
+    addEnvironmentPanel({
+      color: bandEnvironmentColor.getHex(),
+      position: [0, -1.8, -5.5],
+      size: [10, 5],
+      intensity: 1.15,
+    });
 
     const pmrem = new PMREMGenerator(renderer);
     environmentTarget = pmrem.fromScene(
@@ -488,29 +559,40 @@ if (canvas && cases && hero) {
       materials.forEach((material) => material.dispose());
     });
 
-    scene.add(new HemisphereLight(
+    const hemisphereLight = new HemisphereLight(
       lightingTuning.hemisphere.skyColor,
       lightingTuning.hemisphere.groundColor,
       lightingTuning.hemisphere.intensity,
-    ));
+    );
+    // EMBEDDED GLASS: hemisphereLight.layers.enable(1);
+    scene.add(hemisphereLight);
     const keyLight = new DirectionalLight(
       lightingTuning.key.color,
       lightingTuning.key.intensity,
     );
     keyLight.position.set(...lightingTuning.key.position);
+    // EMBEDDED GLASS: keyLight.layers.enable(1);
     scene.add(keyLight);
     const fillLight = new DirectionalLight(
       lightingTuning.fill.color,
       lightingTuning.fill.intensity,
     );
     fillLight.position.set(...lightingTuning.fill.position);
+    // EMBEDDED GLASS: fillLight.layers.enable(1);
     scene.add(fillLight);
     const rimLight = new DirectionalLight(
       lightingTuning.rim.color,
       lightingTuning.rim.intensity,
     );
     rimLight.position.set(...lightingTuning.rim.position);
+    // EMBEDDED GLASS: rimLight.layers.enable(1);
     scene.add(rimLight);
+    const bandBounceLight = new DirectionalLight(
+      bandEnvironmentColor,
+      .22,
+    );
+    bandBounceLight.position.set(0, -2.4, -4.5);
+    scene.add(bandBounceLight);
 
     let textureReady = false;
     let isVisible = true;
@@ -647,6 +729,18 @@ if (canvas && cases && hero) {
     glassBackdropTexture.wrapT = ClampToEdgeWrapping;
     trackedTextures.add(glassBackdropTexture);
 
+    /* EMBEDDED GLASS — BEGIN: offscreen WebGL pass
+    embeddedGlassTarget = new WebGLRenderTarget(2, 2, {
+      type: HalfFloatType,
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      depthBuffer: true,
+      stencilBuffer: false,
+    });
+    embeddedGlassTarget.texture.colorSpace = SRGBColorSpace;
+    embeddedGlassTarget.texture.generateMipmaps = false;
+    EMBEDDED GLASS — END */
+
     const seaGlassBlurCanvas = document.createElement('canvas');
     seaGlassBlurCanvas.width = 2;
     seaGlassBlurCanvas.height = 2;
@@ -681,23 +775,27 @@ if (canvas && cases && hero) {
     const gemFloorInteraction = getShadowMap('gem');
     const gemFaceMaterial = createGemFaceMaterial(
       glassBackdropTexture,
+      // EMBEDDED GLASS: embeddedGlassTarget.texture,
       domRefractionTexture,
       gemEnvironmentTarget.texture,
       gemFloorInteraction,
     );
     const glassMaterial = createGlassMaterial(
       glassBackdropTexture,
+      // EMBEDDED GLASS: embeddedGlassTarget.texture,
       domRefractionTexture,
       gemEnvironmentTarget.texture,
     );
     const seaGlassMaterial = createSeaGlassMaterial(
       glassBackdropTexture,
       seaGlassBlurTexture,
+      // EMBEDDED GLASS: embeddedGlassTarget.texture,
       domRefractionTexture,
     );
     const roughGlassFaceMaterial = createRoughGlassFaceMaterial(
       roughGlassBump,
       glassBackdropTexture,
+      // EMBEDDED GLASS: embeddedGlassTarget.texture,
       domRefractionTexture,
       gemEnvironmentTarget.texture,
       !isSmallViewport,
@@ -1084,6 +1182,35 @@ if (canvas && cases && hero) {
       );
       group.add(mesh);
 
+      /* EMBEDDED GLASS — BEGIN: per-card inset mesh
+      const embeddedGlassProfile = embeddedGlassProfiles[kind];
+      const embeddedGlassMaterial = new MeshPhysicalMaterial({
+        color: new Color(embeddedGlassProfile.color),
+        roughness: .075,
+        metalness: 0,
+        transmission: .42,
+        thickness: .7,
+        ior: 1.49,
+        attenuationColor: new Color(embeddedGlassProfile.color),
+        attenuationDistance: .75,
+        clearcoat: 1,
+        clearcoatRoughness: .018,
+        envMap: gemEnvironmentTarget.texture,
+        envMapIntensity: embeddedGlassProfile.reflection * 1.45,
+        transparent: true,
+        opacity: embeddedGlassProfile.opacity,
+        depthTest: true,
+        depthWrite: false,
+        side: DoubleSide,
+      });
+      const embeddedGlass = new Mesh(
+        new BufferGeometry(),
+        embeddedGlassMaterial,
+      );
+      embeddedGlass.layers.set(1);
+      group.add(embeddedGlass);
+      EMBEDDED GLASS — END */
+
       let surface: Mesh | undefined;
       if (definition.surface === 'rough-glass') {
         surface = new Mesh(new PlaneGeometry(1, 1), roughGlassFaceMaterial);
@@ -1152,6 +1279,7 @@ if (canvas && cases && hero) {
         definition,
         group,
         mesh,
+        // EMBEDDED GLASS: embeddedGlass,
         surface,
         bottomSurface,
         shadow,
@@ -1714,6 +1842,15 @@ if (canvas && cases && hero) {
       glassMaterial.uniforms.uBandTopY.value = bandTopScreenY;
       roughGlassFaceMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;
       glassMaterial.uniforms.uBandBottomY.value = bandBottomScreenY;
+      const bandColorStyle = bandStyle.backgroundColor || '#1f5dcd';
+      [
+        gemFaceMaterial,
+        seaGlassMaterial,
+        roughGlassFaceMaterial,
+        glassMaterial,
+      ].forEach((material) => {
+        material.uniforms.uBandColor.value.setStyle(bandColorStyle);
+      });
 
       const drawMeshBackdrop = ({
         rect: meshRect,
@@ -1952,6 +2089,12 @@ if (canvas && cases && hero) {
         || pixelRatio !== lastPixelRatio;
       if (sizeChanged) {
         renderHarness?.resize(canvasRect.width, canvasRect.height, window.devicePixelRatio || 1);
+        /* EMBEDDED GLASS — BEGIN: resize offscreen target
+        embeddedGlassTarget?.setSize(
+          Math.max(1, Math.round(canvasRect.width * pixelRatio)),
+          Math.max(1, Math.round(canvasRect.height * pixelRatio)),
+        );
+        EMBEDDED GLASS — END */
         motionCache?.resize(
           canvasRect.width * pixelRatio,
           canvasRect.height * pixelRatio,
@@ -2032,6 +2175,17 @@ if (canvas && cases && hero) {
         const height = rect.height * pxY;
         const profile = materialProfiles[state.kind];
         const depth = profile.thicknessPx * pxY;
+        /* EMBEDDED GLASS — BEGIN: inset geometry dimensions
+        const embeddedGlassProfile = embeddedGlassProfiles[state.kind];
+        const embeddedGlassSize = Math.min(width, height) * embeddedGlassProfile.size;
+        const embeddedGlassDepth = Math.max(
+          .008,
+          Math.min(
+            depth * .68,
+            embeddedGlassSize * embeddedGlassProfile.depth,
+          ),
+        );
+        EMBEDDED GLASS — END */
         const radiusPx = (
           state.kind === 'sea-glass' && isSmallViewport
             ? -1
@@ -2053,6 +2207,9 @@ if (canvas && cases && hero) {
           radius,
           shoulderWidth,
           roughGlassChamfer,
+          // EMBEDDED GLASS: embeddedGlassProfile.shape,
+          // EMBEDDED GLASS: embeddedGlassSize,
+          // EMBEDDED GLASS: embeddedGlassDepth,
         ].join('|');
         const createGeometry = state.definition.createGeometry;
         if (!createGeometry) return;
@@ -2094,6 +2251,14 @@ if (canvas && cases && hero) {
               depth * .96,
             );
           }
+          /* EMBEDDED GLASS — BEGIN: rebuild inset geometry
+          state.embeddedGlass.geometry.dispose();
+          state.embeddedGlass.geometry = makeEmbeddedGlassGeometry(
+            embeddedGlassSize,
+            embeddedGlassDepth,
+            embeddedGlassProfile.shape,
+          );
+          EMBEDDED GLASS — END */
           state.geometrySignature = geometrySignature;
         }
         const centerX = (((rect.left + rect.width / 2) - canvasRect.left) / canvasRect.width * 2 - 1) * aspect;
@@ -2143,6 +2308,31 @@ if (canvas && cases && hero) {
         if (state.bottomSurface) {
           state.bottomSurface.position.set(0, -height / 2 + radius * .08, 0);
         }
+        /* EMBEDDED GLASS — BEGIN: place inset inside outer glass
+        state.embeddedGlass.position.set(
+          (embeddedGlassProfile.position[0] - .5) * width,
+          (.5 - embeddedGlassProfile.position[1]) * height,
+          depth / 2 - embeddedGlassDepth / 2 - Math.min(
+            depth * .06,
+            embeddedGlassDepth * .16,
+          ),
+        );
+        state.embeddedGlass.rotation.set(
+          MathUtils.degToRad(1.2),
+          MathUtils.degToRad(-2.4),
+          0,
+        );
+        const embeddedGlassMaterial = state.embeddedGlass.material;
+        if (
+          embeddedGlassMaterial instanceof MeshPhysicalMaterial
+        ) {
+          embeddedGlassMaterial.thickness = embeddedGlassDepth;
+          embeddedGlassMaterial.attenuationDistance = Math.max(
+            embeddedGlassDepth * 2.4,
+            .08,
+          );
+        }
+        EMBEDDED GLASS — END */
         const isGem = state.definition.shadowProfile === 'gem';
         const simpleShadowProfile = state.definition.shadowProfile === 'rough-glass'
           && !isSmallViewport
@@ -2624,6 +2814,19 @@ if (canvas && cases && hero) {
       }
       const sceneMotion = updateSceneMotion(performance.now());
       const { dynamicIds } = sceneMotion;
+
+      /* EMBEDDED GLASS — BEGIN: render inset glass before outer refraction
+      if (embeddedGlassTarget) {
+        const previousCameraLayerMask = camera.layers.mask;
+        camera.layers.set(1);
+        renderer.setRenderTarget(embeddedGlassTarget);
+        renderer.setClearColor(0x000000, 0);
+        renderer.clear(true, true, true);
+        renderer.render(scene, camera);
+        camera.layers.mask = previousCameraLayerMask;
+        renderer.setRenderTarget(null);
+      }
+      EMBEDDED GLASS — END */
 
       if (!motionCache?.render(dynamicIds)) {
         renderer.setRenderTarget(null);

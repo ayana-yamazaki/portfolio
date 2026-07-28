@@ -57,6 +57,7 @@ const createBackgroundReflectionUniforms = (
     uBackgroundReflectionFallback: {
       value: new Color(backgroundReflectionTuning.fallbackColor),
     },
+    uBandColor: { value: new Color(0x1f5dcd) },
     uBandTopY: { value: 1 },
     uBackgroundReflectionStrength: { value: profile.strength },
     uBackgroundReflectionRayDistance: { value: profile.rayDistance },
@@ -65,12 +66,14 @@ const createBackgroundReflectionUniforms = (
 
 export const createGemFaceMaterial = (
   backdropTexture: Texture,
+  // EMBEDDED GLASS: embeddedGlassTexture: Texture,
   domRefractionTexture: Texture,
   environmentTexture: CubeTexture,
   floorInteractionTexture: Texture,
 ) => new ShaderMaterial({
   uniforms: {
     uBackdrop: { value: backdropTexture },
+    // EMBEDDED GLASS: uEmbeddedGlass: { value: embeddedGlassTexture },
     uDomRefraction: { value: domRefractionTexture },
     uEnvironment: { value: environmentTexture },
     uFloorInteraction: { value: floorInteractionTexture },
@@ -107,11 +110,13 @@ export const createGemFaceMaterial = (
 
 export const createGlassMaterial = (
   backdropTexture: Texture,
+  // EMBEDDED GLASS: embeddedGlassTexture: Texture,
   domRefractionTexture: Texture,
   environmentTexture: CubeTexture,
 ) => new ShaderMaterial({
   uniforms: {
     uBackdrop: { value: backdropTexture },
+    // EMBEDDED GLASS: uEmbeddedGlass: { value: embeddedGlassTexture },
     uDomRefraction: { value: domRefractionTexture },
     uEnvironment: { value: environmentTexture },
     uCanvasSize: { value: new Vector2(1, 1) },
@@ -143,6 +148,7 @@ export const createGlassMaterial = (
 export const createRoughGlassFaceMaterial = (
   roughGlassBump: Texture,
   backdropTexture: Texture,
+  // EMBEDDED GLASS: embeddedGlassTexture: Texture,
   domRefractionTexture: Texture,
   environmentTexture: CubeTexture,
   enhancedSurface: boolean,
@@ -150,6 +156,7 @@ export const createRoughGlassFaceMaterial = (
   uniforms: {
     uBump: { value: roughGlassBump },
     uBackdrop: { value: backdropTexture },
+    // EMBEDDED GLASS: uEmbeddedGlass: { value: embeddedGlassTexture },
     uDomRefraction: { value: domRefractionTexture },
     uEnvironment: { value: environmentTexture },
     uTexel: { value: new Vector2(1 / 384, 1 / 576) },
@@ -208,11 +215,13 @@ export const createRoughGlassCausticMaterial = (
 export const createSeaGlassMaterial = (
   backdropTexture: Texture,
   blurredBackdropTexture: Texture,
+  // EMBEDDED GLASS: embeddedGlassTexture: Texture,
   domRefractionTexture: Texture,
 ) => new ShaderMaterial({
   uniforms: {
     uBackdrop: { value: backdropTexture },
     uBackdropBlurred: { value: blurredBackdropTexture },
+    // EMBEDDED GLASS: uEmbeddedGlass: { value: embeddedGlassTexture },
     uDomRefraction: { value: domRefractionTexture },
     uCanvasSize: { value: new Vector2(1, 1) },
     uRefraction: { value: seaGlassTuning.refractionPx },
