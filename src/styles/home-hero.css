@@ -1404,22 +1404,11 @@ html:lang(ja) .home-hero__case-text {
     scroll-snap-stop: always;
     transform: none;
     transform-origin: center;
-    transition: opacity 380ms ease;
   }
 
   .home-hero__case[data-material] .home-hero__card {
     transform: scale(.95);
     transform-origin: center;
-  }
-
-  .home-hero__case-track[data-carousel-ready] .home-hero__case {
-    opacity: .6;
-    transform: none;
-  }
-
-  .home-hero__case-track[data-carousel-ready] .home-hero__case[data-active='true'] {
-    opacity: 1;
-    transform: none;
   }
 
   .home-hero__case-progress {
