@@ -707,6 +707,7 @@ if (canvas && cases && hero) {
     if (
       import.meta.env.DEV
       && !isSmallViewport
+      && new URLSearchParams(window.location.search).has('gemControls')
     ) {
       cleanupGemControls = createGemControls(
         gemFaceMaterial.uniforms,

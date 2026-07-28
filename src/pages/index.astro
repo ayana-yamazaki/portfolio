@@ -27,24 +27,28 @@ const heroCardCopyJa = [
     title: 'REFRAME',
     product: 'Reposaku / Agriculture SaaS',
     metric: '無線連絡 −84%',
+    description: '高齢者にも使いやすい画面ではなく、操作そのものをなくす',
   },
   {
     number: '02',
     title: 'DECIDE',
     product: 'Reposaku / Agriculture SaaS',
     metric: '100件超の要望を3段階へ',
+    description: '利用定着と事業展開の順序から、ロードマップを再構成',
   },
   {
     number: '03',
     title: 'ITERATE',
     product: 'Dental / Clinical UX',
     metric: '紙より入力速度 ＋24%',
+    description: '指と視線の移動を検証、紙より速く入力できるUI導出',
   },
   {
     number: '04',
     title: 'BUILD with AI',
     product: 'Manufacturing SaaS',
     metric: 'Claude CodeでStorybook実装',
+    description: 'ReactとStorybookで、開発前に131件のUX課題を洗い出し',
   },
 ];
 const ogTitle = locale === 'ja'
@@ -261,6 +265,7 @@ const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAAC
                         ? <>
                             <span class="home-hero__case-meta">{heroCardCopyJa[index].product}</span>
                             <span class="home-hero__case-metric">{heroCardCopyJa[index].metric}</span>
+                            <span class="home-hero__case-description">{heroCardCopyJa[index].description}</span>
                           </>
                         : caseStudy.text.split('\n').map((line, lineIndex, lines) => (
                             <>{line}{lineIndex < lines.length - 1 && <br />}</>

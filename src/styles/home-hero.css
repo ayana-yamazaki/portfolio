@@ -1100,9 +1100,11 @@ html:lang(ja) .home-hero__case-text {
   .home-hero__case-heading {
     display: block;
     margin-top: 6px;
+    white-space: nowrap;
   }
 
   .home-hero__case-heading-secondary {
+    font-size: .7em;
     font-weight: 400;
   }
 
@@ -1124,6 +1126,16 @@ html:lang(ja) .home-hero__case-text {
 
   .home-hero__case-metric {
     margin-top: 8px;
+  }
+
+  .home-hero__case-description {
+    display: block;
+    margin-top: 4px;
+    color: rgba(255, 255, 255, .9);
+    font-weight: 300;
+    line-break: strict;
+    text-wrap: pretty;
+    word-break: auto-phrase;
   }
 
 }

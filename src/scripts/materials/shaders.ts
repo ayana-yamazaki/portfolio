@@ -218,6 +218,7 @@ export const gemFragmentShader = `
 
     float normalLight=max(dot(normal,lightDirection),0.0);
     float normalHalf=max(dot(normal,halfVector),0.0);
+    float roughnessMix=smoothstep(.005,.25,uRoughness);
     float distribution=distributionGGX(normal,halfVector,uRoughness);
     float geometry=geometrySmith(normal,viewDirection,lightDirection,uRoughness);
     vec3 directFresnel=fresnelSchlick(normalHalf,vec3(f0));
@@ -230,6 +231,25 @@ export const gemFragmentShader = `
       /max(4.0*facing*normalLight,.0001);
 
     vec3 normalizedReflection=normalize(reflectionDirection);
+    vec3 broadEnvironment=(
+      textureCube(
+        uEnvironment,
+        normalize(normalizedReflection+vec3(.28,-.16,.12)*roughnessMix)
+      ).rgb
+      +textureCube(
+        uEnvironment,
+        normalize(normalizedReflection+vec3(-.2,.24,-.14)*roughnessMix)
+      ).rgb
+      +textureCube(
+        uEnvironment,
+        normalize(normalizedReflection+vec3(.08,-.2,.27)*roughnessMix)
+      ).rgb
+    )/3.0;
+    environment=mix(
+      environment,
+      broadEnvironment*uEnvironmentIntensity,
+      roughnessMix*.72
+    );
     vec3 sideStripDirection=normalize(vec3(-.38,.77,-.52));
     vec3 sideKeyDirection=normalize(vec3(-.45,.78,-.44));
     float sharpSideSpecular=pow(
@@ -314,8 +334,17 @@ export const gemFragmentShader = `
         2.0
       )
     );
-    float backgroundReflection=topFacing
-      *reflectionBand
+    float backgroundReflectionPresence=max(
+      reflectionBand,
+      .18+backgroundFacetAlignment*.42+sideMask*.16
+    );
+    float backgroundReflectionFacing=mix(
+      .3,
+      1.0,
+      clamp(max(topFacing,sideMask),0.0,1.0)
+    );
+    float backgroundReflection=backgroundReflectionPresence
+      *backgroundReflectionFacing
       *mix(.18,1.0,backgroundFacetAlignment)
       *uBackgroundReflectionStrength;
 
@@ -330,8 +359,18 @@ export const gemFragmentShader = `
       reflectedLight*bodySpectrum*1.55,
       spectralReflectionStrength
     );
-    reflectedLight+=(directSpecular+broadSpecular*.18)
-      *uKeyColor*normalLight*uKeyIntensity;
+    float controllableKeyHighlight=pow(
+      max(dot(normal,halfVector),0.0),
+      mix(96.0,10.0,roughnessMix)
+    )*mix(.35,1.0,normalLight);
+    vec3 controllableKeySpecular=clamp(
+      directSpecular+broadSpecular*.18,
+      vec3(0.0),
+      vec3(4.0)
+    )+vec3(controllableKeyHighlight*.35);
+    reflectedLight+=controllableKeySpecular
+      *uKeyColor
+      *uKeyIntensity;
     vec3 sideHighlightColor=mix(vec3(1.0,.99,.965),bodySpectrum,.72);
     reflectedLight+=sideHighlightColor*(
       sharpSideSpecular*5.8

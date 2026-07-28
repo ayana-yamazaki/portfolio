@@ -170,7 +170,7 @@ type BackgroundReflectionProfile = {
 export const backgroundReflectionTuning = {
   fallbackColor: 0xf9f3f0,
   profiles: {
-    gem: { strength: 1.5, rayDistance: .17 },
+    gem: { strength: .23, rayDistance: .17 },
     'sea-glass': { strength: .5, rayDistance: .23 },
     'rough-glass': { strength: .58, rayDistance: .17 },
     glass: { strength: .48, rayDistance: .13 },
@@ -182,11 +182,11 @@ export const backgroundReflectionTuning = {
 
 export const glintProfiles = {
   gem: {
-    roughness: 0.005,
+    roughness: 0.175,
     sideRoughness: 0.04,
     clearcoat: 1,
     clearcoatRoughness: 0.01,
-    envMapIntensity: 2.15,
+    envMapIntensity: 1.81,
   },
   'sea-glass': {
     strength: 0.9,
@@ -197,15 +197,15 @@ export const glintProfiles = {
 } as const;
 
 export const gemTuning = {
-  ior: 1.43,
-  iorRed: 1.395,
-  iorGreen: 1.43,
-  iorBlue: 1.475,
+  ior: 2.2,
+  iorRed: 2.165,
+  iorGreen: 2.2,
+  iorBlue: 2.245,
   refractionPx: 42,
-  refractionScale: 1.27,
-  dispersionBoost: 2.74,
-  reflectionExposure: .75,
-  keyIntensity: 0,
+  refractionScale: 1.4,
+  dispersionBoost: 5.07,
+  reflectionExposure: .81,
+  keyIntensity: 8,
 } as const;
 
 export const glassTuning = {
