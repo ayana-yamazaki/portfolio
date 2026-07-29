@@ -121,6 +121,7 @@ html:lang(ja) .case-hero h1, html:lang(ja) .case-section h2 { text-wrap: pretty;
 .case-image--portrait { min-height: 680px; max-width: 680px; margin-left: auto; }
 .case-image small { max-width: 30ch; line-height: 1.5; }
 .case-figure { margin: 0; }
+.case-figure--bordered { border: 1px solid var(--divider-color); }
 .case-figure img, .case-figure video { display: block; width: 100%; height: auto; }
 .case-quote-title { padding-top: clamp(120px, 18vw, 280px); padding-bottom: clamp(120px, 18vw, 280px); background: #181818; color: #fff; }
 .case-quote-title h2 { max-width: 12ch; margin: 0; font-size: clamp(44px, 8vw, 118px); line-height: 1; letter-spacing: -.065em; font-weight: 500; }

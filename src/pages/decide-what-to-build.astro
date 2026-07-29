@@ -4,28 +4,26 @@ import CaseStudyHero from '../components/CaseStudyHero.astro';
 
 const title = 'Decide What to Build';
 const headline = '約300件の要望を、7つの開発テーマへ';
-const description = '経営・顧客・現場に散らばった要望を構造化し、1年間の開発ロードマップを策定。優先テーマの日報では、現場観察からプロダクト構造、UX・UI、運用までを設計しました。';
+const description = '経営・顧客・現場に散らばった要望を構造化し、1年間の開発ロードマップを策定。優先テーマの日報では、現場観察からプロダクト構造、UX・UI、運用までを設計した。';
 ---
 
 <CaseStudyLayout title={title} description={description} locale="ja">
   <CaseStudyHero>
     <Fragment slot="copy">
       <h1>{headline}</h1>
-      <p>現場の事実と事業の成長順序から、作るもの・作らないものを決めました。</p>
       <div class="case-prose case-prose--full">
-        <p>シード期のスタートアップで一人目のプロダクトデザイナーとして、顧客から蓄積された約300件の要望と、経営・開発・営業・サポートが持つ構想を整理し、1年間の開発ロードマップを策定しました。</p>
-        <p>優先テーマの一つとなった日報では、16人の業務観察から課題を定義。GPSデータからシステムが下書きを作る体験を設計し、例外処理、データ構造、MVP、開発フェーズまで具体化しました。</p>
-        <p>3か月で全体ロードマップを策定し、優先された日報については、その後も調査・設計・運用改善を継続しました。</p>
+        <p>シード期のスタートアップで一人目のプロダクトデザイナーとして、顧客から蓄積された約300件の要望と、経営・開発・営業・サポートが持つ構想を整理し、1年間の開発ロードマップを策定した。</p>
+        <p>優先テーマの一つとなった日報機能では、MVPと開発フェーズを定義した。</p>
       </div>
     </Fragment>
 
     <Fragment slot="meta">
       <dl class="case-meta-list">
-        <div><dt class="meta-label">Role</dt><dd>1st Designer / Lead Product Designer</dd></div>
+        <div><dt class="meta-label">Role</dt><dd>Product Manager / Lead Product Designer</dd></div>
         <div><dt class="meta-label">Team</dt><dd>CEO / CTO / Engineers / Sales / Support — 9-person seed startup</dd></div>
         <div><dt class="meta-label">Roadmap</dt><dd>2023年6月〜8月</dd></div>
         <div><dt class="meta-label">Product</dt><dd>2022〜2025</dd></div>
-        <div><dt class="meta-label">Scope</dt><dd>UX Research / Product Definition / Roadmap / UX・UI / Prototyping</dd></div>
+        <div><dt class="meta-label">Scope</dt><dd>Product Management / Roadmapping / MVP Definition</dd></div>
       </dl>
     </Fragment>
 
@@ -44,13 +42,12 @@ const description = '経営・顧客・現場に散らばった要望を構造�
 
     <Fragment slot="details">
       <ol class="decision-funnel" aria-label="約300件の生の要望を16の機会領域、9つのMVP候補、7つの開発テーマへ絞り、優先度の高い2テーマをロードマップ策定後4か月以内にリリース">
-        <li><strong>約300</strong><span>生の要望</span></li>
-        <li><strong>16</strong><span>機会領域</span></li>
-        <li><strong>9</strong><span>MVP候補</span></li>
-        <li><strong>7</strong><span>開発テーマ</span></li>
-        <li><strong>2</strong><span>優先テーマを策定後4か月以内にリリース</span></li>
+        <li><span>生の要望</span><strong>約300</strong></li>
+        <li><span>機会領域</span><strong>16</strong></li>
+        <li><span>MVP候補</span><strong>9</strong></li>
+        <li><span>開発テーマ</span><strong>7</strong></li>
+        <li><span>4か月でリリース</span><strong>2<small>機能</small></strong></li>
       </ol>
-      <p class="case-evidence-note"><strong>約300件の生の要望 → 16の機会領域 → 9つのMVP候補 → 7つの開発テーマ → 優先度の高い2テーマをロードマップ策定後4か月以内にリリース</strong></p>
     </Fragment>
   </CaseStudyHero>
 
@@ -58,13 +55,13 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     <section class="case-section case-section--no-divider">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Context</p>
-        <h2>ビジョンはあった。しかし、開発の順序がなかった</h2>
+        <h2>開発の優先順位が不明瞭だった</h2>
       </header>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがある一方、そこへ近づくための短期的な開発順序は定まっていませんでした。</p>
-        <p>CEO、CTO、開発、営業、サポートが異なる構想を持ち、顧客要望も約300件蓄積していました。緊急度や声の大きさだけで個別要望へ対応すると、開発リソースが分散し、将来の分析や自動化に必要なデータ基盤が後回しになります。</p>
-        <p>そこで、顧客要望と各部門の構想を同じ粒度で比較し、会社として何に投資するかを決めるロードマップ策定をリードしました。</p>
+        <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがある一方、そこへ近づくための短期的な開発順序は定まっていなかった。</p>
+        <p>CEO、CTO、開発、営業、サポートが異なる構想を持ち、顧客要望も約300件蓄積していた。緊急度や声の大きさだけで個別要望へ対応すると、開発リソースが分散し、将来の分析や自動化に必要なデータ基盤が後回しになる。</p>
+        <p>そこで、顧客要望と各部門の構想を同じ粒度で比較し、会社として何に投資するかを決めるロードマップ策定をリードした。</p>
       </div>
     </section>
 
@@ -73,13 +70,13 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <div class="case-block">
           <header class="case-section-header">
             <p class="section-title">Decision 1 — Roadmap</p>
-            <h2>会社として、何に投資するか</h2>
+            <h2>何に優先投資するか</h2>
           </header>
           <div class="case-prose">
             <p class="case-label">Structure</p>
-            <h3>比較できない要望を、同じ評価軸へ揃える</h3>
-            <p>顧客要望と各部門の構想は、「データ基盤」「便利な画面」「サポート工数」など粒度が異なり、そのままでは比較できませんでした。</p>
-            <p>約300件の要望を16の機会領域へまとめ、対象ユーザー、業務上の変化、事業インパクト、必要なデータ、開発・運用負荷を同じ形式で整理しました。</p>
+            <h3>散在する要望を、同じ評価軸へ揃える</h3>
+            <p>顧客要望と各部門の構想は、「データ基盤」「便利な画面」「サポート工数」など粒度が異なり、そのままでは比較できなかった。</p>
+            <p>約300件の要望を16の機会領域へまとめ、対象ユーザー、業務上の変化、事業インパクト、必要なデータ、開発・運用負荷を同じ形式で整理した。</p>
           </div>
         </div>
         <figure class="case-figure">
@@ -98,7 +95,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <div class="case-prose">
           <p class="case-label">Evaluation</p>
           <h3>長期ビジョン、ジョブ、機能の関係を整理する</h3>
-          <p>事業の北極星となる長期ビジョンを最上位に置き、その下に顧客が達成したいジョブ、さらにその手段となる機能を配置しました。機能名ではなく、実現したい状態を基準に比較することで、似た目的を持つ案の統合や除外が可能になりました。</p>
+          <p>事業の北極星となる長期ビジョンを最上位に置き、その下に顧客が達成したいジョブ、さらにその手段となる機能を配置した。機能名ではなく、実現したい状態を基準に比較することで、似た目的を持つ案の統合や除外が可能になった。</p>
         </div>
         <div class="case-block">
           <figure class="case-figure">
@@ -126,8 +123,8 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <div class="case-prose">
           <p class="case-label">Convergence</p>
           <h3>9つのMVP候補から7つの開発テーマを選定</h3>
-          <p>9つのMVP候補を簡易プロトタイプまで具体化し、利用場面、データの前提、実装・運用負荷を比較しました。2件は他テーマへ統合できる、または現時点で事業効果が小さいと判断して除外し、7つの開発テーマと実行順序を全体ロードマップへ配置しました。</p>
-          <p>最終的な投資判断はCEO・CTOが担い、選定した7つの開発テーマを全体ロードマップへ反映しました。</p>
+          <p>9つのアイデアを簡易なプロトタイプで具体化し、手触り感を持って利用場面や運用負荷、実装工数を検討できるようにした。CEO・CTOとのレビューや顧客ヒアリングを通じ、7つの開発テーマと優先順位をロードマップ化した。</p>
+          <p>最終的な投資判断はCEO・CTOが担い、選定した7つの開発テーマを全体ロードマップへ反映した。</p>
         </div>
         <figure class="case-figure">
           <img
@@ -175,10 +172,15 @@ const description = '経営・顧客・現場に散らばった要望を構造�
       </header>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <p>7つのテーマの中で、日報機能は、<strong>将来の自動化に必要なデータを生み出す基盤</strong>として最優先となりました。</p>
+        <p class="case-label">Redefinition</p>
+        <h3>要件定義</h3>
+        <p>7つのテーマの中で、日報機能は、<strong>将来の自動化に必要なデータを生み出す基盤</strong>として最優先となった。</p>
+        <div class="text-emphasis">
+          <p>自動化のための分析に足る<strong>「正確なデータ」を取得できること、</strong><br />そのためにオンボーディングと活用の成功が不可欠と定義</p>
+        </div>
       </div>
 
-      <figure class="case-figure" data-reveal>
+      <figure class="case-figure case-figure--bordered" data-reveal>
         <img
           src="/images/cases/decide/daily-report-mvp-definition.png"
           width="3252"
@@ -187,15 +189,6 @@ const description = '経営・顧客・現場に散らばった要望を構造�
           loading="lazy"
         />
       </figure>
-
-      <div class="case-prose case-prose--full" data-reveal>
-        <p class="case-label">Redefinition</p>
-        <h3>データ基盤にするため必要な要件を定義</h3>
-        <p>データを取得するためにはオンボーディングと活用の成功が不可欠です。</p>
-        <div class="text-emphasis">
-          <p><strong>MVPの要件は、将来の分析に足る「正確なデータ」を取得できること</strong></p>
-        </div>
-      </div>
     </section>
 
     <section
@@ -209,7 +202,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
       <div class="case-two-column case-two-column--wide-first" data-reveal>
         <div class="case-prose">
           <p class="case-label">Context</p>
-          <p>農業法人の事務所に張り付き、16名の農家さんの実際の日報業務を観察しました。</p>
+          <p>農業法人の事務所に張り付き、16名の農家さんの実際の日報業務を観察した。</p>
           <p>農家さんたちに日報をきちんと作りたいというモチベーションは無く、彼らにとっては非本質的な業務だった。そのため人によって記載粒度が異なったり、整合性が取れない記述があったり、データとしての正しさも担保されていなかった。</p>
           <p class="case-label">Insight</p>
           <div class="text-emphasis">
@@ -233,7 +226,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Options</p>
-          <h3>日報業務を透明にするため、入力負荷の下げる方法を検討</h3>
+          <h3>入力負荷を下げ、日報業務を透明にする方法を検討</h3>
           <p>とにかく入力を簡単にするため、入力のUI自体をLINEや音声入力にしてみるなど幅広く検討</p>
         </div>
         <figure class="case-figure">
@@ -270,7 +263,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
       </header>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <p>GPSの位置と時刻を基に作業候補を生成し、人は不足している情報だけを補う。</p>
+        <p>レポサクは、日報作成に必要なデータ (誰がどの車両で、どこでどのような作業をしたか) を示すGPSデータを取得できる。GPSデータからシステムが日報の下書きを自動生成し、農家さんはそれを承認するだけというシンプルな体験を設計した。</p>
       </div>
 
       <div class="decide-image-grid decide-image-grid--two" data-reveal>
@@ -296,6 +289,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         </figure>
       </div>
 
+      <!--
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Product Structure</p>
@@ -352,47 +346,34 @@ const description = '経営・顧客・現場に散らばった要望を構造�
       <div class="case-prose case-prose--full" data-reveal>
         <p>リリース後は、操作導線に合わせた7本のヘルプ記事も作成しました。スマートフォンに不慣れな利用者でも迷わないよう、機能名ではなく「何をしたいか」を起点に、平易な言葉と一貫した手順で構成しました。</p>
       </div>
+      -->
     </section>
 
     <section class="case-section">
       <header class="case-section-header" data-reveal>
-        <p class="section-title">Outcome</p>
-        <h2>ロードマップ策定と日報設計の成果</h2>
+        <p class="section-title">IMPACT</p>
+        <h2>投資判断の土台とMVPの境界を定め、日報を事業のデータ基盤へ</h2>
       </header>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <h3>Roadmap Outcome</h3>
-        <ul>
-          <li>約300件の要望を16の機会領域へ構造化</li>
-          <li>9つのMVP候補から2件を除外</li>
-          <li>7つの開発テーマと実行順序を合意</li>
-          <li>優先度の高い2テーマを、ロードマップ策定後4か月以内にリリース</li>
-        </ul>
+        <p>最終的な投資判断はCEO・CTOが担った。私は、約300件の要望を比較可能な選択肢へ変え、全体ロードマップと、優先テーマである日報のMVPを定義した。</p>
       </div>
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
-          <p class="case-label">Operational Impact</p>
-          <h3>記憶から書く日報を、事実を確認する業務へ</h3>
-          <p>GPSログのタイムスタンプを基準にすることで、手書きよりも時間情報の誤差を抑え、日報データの信頼性を高めました。</p>
-          <p>日報作成の半自動化によって、記憶から一件ずつ書き起こす負担を減らし、日報を継続して提出しやすい運用へ変えました。</p>
-          <p>日報データを、請求、集計、業務分析へ利用できる構造として設計しました。</p>
+          <p class="case-label">Decision 1 — Roadmap</p>
+          <h3>約300件の要望を、7つの開発テーマと実行順序へ</h3>
+          <p>顧客要望と各部門の構想を16の機会領域へ整理し、9つのMVP候補を比較。2件を除外し、7つの開発テーマと実行順序をロードマップとして合意した。</p>
+          <p>優先度の高い2テーマは、ロードマップ策定後4か月以内にリリースされた。</p>
+          <p><strong>個別要望への対応ではなく、会社が何に投資するかを判断できる状態をつくった。</strong></p>
         </div>
         <div class="case-prose">
-          <p class="case-label">Business Impact</p>
-          <h3>車両を使う現場に共通する構造</h3>
-          <p>農業固有の手順ではなく、「車両を使う現場が、位置と時間から作業記録を作る」という共通構造として設計しました。この構造は、除雪やごみ収集など、車両を使う他業種でも利用されています。</p>
+          <p class="case-label">Decision 2 — Daily Report MVP</p>
+          <h3>入力フォームではなく、システムが下書きを作る体験へ</h3>
+          <p>手書きの日報をそのままデジタル化するのではなく、GPSデータからシステムが下書きを作り、農家さんは確認して提出するだけのMVPを定義した。</p>
+          <p>日報の正確性と提出率が向上し、蓄積したデータは請求や業務分析へ活用されている。さらに、農業だけでなく、ごみ収集や除雪など、車両を使う他業種への展開にもつながった。</p>
+          <p><strong>日報を一つの入力機能ではなく、事業展開を支えるデータ基盤へ変えた。</strong></p>
         </div>
-      </div>
-
-      <div class="case-prose case-prose--full" data-reveal>
-        <h3>My Contribution</h3>
-        <p>最終的な投資判断はCEO・CTOが担いました。</p>
-        <p>私は、約300件の要望と各部門の構想を構造化し、プロトタイプ制作と顧客検証を担当しました。</p>
-        <p>優先された日報では、現場観察、課題定義、プロダクト構造、UX・UI、プロトタイプ、段階的なロードマップ、導入後のヘルプまでを一貫して担当しました。</p>
-        <blockquote>
-          <p><strong>複雑な要望を減らしたのではありません。<br />複雑さを、チームが判断し、開発し、運用できる順序へ変えました。</strong></p>
-        </blockquote>
       </div>
 
     </section>
@@ -400,6 +381,14 @@ const description = '経営・顧客・現場に散らばった要望を構造�
 </CaseStudyLayout>
 
 <style>
+  .case-section h2,
+  .case-section h3 {
+    line-break: strict;
+    overflow-wrap: normal;
+    text-wrap: pretty;
+    word-break: auto-phrase;
+  }
+
   .decision-funnel {
     display: flex;
     margin: 0;
@@ -420,10 +409,6 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     padding: 18px 30px 18px 18px;
   }
 
-  .decision-funnel li + li {
-    border-left: 1px solid var(--divider-color);
-  }
-
   .decision-funnel li:not(:last-child)::after {
     position: absolute;
     top: 50%;
@@ -438,6 +423,14 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     font-size: clamp(26px, 3vw, 44px);
     line-height: 1;
     letter-spacing: -.04em;
+  }
+
+  .decision-funnel strong small {
+    margin-left: 6px;
+    color: var(--text-color-secondary);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0;
   }
 
   .decision-funnel span {
