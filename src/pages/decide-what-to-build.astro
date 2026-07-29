@@ -1,13 +1,25 @@
 ---
 import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 import CaseStudyHero from '../components/CaseStudyHero.astro';
+import ResponsiveImage from '../components/ResponsiveImage.astro';
+import TranslatedContent from '../components/TranslatedContent.astro';
+import { decideCurrentTranslations } from '../i18n/decide-current';
+import type { Locale } from '../i18n/locale';
 
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = 'ja' } = Astro.props;
 const title = 'Decide What to Build';
 const headline = '約300件の要望を、7つの開発テーマへ';
-const description = '経営・顧客・現場に散らばった要望を構造化し、1年間の開発ロードマップを策定。優先テーマの日報では、現場観察からプロダクト構造、UX・UI、運用までを設計した。';
+const description = locale === 'en'
+  ? 'Structured requests from leadership, customers, and frontline teams into a one-year product roadmap. For the prioritized daily reporting initiative, I designed the product structure, UX and UI, and operational model based on field observation.'
+  : '経営・顧客・現場に散らばった要望を構造化し、1年間の開発ロードマップを策定。優先テーマの日報では、現場観察からプロダクト構造、UX・UI、運用までを設計した。';
 ---
 
-<CaseStudyLayout title={title} description={description} locale="ja">
+<CaseStudyLayout title={title} description={description} locale={locale}>
+  <TranslatedContent locale={locale} translations={decideCurrentTranslations}>
   <CaseStudyHero>
     <Fragment slot="copy">
       <h1>{headline}</h1>
@@ -19,7 +31,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
 
     <Fragment slot="meta">
       <dl class="case-meta-list">
-        <div><dt class="meta-label">Role</dt><dd>Product Manager / Lead Product Designer</dd></div>
+        <div><dt class="meta-label">Role</dt><dd>Project Lead / Lead Product Designer</dd></div>
         <div><dt class="meta-label">Team</dt><dd>CEO / CTO / Engineers / Sales / Support — 9-person seed startup</dd></div>
         <div><dt class="meta-label">Roadmap</dt><dd>2023年6月〜8月</dd></div>
         <div><dt class="meta-label">Product</dt><dd>2022〜2025</dd></div>
@@ -87,7 +99,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
             alt="約300件の顧客要望と社内アイデアを、将来のデータ活用、進捗把握、サポート業務の軽減という三つの軸で整理したボード"
             loading="lazy"
           />
-          <figcaption class="media-caption">社内で散在していた約300件の顧客要望や社内アイデアを3軸に整理、優先度を合意</figcaption>
+          <figcaption class="media-caption">社内で散在していた約300件の顧客要望や社内アイデアを3軸に整理し、優先順位に合意</figcaption>
         </figure>
       </div>
 
@@ -176,7 +188,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <h3>要件定義</h3>
         <p>7つのテーマの中で、日報機能は、<strong>将来の自動化に必要なデータを生み出す基盤</strong>として最優先となった。</p>
         <div class="text-emphasis">
-          <p><strong>自動化の分析に必要なのは、「正確」かつ「抜け漏れのない」データを取得できること</strong></p>
+          <p><strong>分析や自動化に必要なのは、「正確」かつ「抜け漏れのない」データを取得できること</strong></p>
         </div>
       </div>
 
@@ -203,7 +215,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <div class="case-prose">
           <p class="case-label">Context</p>
           <p>農業法人の事務所に張り付き、16名の農家さんの実際の日報業務を観察した。</p>
-          <p>農家さんたちに日報をきちんと作りたいというモチベーションは無く、彼らにとっては非本質的な業務だった。そのため人によって記載粒度が異なったり、整合性が取れない記述があったり、データとしての正しさも担保されていなかった。</p>
+          <p>日報は農家さんにとって本来の業務ではなく、一日の作業を終えた後に正確な記録へ時間を割く動機が生まれにくかった。そのため、記載粒度のばらつきや、整合しない記録、提出漏れが発生していた。</p>
           <p class="case-label">Insight</p>
           <div class="text-emphasis">
             <p><strong>紙をDXするだけでは、正確で抜け漏れのないデータ取得には至らない</strong></p>
@@ -226,7 +238,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <div class="case-prose">
           <p class="case-label">Options</p>
           <h3>入力負荷を下げ、全員が抜け漏れなく提出できる方法を検討</h3>
-          <p>とにかく入力を簡単にするため、入力のUI自体をLINEや音声入力にしてみるなど幅広く検討</p>
+          <p>とにかく入力を簡単にするため、入力のUI自体をLINEや音声入力にしてみるなど幅広く検討した。</p>
         </div>
         <figure class="case-figure">
           <img
@@ -244,7 +256,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
           <p class="case-label">Product Roadmap</p>
           <h3>100件以上の要望から、要件を満たす体験を作る</h3>
           <p>古いバージョンの日報機能について、社内外からの改善要望は100件を超えていた。</p>
-          <p>正確で抜け漏れのないデータを取得するために、それらを整理し、現場で実際に全員が使ってもらえる体験設計を行なった。</p>
+          <p>正確で抜け漏れのないデータを取得するために、それらを整理し、現場で実際に全員に使ってもらえる体験設計を行った。</p>
           <p>フェーズごとに要件を分け、段階的に事業が成長するようCEO・CTO・CSと優先順位を定義した。</p>
         </div>
         <div class="phase-list phase-list--stacked">
@@ -262,7 +274,7 @@ const description = '経営・顧客・現場に散らばった要望を構造�
       </header>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <p>レポサクは、日報作成に必要なデータ (誰がどの車両で、どこでどのような作業をしたか) を示すGPSデータを取得できる。GPSデータからシステムが日報の下書きを自動生成し、農家さんはそれを承認するだけというシンプルな体験を設計した。</p>
+        <p>レポサクは、日報作成に必要なデータ（誰がどの車両で、どこでどのような作業をしたか）を示すGPSデータを取得できる。GPSデータからシステムが日報の下書きを自動生成し、農家さんはそれを承認するだけというシンプルな体験を設計した。</p>
       </div>
 
       <div class="decide-image-grid decide-image-grid--two" data-reveal>
@@ -350,6 +362,34 @@ const description = '経営・顧客・現場に散らばった要望を構造�
 
     <section class="case-section">
       <header class="case-section-header" data-reveal>
+        <p class="section-title">04 Product Structure</p>
+        <h2>現場の例外を、異なる業種でも破綻しない構造へ</h2>
+        <p>例外を機能として足すのではなく、異なる現場を受け止められる共通構造として設計した。</p>
+      </header>
+      <div class="decision-exceptions" data-reveal>
+        <article class="decision-exception-featured">
+          <h3>一つの走行に、複数の作業が含まれる</h3>
+          <p>位置・速度・時刻を見ながら、一つのGPSログを複数の作業へ分割できるようにした。</p>
+          <figure class="case-figure">
+            <ResponsiveImage
+              base="/images/optimized/reposaku-report-split"
+              widths={[480, 768, 1024]}
+              width={1024}
+              height={683}
+              sizes="(max-width: 720px) 100vw, 48vw"
+              alt="GPSログを速度と位置情報を確認しながら二つの作業へ分割する画面"
+            />
+          </figure>
+        </article>
+        <div class="decision-exception-stack">
+          <article><h3>一台の車両に、複数人が乗る</h3><p>ログを個人へ固定せず、会社全体のデータから自分の作業を選べる構造にした。</p></article>
+          <article><h3>GPSデータがない日もある</h3><p>事務や整備の日も、GPSがある日と同じ導線で手動提出できるようにした。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section case-section--accent-tint">
+      <header class="case-section-header" data-reveal>
         <p class="section-title">IMPACT</p>
         <h2>投資判断の土台とMVPの境界を定め、日報を事業のデータ基盤へ</h2>
       </header>
@@ -360,19 +400,21 @@ const description = '経営・顧客・現場に散らばった要望を構造�
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
-          <p class="case-label">Decision 1 — Roadmap</p>
+          <p class="case-label case-label--accent">Decision 1 — Roadmap</p>
           <h3>約300件の要望を、7つの開発テーマと実行順序へ</h3>
           <p>16の機会領域から7つの開発テーマを選定し、実行順序を合意した。優先2テーマは、策定後4か月以内にリリースされた。<strong>要望対応の議論を、会社としての投資判断へ変えた。</strong></p>
         </div>
         <div class="case-prose">
-          <p class="case-label">Decision 2 — Daily Report MVP</p>
-          <h3>提出率が高く分析可能な日報機能として、他業種展開</h3>
-          <p>手書きよりも時間情報の誤差を抑え、日報データの信頼性を高めた。蓄積した日報データは、請求や業務分析への活用が進んでいる。さらに、農業だけでなく、<strong>ごみ収集や除雪など、車両を使う他業種への採用</strong>にもつながった。</p>
+          <p class="case-label case-label--accent">Decision 2 — Daily Report MVP</p>
+          <h3>入力負荷を抑え、分析に使える日報データの基盤へ</h3>
+          <p>GPSログから自動生成することで、記憶や時間の丸めに依存していた日報を、記録された事実を確認・修正する業務へ変えた。</p>
+          <p>「車両を使う現場が、位置と時間から作業記録を作る」という共通構造として設計したため、<strong>ごみ収集や除雪など、車両を使う他業種への展開を可能にした</strong>。</p>
         </div>
       </div>
 
     </section>
   </div>
+  </TranslatedContent>
 </CaseStudyLayout>
 
 <style>
@@ -467,8 +509,56 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     line-height: 1.5;
   }
 
+  .decision-exceptions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid var(--divider-color);
+  }
+
+  .decision-exceptions article {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: clamp(24px, 3vw, 40px);
+    background: #fff;
+  }
+
+  .decision-exception-featured {
+    border-right: 1px solid var(--divider-color);
+  }
+
+  .decision-exception-featured .case-figure {
+    margin-top: auto;
+  }
+
+  .decision-exception-stack {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .decision-exception-stack article + article {
+    border-top: 1px solid var(--divider-color);
+  }
+
+  .decision-exceptions h3 {
+    font-size: clamp(20px, 2.2vw, 30px);
+    line-height: 1.4;
+  }
+
+  .decision-exceptions article > p:last-child {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
   .related-list h3 {
     margin: 14px 0 0;
+  }
+
+  @media (min-width: 721px) and (max-width: 1024px) {
+    .decision-exceptions article {
+      padding: 24px;
+    }
   }
 
   @media (max-width: 720px) {
@@ -510,6 +600,24 @@ const description = '経営・顧客・現場に散らばった要望を構造�
 
     .decide-mvp-boundary {
       padding: 24px;
+    }
+
+    .decision-exceptions {
+      grid-template-columns: 1fr;
+    }
+
+    .decision-exceptions article {
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .decision-exception-featured {
+      border-right: 0;
+      border-bottom: 1px solid var(--divider-color);
+    }
+
+    .decision-exceptions article > p:last-child {
+      font-size: 14px;
     }
   }
 </style>

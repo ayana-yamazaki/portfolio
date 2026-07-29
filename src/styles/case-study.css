@@ -67,6 +67,7 @@ html:lang(ja) .case-hero h1, html:lang(ja) .case-section h2 { text-wrap: pretty;
 .case-section { display: flex; flex-direction: column; gap: var(--case-block-gap); padding-top: var(--case-section-padding); padding-bottom: var(--case-section-padding); border-top: 1px solid var(--divider-color); }
 .case-section--no-divider { border-top: 0; }
 .case-section--compact-top { padding-top: calc(var(--case-section-padding) / 2); }
+.case-section--accent-tint { background: color-mix(in srgb, var(--accent-color) 5%, transparent); }
 .case-section--background-image { color: #fff; background-image: linear-gradient(rgb(0 0 0 / 50%), rgb(0 0 0 / 50%)), var(--case-background-image); background-position: center; background-size: cover; }
 .case-section--light-background-image { background-image: linear-gradient(rgb(255 255 255 / 60%), rgb(255 255 255 / 60%)), var(--case-background-image); background-position: center; background-size: cover; }
 .case-section--background-image .section-title { color: #fff; border-left-color: #fff; }
@@ -86,6 +87,7 @@ html:lang(ja) .case-hero h1, html:lang(ja) .case-section h2 { text-wrap: pretty;
 .case-prose > :where(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote) { margin: 0; }
 .case-prose p.body-sm { color: inherit; font-size: 13px; font-weight: 400; line-height: 1.7; }
 .case-label { display: flex; align-items: center; width: fit-content; margin: 0; padding: 2px 8px; color: #181818; background: color-mix(in srgb, #181818 5%, transparent); font-size: 13px; font-weight: 500; line-height: 1.5; letter-spacing: .08em; text-transform: uppercase; }
+.case-label--accent { color: #fff; background: var(--accent-color); }
 .case-prose .case-label { margin: 0; }
 .case-prose > .case-label:not(:first-child) { margin-top: 20px; }
 .case-hero-summary { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(420px, .9fr); gap: clamp(40px, 7vw, 110px); align-items: end; }
