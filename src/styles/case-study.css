@@ -154,6 +154,9 @@ html:lang(ja) .case-hero h1, html:lang(ja) .case-section h2 { text-wrap: pretty;
 .phase-item { grid-template-columns: minmax(260px, 320px) 1fr; align-items: baseline; }
 .case-section .phase-item h3, .version-item h4 { margin: 0; font-size: clamp(17px, 1.8vw, 24px); font-weight: 500; line-height: normal; letter-spacing: -.03em; text-wrap: wrap; word-break: normal; }
 .phase-item p, .version-item p { margin: 0; font-size: clamp(14px, 1.2vw, 17px); line-height: 1.7; }
+.phase-list--stacked .phase-item { grid-template-columns: 1fr; gap: 8px; width: 100%; }
+.case-section .phase-list--stacked .phase-item h3 { width: 100%; font-size: clamp(15px, 1.4vw, 18px); }
+.phase-list--stacked .phase-item p { width: 100%; }
 .related-list { display: flex; flex-direction: column; margin-top: 32px; border-top: 1px solid #181818; }
 .related-list a { padding: 20px 0; border-bottom: 1px solid #181818; color: inherit; text-decoration: none; }
 .case-footer { overflow: hidden; background: #e2e8f0; color: #111; }
