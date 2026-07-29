@@ -962,25 +962,28 @@ export const seaGlassFragmentShader = `
   varying vec3 vViewPosition;
   varying float vOpticalThickness;
 
-  float seaGlassGaussian(float value,float center,float width){
-    float distanceFromCenter=(value-center)/width;
-    return exp(-distanceFromCenter*distanceFromCenter);
-  }
-
   vec3 seaGlassSpectralColor(float position){
-    float blueWeight=seaGlassGaussian(position,.02,.18);
-    float greenWeight=seaGlassGaussian(position,.25,.17);
-    float yellowWeight=seaGlassGaussian(position,.49,.15);
-    float orangeWeight=seaGlassGaussian(position,.71,.16);
-    float redWeight=seaGlassGaussian(position,.96,.19);
-    float totalWeight=blueWeight+greenWeight+yellowWeight+orangeWeight+redWeight;
-    return (
-      vec3(.38,.62,1.0)*blueWeight
-      +vec3(.38,.9,.67)*greenWeight
-      +vec3(1.0,.88,.3)*yellowWeight
-      +vec3(1.0,.48,.25)*orangeWeight
-      +vec3(.95,.3,.57)*redWeight
-    )/max(totalWeight,.0001);
+    vec3 color=vec3(.38,.62,1.0);
+    color=mix(
+      color,
+      vec3(.38,.9,.67),
+      smoothstep(.04,.28,position)
+    );
+    color=mix(
+      color,
+      vec3(1.0,.88,.3),
+      smoothstep(.25,.52,position)
+    );
+    color=mix(
+      color,
+      vec3(1.0,.48,.25),
+      smoothstep(.5,.74,position)
+    );
+    return mix(
+      color,
+      vec3(.95,.3,.57),
+      smoothstep(.72,.96,position)
+    );
   }
 
   void main(){
@@ -1273,26 +1276,28 @@ export const roughGlassFragmentShader = `
     return value;
   }
 
-  float roughGlassGaussian(float value,float center,float width){
-    float distanceFromCenter=(value-center)/width;
-    return exp(-distanceFromCenter*distanceFromCenter);
-  }
-
   vec3 roughGlassSpectralColor(float position){
-    float blueWeight=roughGlassGaussian(position,.02,.18);
-    float greenWeight=roughGlassGaussian(position,.25,.17);
-    float yellowWeight=roughGlassGaussian(position,.49,.15);
-    float orangeWeight=roughGlassGaussian(position,.71,.16);
-    float redWeight=roughGlassGaussian(position,.96,.19);
-    float totalWeight=blueWeight+greenWeight+yellowWeight
-      +orangeWeight+redWeight;
-    return (
-      vec3(.38,.62,1.0)*blueWeight
-      +vec3(.38,.9,.67)*greenWeight
-      +vec3(1.0,.88,.3)*yellowWeight
-      +vec3(1.0,.48,.25)*orangeWeight
-      +vec3(.95,.3,.57)*redWeight
-    )/max(totalWeight,.0001);
+    vec3 color=vec3(.38,.62,1.0);
+    color=mix(
+      color,
+      vec3(.38,.9,.67),
+      smoothstep(.04,.28,position)
+    );
+    color=mix(
+      color,
+      vec3(1.0,.88,.3),
+      smoothstep(.25,.52,position)
+    );
+    color=mix(
+      color,
+      vec3(1.0,.48,.25),
+      smoothstep(.5,.74,position)
+    );
+    return mix(
+      color,
+      vec3(.95,.3,.57),
+      smoothstep(.72,.96,position)
+    );
   }
 
   vec3 roughGlassApplySpectrum(

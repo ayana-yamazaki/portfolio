@@ -331,12 +331,13 @@ const layeredShadowFragmentShader = `
   uniform float uShadowContactOpacity;
   varying vec2 vUv;
 
-  float blurredAlpha(float blurPx) {
+  float blurredAlpha(float blurPx, float centerAlpha) {
+    if (blurPx <= .01) return centerAlpha;
     vec2 blurStep = vec2(
       blurPx / 512.0,
       blurPx / 768.0
     );
-    float alpha = texture2D(uMap, vUv).a * .4;
+    float alpha = centerAlpha * .4;
     alpha += texture2D(uMap, vUv + vec2(blurStep.x, 0.0)).a * .15;
     alpha += texture2D(uMap, vUv - vec2(blurStep.x, 0.0)).a * .15;
     alpha += texture2D(uMap, vUv + vec2(0.0, blurStep.y)).a * .15;
@@ -344,17 +345,34 @@ const layeredShadowFragmentShader = `
     return alpha;
   }
 
+  float layerAlpha(float blurPx, float opacity, float centerAlpha) {
+    if (opacity <= .0001) return 0.0;
+    return blurredAlpha(blurPx, centerAlpha) * opacity;
+  }
+
   void main() {
-    float soft = blurredAlpha(uShadowSoftBlur) * uShadowSoftOpacity;
-    float middle = blurredAlpha(uShadowMiddleBlur) * uShadowMiddleOpacity;
-    float contact = blurredAlpha(uShadowContactBlur) * uShadowContactOpacity;
+    vec4 centerSample = texture2D(uMap, vUv);
+    float soft = layerAlpha(
+      uShadowSoftBlur,
+      uShadowSoftOpacity,
+      centerSample.a
+    );
+    float middle = layerAlpha(
+      uShadowMiddleBlur,
+      uShadowMiddleOpacity,
+      centerSample.a
+    );
+    float contact = layerAlpha(
+      uShadowContactBlur,
+      uShadowContactOpacity,
+      centerSample.a
+    );
     float combinedAlpha = 1.0
       - (1.0 - clamp(soft, 0.0, 1.0))
       * (1.0 - clamp(middle, 0.0, 1.0))
       * (1.0 - clamp(contact, 0.0, 1.0));
-    vec3 textureColor = texture2D(uMap, vUv).rgb;
     gl_FragColor = vec4(
-      textureColor * uColor,
+      centerSample.rgb * uColor,
       combinedAlpha * uBackdropShadow * uRevealOpacity
     );
   }
