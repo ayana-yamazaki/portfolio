@@ -47,34 +47,42 @@ const description = '経営・顧客・現場に散らばったアイデアを�
   </CaseStudyHero>
 
   <div class="case-content">
-    <section class="case-section">
+    <section class="case-section case-section--no-divider">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Context</p>
         <h2>ビジョンはあった。しかし、開発の順序がなかった</h2>
       </header>
-      <div class="case-prose case-prose--full" data-reveal>
-        <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがある一方、短期的な開発方針は定まっていませんでした。</p>
-        <p>CEO、CTO、セールス、サポートがそれぞれ異なるアイデアを持ち、顧客要望も約300件蓄積。個別要望への対応を続ければ、開発リソースが分散し、将来の自動化に必要なデータ基盤が後回しになる状態でした。</p>
-        <p>そこで、曖昧な構想を比較可能な形へ変換し、会社として何に投資するかを決めるロードマップ策定をリードしました。</p>
-        <p class="case-label">Objective</p>
-        <blockquote>
-          <p><strong>経営ビジョンと顧客課題を接続し、1年間の開発ロードマップを策定する。</strong></p>
-        </blockquote>
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがある一方、短期的な開発方針は定まっていませんでした。</p>
+          <p>CEO、CTO、セールス、サポートがそれぞれ異なるアイデアを持ち、顧客要望も約300件蓄積。個別要望への対応を続ければ、開発リソースが分散し、将来の自動化に必要なデータ基盤が後回しになる状態でした。</p>
+        </div>
+        <div class="case-prose">
+          <p>そこで、曖昧な構想を比較可能な形へ変換し、会社として何に投資するかを決めるロードマップ策定をリードしました。</p>
+          <p class="case-label">Objective</p>
+          <blockquote>
+            <p><strong>経営ビジョンと顧客課題を接続し、1年間の開発ロードマップを策定する。</strong></p>
+          </blockquote>
+        </div>
       </div>
     </section>
 
-    <section class="case-section decide-section--roadmap">
+    <section class="case-section">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Decision 1 / Roadmap</p>
         <h2>会社として、何に投資するか</h2>
       </header>
 
       <div class="case-block" data-reveal>
-        <div class="case-prose case-prose--full">
-          <p class="case-label">Structure</p>
-          <h3>約300件の要望を、比較できる16領域へ</h3>
-          <p>顧客要望を棚卸しし、重複や類似項目を統合して16の機会領域へ整理しました。同時にCEO、CTO、セールス、サポートへヒアリングを実施。顧客から直接要望として上がっていない、経営・開発・運用上の課題も収集しました。</p>
-          <p>部門によって優先したい方向が異なったため、各案を同じ粒度で比較できる状態を作りました。</p>
+        <div class="case-two-column">
+          <div class="case-prose">
+            <p class="case-label">Structure</p>
+            <h3>約300件の要望を、比較できる16領域へ</h3>
+          </div>
+          <div class="case-prose">
+            <p>顧客要望を棚卸しし、重複や類似項目を統合して16の機会領域へ整理しました。同時にCEO、CTO、セールス、サポートへヒアリングを実施。顧客から直接要望として上がっていない、経営・開発・運用上の課題も収集しました。</p>
+            <p>部門によって優先したい方向が異なったため、各案を同じ粒度で比較できる状態を作りました。</p>
+          </div>
         </div>
 
         <div class="stakeholder-directions" role="list" aria-label="将来のデータ活用、進捗把握、サポート軽減という三つの開発方針">
@@ -100,11 +108,15 @@ const description = '経営・顧客・現場に散らばったアイデアを�
       </div>
 
       <div class="case-block" data-reveal>
-        <div class="case-prose case-prose--full">
-          <p class="case-label">Trade-off</p>
-          <h3>トレードオフを可視化する</h3>
-          <p>各アイデアを、提供価値・対象ユーザー・事業インパクト・開発負荷が比較できるカードへ変換しました。</p>
-          <p>CEO、CTO、セールスとカードを並べながら、「何を入れたいか」だけではなく、<strong>そのために何を後回しにするか</strong>を議論しました。</p>
+        <div class="case-two-column">
+          <div class="case-prose">
+            <p class="case-label">Trade-off</p>
+            <h3>トレードオフを可視化する</h3>
+          </div>
+          <div class="case-prose">
+            <p>各アイデアを、提供価値・対象ユーザー・事業インパクト・開発負荷が比較できるカードへ変換しました。</p>
+            <p>CEO、CTO、セールスとカードを並べながら、「何を入れたいか」だけではなく、<strong>そのために何を後回しにするか</strong>を議論しました。</p>
+          </div>
         </div>
 
         <div class="image-grid image-grid--two">
@@ -126,11 +138,15 @@ const description = '経営・顧客・現場に散らばったアイデアを�
       </div>
 
       <div class="case-block" data-reveal>
-        <div class="case-prose case-prose--full">
-          <p class="case-label">Convergence</p>
-          <h3>プロトタイプを作ってから、作るかを判断する</h3>
-          <p>第一次選定だけでは候補が多く残ったため、それぞれを具体的なプロトタイプへ落としました。CEO・CTOとのレビューと顧客ヒアリングを通じて、誰のどの課題を解くのか、最低限どこまで実現すれば価値が成立するのかを定義しました。</p>
-          <p>9つのMVP候補を同じ粒度で比較した結果、価値が確認できなかった2機能を開発対象から除外し、残る7つをロードマップへ採用しました。</p>
+        <div class="case-two-column">
+          <div class="case-prose">
+            <p class="case-label">Convergence</p>
+            <h3>プロトタイプを作ってから、作るかを判断する</h3>
+          </div>
+          <div class="case-prose">
+            <p>第一次選定だけでは候補が多く残ったため、それぞれを具体的なプロトタイプへ落としました。CEO・CTOとのレビューと顧客ヒアリングを通じて、誰のどの課題を解くのか、最低限どこまで実現すれば価値が成立するのかを定義しました。</p>
+            <p>9つのMVP候補を同じ粒度で比較した結果、価値が確認できなかった2機能を開発対象から除外し、残る7つをロードマップへ採用しました。</p>
+          </div>
         </div>
 
         <div class="case-key-facts" aria-label="9つのMVP候補から7つを選択した結果">
@@ -141,17 +157,21 @@ const description = '経営・顧客・現場に散らばったアイデアを�
       </div>
     </section>
 
-    <section class="case-section decide-section--report">
+    <section class="case-section">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Decision 2 / Daily Report</p>
         <h2>優先テーマの日報で、何を作るか</h2>
       </header>
 
       <div class="case-block" data-reveal>
-        <div class="case-prose case-prose--full">
-          <p class="case-label">Redefinition</p>
-          <h3>日報は、将来のプロダクト価値を支える基盤だった</h3>
-          <p>正確な作業データが蓄積されなければ、進捗把握、分析、業務改善、将来的な自動化はいずれも成立しません。一方、当時の日報は作業後の記憶と手入力に依存し、入力負荷とデータ精度に課題がありました。</p>
+        <div class="case-two-column">
+          <div class="case-prose">
+            <p class="case-label">Redefinition</p>
+            <h3>日報は、将来のプロダクト価値を支える基盤だった</h3>
+          </div>
+          <div class="case-prose">
+            <p>正確な作業データが蓄積されなければ、進捗把握、分析、業務改善、将来的な自動化はいずれも成立しません。一方、当時の日報は作業後の記憶と手入力に依存し、入力負荷とデータ精度に課題がありました。</p>
+          </div>
         </div>
 
         <div class="before-after" aria-label="日報の再定義">
@@ -173,7 +193,7 @@ const description = '経営・顧客・現場に散らばったアイデアを�
           <div><span>Lv5</span><strong>将来の自動化や<br />事業展開に利用できる</strong></div>
         </div>
 
-        <div class="case-prose case-prose--full">
+        <div class="case-prose case-insight">
           <p>この再定義によって、中心課題は「入力フォームを改善すること」から、<strong>人の入力を最小限にしながら、価値のあるデータをどう集めるか</strong>へ変わりました。</p>
         </div>
       </div>
@@ -196,10 +216,14 @@ const description = '経営・顧客・現場に散らばったアイデアを�
       </div>
 
       <div class="case-block" data-reveal>
-        <div class="case-prose case-prose--full">
-          <p class="case-label">Options</p>
-          <h3>一つの案に飛びつかず、複数の方法を比較する</h3>
-          <p>現場負荷、データ精度、継続性、開発負荷、将来の自動化への接続を比較しました。その結果、位置情報から日報の下書きを生成し、人が不足情報だけを補う方向を選びました。</p>
+        <div class="case-two-column">
+          <div class="case-prose">
+            <p class="case-label">Options</p>
+            <h3>一つの案に飛びつかず、複数の方法を比較する</h3>
+          </div>
+          <div class="case-prose">
+            <p>現場負荷、データ精度、継続性、開発負荷、将来の自動化への接続を比較しました。その結果、位置情報から日報の下書きを生成し、人が不足情報だけを補う方向を選びました。</p>
+          </div>
         </div>
 
         <div class="solution-cards" role="list" aria-label="日報を登録するために比較した複数の解決方法">
@@ -217,9 +241,13 @@ const description = '経営・顧客・現場に散らばったアイデアを�
         <p class="section-title">Prototype</p>
         <h2>動くプロトタイプで、MVPの境界を決める</h2>
       </header>
-      <div class="case-prose case-prose--full" data-reveal>
-        <p>日報作成、GPSブロックの分割・修正、手動補正、提出・承認までを操作可能なプロトタイプへ落としました。</p>
-        <p>CEO・CTOと実際の業務をウォークスルーしながら、どこまでをシステムが自動化し、どこからを人の判断として残すかを検討しました。</p>
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p>日報作成、GPSブロックの分割・修正、手動補正、提出・承認までを操作可能なプロトタイプへ落としました。</p>
+        </div>
+        <div class="case-prose">
+          <p>CEO・CTOと実際の業務をウォークスルーしながら、どこまでをシステムが自動化し、どこからを人の判断として残すかを検討しました。</p>
+        </div>
       </div>
 
       <figure class="prototype-overview" data-reveal>
@@ -291,10 +319,14 @@ const description = '経営・顧客・現場に散らばったアイデアを�
         <div><small>4か月以内にリリース</small><strong>2</strong><span>件</span></div>
       </div>
 
-      <div class="case-prose case-prose--full" data-reveal>
-        <p>ロードマップ策定の結果、9つのMVP候補から2つを除外し、7つの開発テーマと優先順位を合意しました。事業インパクトと緊急性の高かった上位2機能は、4か月以内にリリースされました。</p>
-        <p>最終的な投資判断はCEO・CTOが担いました。</p>
-        <p>私は、顧客要望の構造化、関係者へのヒアリング、選択肢の具体化、プロトタイプ検証を通じて、<strong>経営が開発する・しないを判断できる状態そのものを設計しました。</strong></p>
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p>ロードマップ策定の結果、9つのMVP候補から2つを除外し、7つの開発テーマと優先順位を合意しました。事業インパクトと緊急性の高かった上位2機能は、4か月以内にリリースされました。</p>
+        </div>
+        <div class="case-prose">
+          <p>最終的な投資判断はCEO・CTOが担いました。</p>
+          <p>私は、顧客要望の構造化、関係者へのヒアリング、選択肢の具体化、プロトタイプ検証を通じて、<strong>経営が開発する・しないを判断できる状態そのものを設計しました。</strong></p>
+        </div>
       </div>
 
       <a class="related-case-card" href="/reframe-the-problem" data-reveal>
@@ -317,14 +349,9 @@ const description = '経営・顧客・現場に散らばったアイデアを�
   .decision-funnel strong { font-size: clamp(26px, 3.2vw, 48px); line-height: 1; letter-spacing: -.04em; }
   .decision-funnel span { color: var(--text-color-secondary); font-size: 12px; line-height: 1.5; }
 
-  .decide-section--roadmap { background: #f5f2ec; }
-  .decide-section--report { background: #edf4f5; }
-
   .stakeholder-directions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #181818; }
-  .stakeholder-directions article { display: flex; min-width: 0; flex-direction: column; gap: 20px; min-height: 300px; padding: clamp(22px, 3vw, 40px); }
+  .stakeholder-directions article { display: flex; min-width: 0; flex-direction: column; gap: 20px; min-height: 300px; padding: clamp(22px, 3vw, 40px); background: #fff; }
   .stakeholder-directions article + article { border-left: 1px solid #181818; }
-  .stakeholder-directions article:nth-child(2) { background: #fff; }
-  .stakeholder-directions article:nth-child(3) { background: #e3f0ed; }
   .stakeholder-directions span { color: var(--accent-color); font-size: 12px; }
   .stakeholder-directions h4 { margin: auto 0 0; font-size: clamp(21px, 2.3vw, 32px); line-height: 1.4; }
   .stakeholder-directions p { margin: 0; font-size: 14px; line-height: 1.7; }
@@ -335,7 +362,7 @@ const description = '経営・顧客・現場に散らばったアイデアを�
   .image-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .image-grid figure { margin: 0; }
   .image-grid figcaption, .prototype-overview figcaption { margin-top: 12px; color: var(--text-color-secondary); font-size: 12px; line-height: 1.6; }
-  .neutral-placeholder { display: flex; aspect-ratio: 16 / 10; flex-direction: column; justify-content: space-between; padding: 24px; border: 1px solid #c8c8c4; color: #666; background: #deded9; }
+  .neutral-placeholder { display: flex; aspect-ratio: 16 / 10; flex-direction: column; justify-content: space-between; padding: 24px; border: 1px solid #c8c8c4; color: #666; background: #d6d3ca; }
   .neutral-placeholder span, .neutral-placeholder small { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
 
   .before-after { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #181818; background: #fff; }
@@ -348,9 +375,9 @@ const description = '経営・顧客・現場に散らばったアイデアを�
   .value-ladder div { display: flex; min-width: 0; flex-direction: column; gap: 16px; justify-content: flex-end; padding: 18px; border: 1px solid #181818; background: #fff; }
   .value-ladder div + div { border-left: 0; }
   .value-ladder div:nth-child(1) { min-height: 120px; }
-  .value-ladder div:nth-child(2) { min-height: 165px; background: #f4f8f9; }
-  .value-ladder div:nth-child(3) { min-height: 210px; background: #e5f0f3; }
-  .value-ladder div:nth-child(4) { min-height: 255px; background: #d7e8ed; }
+  .value-ladder div:nth-child(2) { min-height: 165px; }
+  .value-ladder div:nth-child(3) { min-height: 210px; }
+  .value-ladder div:nth-child(4) { min-height: 255px; }
   .value-ladder div:nth-child(5) { min-height: 300px; color: #fff; background: var(--accent-color); }
   .value-ladder span { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
   .value-ladder strong { font-size: clamp(13px, 1.3vw, 17px); font-weight: 500; line-height: 1.6; }
@@ -363,7 +390,7 @@ const description = '経営・顧客・現場に散らばったアイデアを�
   .solution-cards h4 { margin: auto 0 0; font-size: clamp(17px, 1.55vw, 22px); line-height: 1.45; }
   .solution-cards p { margin: 0; font-size: 12px; line-height: 1.6; }
 
-  .prototype-overview { position: relative; margin: 0; padding: clamp(18px, 3vw, 36px); border: 1px solid var(--divider-color); background: #d6d7d5; }
+  .prototype-overview { position: relative; margin: 0; padding: clamp(18px, 3vw, 36px); border: 1px solid var(--divider-color); background: #d6d3ca; }
   .prototype-overview img { display: block; width: 100%; height: auto; opacity: .48; filter: saturate(.25); }
   .prototype-overview ol { position: absolute; inset: clamp(36px, 7vw, 100px); display: flex; flex-direction: column; justify-content: space-between; margin: 0; padding: 0; list-style: none; pointer-events: none; }
   .prototype-overview li { display: flex; width: fit-content; align-items: center; gap: 12px; padding: 9px 14px 9px 9px; border: 1px solid #181818; background: rgb(255 255 255 / 92%); font-size: clamp(12px, 1.3vw, 17px); font-weight: 600; }
@@ -374,7 +401,7 @@ const description = '経営・顧客・現場に散らばったアイデアを�
 
   .image-grid--three figure { display: flex; min-width: 0; flex-direction: column; }
   .image-grid--three figure > span { margin-bottom: 10px; color: var(--accent-color); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-  .image-grid--three img, .image-grid--three .neutral-placeholder { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: #eef0ed; }
+  .image-grid--three img, .image-grid--three .neutral-placeholder { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--keyvisual-background); }
 
   .related-case-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; margin-top: clamp(24px, 4vw, 56px); padding: clamp(28px, 5vw, 64px); border: 1px solid #181818; color: inherit; background: #fff; text-decoration: none; transition: color 200ms ease, background-color 200ms ease; }
   .related-case-card div { display: flex; flex-direction: column; gap: 14px; }
