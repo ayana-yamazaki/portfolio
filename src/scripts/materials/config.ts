@@ -172,18 +172,18 @@ export const simpleShadowProfiles: Record<
     scale: [1.3, 1.18],
     offset: { xRatio: .03, yRatio: -.01 },
     layers: {
-      soft: { blur: 28, opacity: .12, x: 34, y: 27 },
-      middle: { blur: 9, opacity: .19, x: 19, y: 14 },
-      contact: { blur: .45, opacity: .24, x: 4, y: 3 },
+      soft: { blur: 41, opacity: .16, x: 34, y: 27 },
+      middle: { blur: 12, opacity: .35, x: 19, y: 14 },
+      contact: { blur: 6, opacity: 1.36, x: 4, y: 3 },
     },
   },
   'rough-glass': {
     scale: [1.3, 1.18],
     offset: { xRatio: .032, yRatio: -.012 },
     layers: {
-      soft: { blur: 32, opacity: .14, x: 38, y: 29 },
-      middle: { blur: 10, opacity: .22, x: 23, y: 17 },
-      contact: { blur: .45, opacity: .28, x: 4, y: 3 },
+      soft: { blur: 38, opacity: .58, x: 38, y: 29 },
+      middle: { blur: 0, opacity: 0, x: 23, y: 17 },
+      contact: { blur: 0, opacity: .34, x: 4, y: 3 },
     },
   },
   glass: {
@@ -206,9 +206,9 @@ export const seaGlassDesktopShadowProfile = {
   scale: [1.32, 1.17],
   offset: { xRatio: .064, yRatio: -.012 },
   layers: {
-    soft: { blur: 23, opacity: .15, x: 44, y: 27 },
-    middle: { blur: 5.5, opacity: .27, x: 27, y: 14 },
-    contact: { blur: .3, opacity: .38, x: 7, y: 3 },
+    soft: { blur: 41, opacity: .16, x: 44, y: 27 },
+    middle: { blur: 12, opacity: .35, x: 27, y: 14 },
+    contact: { blur: 6, opacity: 1.36, x: 7, y: 3 },
   },
 } as const satisfies SimpleShadowProfile;
 
@@ -216,9 +216,9 @@ export const roughGlassDesktopShadowProfile = {
   scale: [1.34, 1.18],
   offset: { xRatio: .074, yRatio: -.012 },
   layers: {
-    soft: { blur: 25, opacity: .16, x: 48, y: 28 },
-    middle: { blur: 6.5, opacity: .25, x: 31, y: 15 },
-    contact: { blur: .35, opacity: .36, x: 8, y: 3 },
+    soft: { blur: 38, opacity: .58, x: 48, y: 28 },
+    middle: { blur: 0, opacity: 0, x: 31, y: 15 },
+    contact: { blur: 0, opacity: .34, x: 8, y: 3 },
   },
 } as const satisfies SimpleShadowProfile;
 
@@ -291,7 +291,7 @@ export const seaGlassTuning = {
   surfaceNoiseStrength: 2.5,
   spectralStrength: .42,
   glintStrength: 3,
-  shadowOpacity: 1,
+  shadowOpacity: .66,
 } as const;
 
 export const roughGlassTuning = {
@@ -308,7 +308,7 @@ export const roughGlassTuning = {
   waveAmplitude: .73,
   waveEdgeStrength: 1.87,
   waveRefraction: 2.5,
-  waveShadow: 1.84,
-  spectralStrength: .42,
-  shadowOpacity: 1,
+  waveShadow: 1.61,
+  spectralStrength: .47,
+  shadowOpacity: .83,
 } as const;

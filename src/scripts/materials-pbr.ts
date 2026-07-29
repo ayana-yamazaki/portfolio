@@ -308,6 +308,58 @@ type CardState = {
   keyboardFocused: boolean;
 };
 
+const layeredShadowVertexShader = `
+  varying vec2 vUv;
+
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const layeredShadowFragmentShader = `
+  precision highp float;
+  uniform sampler2D uMap;
+  uniform vec3 uColor;
+  uniform float uRevealOpacity;
+  uniform float uBackdropShadow;
+  uniform float uShadowSoftBlur;
+  uniform float uShadowSoftOpacity;
+  uniform float uShadowMiddleBlur;
+  uniform float uShadowMiddleOpacity;
+  uniform float uShadowContactBlur;
+  uniform float uShadowContactOpacity;
+  varying vec2 vUv;
+
+  float blurredAlpha(float blurPx) {
+    vec2 blurStep = vec2(
+      blurPx / 512.0,
+      blurPx / 768.0
+    );
+    float alpha = texture2D(uMap, vUv).a * .4;
+    alpha += texture2D(uMap, vUv + vec2(blurStep.x, 0.0)).a * .15;
+    alpha += texture2D(uMap, vUv - vec2(blurStep.x, 0.0)).a * .15;
+    alpha += texture2D(uMap, vUv + vec2(0.0, blurStep.y)).a * .15;
+    alpha += texture2D(uMap, vUv - vec2(0.0, blurStep.y)).a * .15;
+    return alpha;
+  }
+
+  void main() {
+    float soft = blurredAlpha(uShadowSoftBlur) * uShadowSoftOpacity;
+    float middle = blurredAlpha(uShadowMiddleBlur) * uShadowMiddleOpacity;
+    float contact = blurredAlpha(uShadowContactBlur) * uShadowContactOpacity;
+    float combinedAlpha = 1.0
+      - (1.0 - clamp(soft, 0.0, 1.0))
+      * (1.0 - clamp(middle, 0.0, 1.0))
+      * (1.0 - clamp(contact, 0.0, 1.0));
+    vec3 textureColor = texture2D(uMap, vUv).rgb;
+    gl_FragColor = vec4(
+      textureColor * uColor,
+      combinedAlpha * uBackdropShadow * uRevealOpacity
+    );
+  }
+`;
+
 const canvas = document.querySelector<ManagedCanvas>('[data-materials-pbr]');
 const cases = canvas?.closest<HTMLElement>('.home-hero__cases');
 const hero = cases?.closest<HTMLElement>('.home-hero');
@@ -378,9 +430,36 @@ if (canvas && cases && hero) {
   const eventController = new AbortController();
   const trackedTextures = new Set<Texture>();
   const cardStates: CardState[] = [];
-  const adjustableShadowOpacity = {
-    'sea-glass': { value: seaGlassTuning.shadowOpacity },
-    'rough-glass': { value: roughGlassTuning.shadowOpacity },
+  const createAdjustableShadow = (
+    profile: {
+      layers: Record<
+        'soft' | 'middle' | 'contact',
+        { blur: number; opacity: number }
+      >;
+    },
+    opacity: number,
+  ) => ({
+    backdrop: { value: opacity },
+    softBlur: { value: profile.layers.soft.blur },
+    softOpacity: { value: profile.layers.soft.opacity },
+    middleBlur: { value: profile.layers.middle.blur },
+    middleOpacity: { value: profile.layers.middle.opacity },
+    contactBlur: { value: profile.layers.contact.blur },
+    contactOpacity: { value: profile.layers.contact.opacity },
+  });
+  const adjustableShadows = {
+    'sea-glass': createAdjustableShadow(
+      isSmallViewport
+        ? simpleShadowProfiles['sea-glass']
+        : seaGlassDesktopShadowProfile,
+      seaGlassTuning.shadowOpacity,
+    ),
+    'rough-glass': createAdjustableShadow(
+      isSmallViewport
+        ? simpleShadowProfiles['rough-glass']
+        : roughGlassDesktopShadowProfile,
+      roughGlassTuning.shadowOpacity,
+    ),
   };
   const preparedCardKinds = new Set<MaterialKind>();
   const failedCardKinds = new Set<MaterialKind>();
@@ -636,13 +715,18 @@ if (canvas && cases && hero) {
       let changed = false;
       cardStates.forEach((state) => {
         if (!state.element.hasAttribute('data-material-pbr-ready')) return;
-        const material = state.shadow.material as MeshBasicMaterial;
-        const targetOpacity = state.kind === 'sea-glass'
-          || state.kind === 'rough-glass'
-          ? adjustableShadowOpacity[state.kind].value
-          : 1;
-        if (material.opacity === targetOpacity) return;
-        material.opacity = targetOpacity;
+        const material = state.shadow.material;
+        if (Array.isArray(material)) return;
+        if (
+          material instanceof ShaderMaterial
+          && material.uniforms.uRevealOpacity
+        ) {
+          if (material.uniforms.uRevealOpacity.value === 1) return;
+          material.uniforms.uRevealOpacity.value = 1;
+        } else {
+          if (material.opacity === 1) return;
+          material.opacity = 1;
+        }
         changed = true;
       });
       if (changed) {
@@ -699,6 +783,32 @@ if (canvas && cases && hero) {
     const getShadowMap = (kind: MaterialKind) => (
       bakedMaterialTextures.shadows[kind]
     );
+    const createLayeredShadowMaterial = (
+      kind: 'sea-glass' | 'rough-glass',
+      map: Texture,
+      color: number,
+    ) => {
+      const controls = adjustableShadows[kind];
+      return new ShaderMaterial({
+        uniforms: {
+          uMap: { value: map },
+          uColor: { value: new Color(color) },
+          uRevealOpacity: { value: 0 },
+          uBackdropShadow: controls.backdrop,
+          uShadowSoftBlur: controls.softBlur,
+          uShadowSoftOpacity: controls.softOpacity,
+          uShadowMiddleBlur: controls.middleBlur,
+          uShadowMiddleOpacity: controls.middleOpacity,
+          uShadowContactBlur: controls.contactBlur,
+          uShadowContactOpacity: controls.contactOpacity,
+        },
+        vertexShader: layeredShadowVertexShader,
+        fragmentShader: layeredShadowFragmentShader,
+        transparent: true,
+        depthWrite: false,
+        toneMapped: false,
+      });
+    };
 
     const refractionSources = Array.from(
       document.querySelectorAll<HTMLElement>(
@@ -839,27 +949,27 @@ if (canvas && cases && hero) {
     if (
       import.meta.env.DEV
       && !isSmallViewport
+      && new URLSearchParams(window.location.search).has('seaGlassControls')
     ) {
       cleanupSeaGlassControls = createSeaGlassControls({
         uniforms: {
           ...seaGlassMaterial.uniforms,
-          uBackdropShadow: adjustableShadowOpacity['sea-glass'],
+          uBackdropShadow: adjustableShadows['sea-glass'].backdrop,
+          uShadowSoftBlur: adjustableShadows['sea-glass'].softBlur,
+          uShadowSoftOpacity: adjustableShadows['sea-glass'].softOpacity,
+          uShadowMiddleBlur: adjustableShadows['sea-glass'].middleBlur,
+          uShadowMiddleOpacity: adjustableShadows['sea-glass'].middleOpacity,
+          uShadowContactBlur: adjustableShadows['sea-glass'].contactBlur,
+          uShadowContactOpacity: adjustableShadows['sea-glass'].contactOpacity,
         },
         getRadius: () => materialProfiles['sea-glass'].radiusPx,
         setRadius: (value) => {
           materialProfiles['sea-glass'].radiusPx = value;
         },
-        onAppearanceChange: () => {
-          const state = cardStates.find(({ kind }) => kind === 'sea-glass');
-          const material = state?.shadow.material;
-          if (material && !Array.isArray(material)) {
-            material.opacity = adjustableShadowOpacity['sea-glass'].value;
-          }
-          invalidate(
-            RenderDirtyFlag.appearance
-            | RenderDirtyFlag.motionCache,
-          );
-        },
+        onAppearanceChange: () => invalidate(
+          RenderDirtyFlag.appearance
+          | RenderDirtyFlag.motionCache,
+        ),
         onGeometryChange: () => {
           lastSignature = '';
           markLayoutDirty();
@@ -869,23 +979,23 @@ if (canvas && cases && hero) {
     if (
       import.meta.env.DEV
       && !isSmallViewport
+      && new URLSearchParams(window.location.search).has('roughGlassControls')
     ) {
       cleanupRoughGlassControls = createRoughGlassControls(
         {
           ...roughGlassFaceMaterial.uniforms,
-          uBackdropShadow: adjustableShadowOpacity['rough-glass'],
+          uBackdropShadow: adjustableShadows['rough-glass'].backdrop,
+          uShadowSoftBlur: adjustableShadows['rough-glass'].softBlur,
+          uShadowSoftOpacity: adjustableShadows['rough-glass'].softOpacity,
+          uShadowMiddleBlur: adjustableShadows['rough-glass'].middleBlur,
+          uShadowMiddleOpacity: adjustableShadows['rough-glass'].middleOpacity,
+          uShadowContactBlur: adjustableShadows['rough-glass'].contactBlur,
+          uShadowContactOpacity: adjustableShadows['rough-glass'].contactOpacity,
         },
-        () => {
-          const state = cardStates.find(({ kind }) => kind === 'rough-glass');
-          const material = state?.shadow.material;
-          if (material && !Array.isArray(material)) {
-            material.opacity = adjustableShadowOpacity['rough-glass'].value;
-          }
-          invalidate(
-            RenderDirtyFlag.appearance
-            | RenderDirtyFlag.motionCache,
-          );
-        },
+        () => invalidate(
+          RenderDirtyFlag.appearance
+          | RenderDirtyFlag.motionCache,
+        ),
       );
     }
     const baseRefraction = {
@@ -901,7 +1011,7 @@ if (canvas && cases && hero) {
     );
     const roughGlassPresentation: RoughGlassPresentation = {
       bodyOpacity: 1.3,
-      shadowOpacity: .33,
+      shadowOpacity: adjustableShadows['rough-glass'].backdrop.value,
       shadowSpread: .89,
       shadowDistance: 2,
       projectionSpread: .8,
@@ -1272,19 +1382,24 @@ if (canvas && cases && hero) {
         group.add(bottomSurface);
       }
 
-      const shadow = new Mesh(
-        new PlaneGeometry(1, 1),
-        new MeshBasicMaterial({
-          map: initiallyPrepared
-            ? getShadowMap(kind)
-            : shadowPlaceholderTexture ?? getShadowMap(kind),
+      const initialShadowMap = initiallyPrepared
+        ? getShadowMap(kind)
+        : shadowPlaceholderTexture ?? getShadowMap(kind);
+      const shadowMaterial = kind === 'sea-glass' || kind === 'rough-glass'
+        ? createLayeredShadowMaterial(
+          kind,
+          initialShadowMap,
+          definition.shadowColor,
+        )
+        : new MeshBasicMaterial({
+          map: initialShadowMap,
           color: definition.shadowColor,
           transparent: true,
           opacity: 0,
           depthWrite: false,
           toneMapped: false,
-        }),
-      );
+        });
+      const shadow = new Mesh(new PlaneGeometry(1, 1), shadowMaterial);
       shadow.position.z = -0.5;
       const caustic = definition.caustic === 'gem'
         ? new Mesh(
@@ -1434,10 +1549,9 @@ if (canvas && cases && hero) {
         const roughGlassState = cardStates.find(
           ({ kind }) => kind === 'rough-glass',
         );
-        const shadowMaterial = roughGlassState?.shadow.material;
-        if (shadowMaterial && !Array.isArray(shadowMaterial)) {
-          shadowMaterial.opacity = roughGlassPresentation.shadowOpacity;
-        }
+        adjustableShadows['rough-glass'].backdrop.value = (
+          roughGlassPresentation.shadowOpacity
+        );
         invalidate(
           RenderDirtyFlag.appearance
           | RenderDirtyFlag.motionCache,
@@ -1501,8 +1615,18 @@ if (canvas && cases && hero) {
             : Promise.resolve(),
         ]);
         if (disposed) return;
-        const shadowMaterial = state.shadow.material as MeshBasicMaterial;
-        if (shadowMaterial.map === shadowPlaceholderTexture) {
+        const shadowMaterial = state.shadow.material;
+        if (
+          !Array.isArray(shadowMaterial)
+          && shadowMaterial instanceof ShaderMaterial
+          && shadowMaterial.uniforms.uMap?.value === shadowPlaceholderTexture
+        ) {
+          shadowMaterial.uniforms.uMap.value = getShadowMap(kind);
+        } else if (
+          !Array.isArray(shadowMaterial)
+          && shadowMaterial instanceof MeshBasicMaterial
+          && shadowMaterial.map === shadowPlaceholderTexture
+        ) {
           shadowMaterial.map = getShadowMap(kind);
           shadowMaterial.needsUpdate = true;
         }
@@ -2427,11 +2551,6 @@ if (canvas && cases && hero) {
           ),
           -0.65,
         );
-        if (adjustableRoughGlass && !Array.isArray(state.shadow.material)) {
-          state.shadow.material.opacity = (
-            adjustableShadowOpacity['rough-glass'].value
-          );
-        }
         if (state.caustic) {
           const isGlass = state.kind === 'glass';
           const isRoughGlass = state.kind === 'rough-glass';

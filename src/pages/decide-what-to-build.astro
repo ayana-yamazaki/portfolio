@@ -12,7 +12,11 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     <Fragment slot="copy">
       <h1>{headline}</h1>
       <p>現場の事実と事業の成長順序から、作るもの・作らないものを決めました。</p>
-      <p>シード期のスタートアップで一人目のプロダクトデザイナーとして、顧客要望と社内の構想を整理し、1年間の開発ロードマップを策定。優先テーマの日報では、16人の業務観察から課題を定義し、GPSデータからシステムが下書きを作る体験を設計しました。</p>
+      <div class="case-prose case-prose--full">
+        <p>シード期のスタートアップで一人目のプロダクトデザイナーとして、顧客から蓄積された約300件の要望と、経営・開発・営業・サポートが持つ構想を整理し、1年間の開発ロードマップを策定しました。</p>
+        <p>優先テーマの一つとなった日報では、16人の業務観察から課題を定義。GPSデータからシステムが下書きを作る体験を設計し、例外処理、データ構造、MVP、開発フェーズまで具体化しました。</p>
+        <p>3か月で全体ロードマップを策定し、優先された日報については、その後も調査・設計・運用改善を継続しました。</p>
+      </div>
     </Fragment>
 
     <Fragment slot="meta">
@@ -39,13 +43,14 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     </Fragment>
 
     <Fragment slot="details">
-      <ol class="decision-funnel" aria-label="約300件の要望を7つの開発テーマへ収束させたプロセス">
+      <ol class="decision-funnel" aria-label="約300件の生の要望を16の機会領域、9つのMVP候補、7つの開発テーマへ絞り、優先度の高い2テーマをロードマップ策定後4か月以内にリリース">
         <li><strong>約300</strong><span>生の要望</span></li>
         <li><strong>16</strong><span>機会領域</span></li>
         <li><strong>9</strong><span>MVP候補</span></li>
-        <li><strong>7</strong><span>ロードマップへ</span></li>
-        <li><strong>2</strong><span>4か月以内にリリース</span></li>
+        <li><strong>7</strong><span>開発テーマ</span></li>
+        <li><strong>2</strong><span>優先テーマを策定後4か月以内にリリース</span></li>
       </ol>
+      <p class="case-evidence-note"><strong>約300件の生の要望 → 16の機会領域 → 9つのMVP候補 → 7つの開発テーマ → 優先度の高い2テーマをロードマップ策定後4か月以内にリリース</strong></p>
     </Fragment>
   </CaseStudyHero>
 
@@ -56,115 +61,103 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <h2>ビジョンはあった。しかし、開発の順序がなかった</h2>
       </header>
 
-      <div class="case-two-column" data-reveal>
-        <div class="case-prose">
-          <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがありました。一方で、短期的に何を積み上げればその未来へ近づけるのかは、明確になっていませんでした。</p>
-          <p>CEO、CTO、開発、営業、サポートは、それぞれ異なる立場からプロダクトの将来像を持っていました。さらに、顧客から届いた約300件の要望が蓄積され、緊急度の高い相談や個別要望が開発の優先順位を左右していました。</p>
-        </div>
-        <div class="case-prose">
-          <p>そのまま個別要望へ対応し続けると、開発リソースが分散し、将来の分析や自動化に必要なデータ基盤が後回しになります。</p>
-          <p>そこで、顧客要望と各部門の構想を同じ粒度で比較し、会社として何に投資するかを決めるロードマップ策定をリードしました。</p>
-          <blockquote>
-            <p><strong>設計したのは、要望を並べたロードマップではなく、経営と開発が「何を、なぜ、どの順序で作るか」を判断できる状態です。</strong></p>
-          </blockquote>
-        </div>
+      <div class="case-prose case-prose--full" data-reveal>
+        <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがある一方、そこへ近づくための短期的な開発順序は定まっていませんでした。</p>
+        <p>CEO、CTO、開発、営業、サポートが異なる構想を持ち、顧客要望も約300件蓄積していました。緊急度や声の大きさだけで個別要望へ対応すると、開発リソースが分散し、将来の分析や自動化に必要なデータ基盤が後回しになります。</p>
+        <p>そこで、顧客要望と各部門の構想を同じ粒度で比較し、会社として何に投資するかを決めるロードマップ策定をリードしました。</p>
       </div>
     </section>
 
     <section class="case-section">
-      <header class="case-section-header" data-reveal>
-        <p class="section-title">Decision 1 / Roadmap</p>
-        <h2>会社として、何に投資するか</h2>
-      </header>
-
       <div class="case-two-column" data-reveal>
-        <div class="case-prose">
-          <p class="case-label">Structure</p>
-          <h3>異なる立場の要望を、比較できる状態にする</h3>
+        <div class="case-block">
+          <header class="case-section-header">
+            <p class="section-title">Decision 1 — Roadmap</p>
+            <h2>会社として、何に投資するか</h2>
+          </header>
+          <div class="case-prose">
+            <p class="case-label">Structure</p>
+            <h3>比較できない要望を、同じ評価軸へ揃える</h3>
+            <p>顧客要望と各部門の構想は、「データ基盤」「便利な画面」「サポート工数」など粒度が異なり、そのままでは比較できませんでした。</p>
+            <p>約300件の要望を16の機会領域へまとめ、対象ユーザー、業務上の変化、事業インパクト、必要なデータ、開発・運用負荷を同じ形式で整理しました。</p>
+          </div>
         </div>
-        <div class="case-prose">
-          <p>蓄積されていた顧客要望の重複や類似項目を整理し、16の機会領域へまとめました。</p>
-          <p>同時に、CEO、CTO、開発、営業、サポートへヒアリングを実施。顧客から直接は要望されていないものの、事業や運用のボトルネックになっている課題も収集しました。</p>
-        </div>
-      </div>
-
-      <div class="decide-image-grid" data-reveal>
         <figure class="case-figure">
           <img
-            src="/images/cases/decide/direction-future-data.webp"
-            width="668"
+            src="/images/cases/decide/source/stakeholder-directions-board.webp"
+            width="2004"
             height="1526"
-            alt="日報を将来の分析や自動化に利用できるデータへ変える開発方針"
+            alt="約300件の顧客要望と社内アイデアを、将来のデータ活用、進捗把握、サポート業務の軽減という三つの軸で整理したボード"
             loading="lazy"
           />
-          <figcaption class="media-caption">開発・経営：入力精度とデータ構造を整え、将来の分析や自動化へつなげる</figcaption>
-        </figure>
-        <figure class="case-figure">
-          <img
-            src="/images/cases/decide/direction-progress.webp"
-            width="668"
-            height="1526"
-            alt="進捗状況を必要な情報に絞って把握できるようにする開発方針"
-            loading="lazy"
-          />
-          <figcaption class="media-caption">営業：現場やチームの状況を、顧客へ説明しやすくする</figcaption>
-        </figure>
-        <figure class="case-figure">
-          <img
-            src="/images/cases/decide/direction-support.webp"
-            width="668"
-            height="1526"
-            alt="データ集計や面積計測を自動化してサポート業務を軽減する開発方針"
-            loading="lazy"
-          />
-          <figcaption class="media-caption">サポート：集計や面積計測などの手作業を減らす</figcaption>
+          <figcaption class="media-caption">社内で散在していた約300件の顧客要望や社内アイデアを3軸に整理、優先度を合意</figcaption>
         </figure>
       </div>
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Evaluation</p>
-          <h3>機能名ではなく、実現したい状態を比べる</h3>
+          <h3>長期ビジョン、ジョブ、機能の関係を整理する</h3>
+          <p>事業の北極星となる長期ビジョンを最上位に置き、その下に顧客が達成したいジョブ、さらにその手段となる機能を配置しました。機能名ではなく、実現したい状態を基準に比較することで、似た目的を持つ案の統合や除外が可能になりました。</p>
         </div>
-        <div class="case-prose">
-          <p>部門ごとの案は、そのままでは「データ基盤」「便利な画面」「サポート工数」と評価軸が揃いません。</p>
-          <p>そこで、誰のどの業務を改善するのか、どのような変化を生むのか、将来構想へどう接続するのか、必要なデータや運用コストは何かを明確にしました。</p>
-        </div>
+        <figure class="case-figure">
+          <img
+            src="/images/cases/decide/roadmap-output-model.webp"
+            width="1784"
+            height="1000"
+            alt="長期ビジョン、顧客のジョブ、手段となる機能、年度別UIの関係を整理した構造"
+            loading="lazy"
+          />
+        </figure>
       </div>
-
-      <figure class="case-figure" data-reveal>
-        <img
-          src="/images/cases/decide/roadmap-output-model.webp"
-          width="1784"
-          height="1000"
-          alt="北極星、顧客のジョブ、機能という手段、年度別UIの関係を整理したロードマップのアウトプットモデル"
-          loading="lazy"
-        />
-        <figcaption class="media-caption">要望を機能のまま並べず、北極星、顧客のジョブ、実現手段へ分けて整理</figcaption>
-      </figure>
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Convergence</p>
-          <h3>抽象的な構想を、操作できる案に変える</h3>
+          <h3>9つのMVP候補から7つの開発テーマを選定</h3>
         </div>
         <div class="case-prose">
-          <p>優先度の高いテーマは簡易プロトタイプまで具体化し、CEO・CTOと実際の利用場面をウォークスルーしました。</p>
-          <p>プロトタイプは完成画面を示すためではなく、誰が入力・確認するのか、例外的な現場でも破綻しないか、次の開発へ再利用できる構造かを確認し、投資判断の不確実性を減らすために使いました。</p>
+          <p>9つのMVP候補を簡易プロトタイプまで具体化し、利用場面、データの前提、実装・運用負荷を比較しました。2件は他テーマへ統合できる、または現時点で事業効果が小さいと判断して除外し、7つの開発テーマと実行順序を全体ロードマップへ配置しました。</p>
         </div>
       </div>
 
-      <div class="case-key-facts" aria-label="9つのMVP候補から7つを選択した結果" data-reveal>
+      <figure class="case-figure" data-reveal>
+        <div class="decide-convergence-gallery" aria-label="9つのMVP候補を具体化し、2件を除外して7つの開発テーマへ収束した検討資料">
+          <img
+            src="/images/cases/decide/roadmap-theme-organization-access.webp"
+            width="1500"
+            height="700"
+            alt="組織間連携、アカウント払い出し、権限設定の検討"
+            loading="lazy"
+          />
+          <img
+            src="/images/cases/decide/roadmap-theme-map-report.webp"
+            width="1650"
+            height="900"
+            alt="フィルター、表示設定、端末設定、日報の検討"
+            loading="lazy"
+          />
+          <img
+            src="/images/cases/decide/roadmap-theme-field-registration.webp"
+            width="2626"
+            height="464"
+            alt="圃場登録、圃場属性、作付情報の検討"
+            loading="lazy"
+          />
+        </div>
+        <figcaption class="media-caption">9つのMVP候補を具体化 → 2件を除外 → 7つの開発テーマをロードマップへ採用</figcaption>
+      </figure>
+
+      <div class="case-key-facts" aria-label="9つのMVP候補から7つの開発テーマを選定した結果" data-reveal>
         <div><small>MVP候補</small><strong>9</strong><span>件</span></div>
         <div><small>開発対象から除外</small><strong>2</strong><span>件</span></div>
-        <div><small>ロードマップへ採用</small><strong>7</strong><span>件</span></div>
+        <div><small>開発テーマに選定</small><strong>7</strong><span>件</span></div>
       </div>
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Selected themes</p>
-          <h3>9つのMVP候補を、7つのロードマップへ</h3>
-          <p>2件は、他のテーマへ統合できる、または現時点では事業効果が小さいと判断して除外。残る7件を、依存関係と事業インパクトに基づいて並べました。</p>
+          <h3>7テーマのロードマップ</h3>
         </div>
         <div class="case-prose">
           <ol class="case-observation-list">
@@ -179,52 +172,20 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         </div>
       </div>
 
-      <figure class="case-figure" data-reveal>
-        <img
-          src="/images/cases/decide/roadmap-theme-organization-access.webp"
-          width="1500"
-          height="700"
-          alt="組織間連携とアカウント払い出し、権限設定を検討したロードマップ"
-          loading="lazy"
-        />
-        <figcaption class="media-caption">組織をまたぐデータ連携と、管理者・メンバー・ゲストの権限設計</figcaption>
-      </figure>
-
-      <figure class="case-figure" data-reveal>
-        <img
-          src="/images/cases/decide/roadmap-theme-map-report.webp"
-          width="1650"
-          height="900"
-          alt="フィルターと表示設定、チームマップ、端末設定、日報を検討したロードマップ"
-          loading="lazy"
-        />
-        <figcaption class="media-caption">地図上の表示設定から、その日の作業をその日のうちに記録する日報までを一つの業務として検討</figcaption>
-      </figure>
-
-      <figure class="case-figure" data-reveal>
-        <img
-          src="/images/cases/decide/roadmap-theme-field-registration.webp"
-          width="2626"
-          height="464"
-          alt="歩いた軌跡から圃場を登録し、圃場属性と作付情報を入力するロードマップ"
-          loading="lazy"
-        />
-        <figcaption class="media-caption">圃場登録、圃場属性、作付を、再利用できるデータ構造として整理</figcaption>
-      </figure>
-
       <div class="case-prose case-prose--full" data-reveal>
-        <p>最終的な投資判断はCEO・CTOが担いました。私は、要望の構造化、関係者へのヒアリング、選択肢の具体化、プロトタイプ検証を通じて、経営が「作る・作らない」を判断できる状態を設計しました。</p>
+        <p>この中でも日報は、進捗把握、請求、分析、将来の自動化に必要なデータを生み出す基盤として、優先度の高いテーマの一つになりました。</p>
+        <p>最終的な投資判断はCEO・CTOが担い、選定した7つの開発テーマを全体ロードマップへ反映しました。</p>
       </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header" data-reveal>
-        <p class="section-title">Decision 2 / Daily Report</p>
+        <p class="section-title">Decision 2 — Daily Report</p>
         <h2>優先テーマの日報で、何を作るか</h2>
       </header>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <p>7つのロードマップのうち、優先度が高かったテーマの一つが日報でした。</p>
+        <p>7テーマのロードマップのうち、優先度が高かったテーマの一つが日報でした。</p>
         <p>当初は、手書きの日報をスマートフォンへ置き換える入力機能として考えられていました。しかし、入力画面を作る前に、日報が実際にどのように作られているかを観察しました。</p>
       </div>
 
@@ -383,10 +344,13 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <figcaption class="media-caption">出勤から日報提出までをつなぎ、誰がどのデータを扱うかを検証</figcaption>
       </figure>
 
-      <div class="case-prose case-insight" data-reveal>
+      <div class="case-prose case-insight decide-mvp-boundary" data-reveal>
         <p class="case-label">MVP Boundary</p>
-        <p class="text-emphasis"><strong>システムが事実の下書きを作り、人が判断の必要な部分だけを確認する。</strong></p>
-        <p>完全自動化まで広げず、この関係が成立してから上位の価値を積み上げると判断しました。</p>
+        <p>MVPの境界は、完全自動化ではありません。</p>
+        <blockquote>
+          <p><strong>システムが事実の下書きを作り、人が判断の必要な部分だけを確認する。</strong></p>
+        </blockquote>
+        <p>システムが位置と時刻を基に事実の下書きを作り、人が判断の必要な部分だけを確認する。この関係が成立すれば、入力負荷を下げながら、分析や請求へ利用できるデータを蓄積できます。</p>
       </div>
 
       <div class="phase-list" data-reveal>
@@ -403,37 +367,41 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     <section class="case-section">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Outcome</p>
-        <h2>判断できるロードマップと、運用できるプロダクトを作る</h2>
+        <h2>ロードマップ策定と日報設計の成果</h2>
       </header>
 
-      <div class="case-key-facts case-key-facts--four" aria-label="ロードマップ策定の成果" data-reveal>
-        <div><small>MVP候補</small><strong>9</strong><span>件</span></div>
-        <div><small>開発対象から除外</small><strong>2</strong><span>件</span></div>
-        <div><small>ロードマップへ採用</small><strong>7</strong><span>件</span></div>
-        <div><small>4か月以内にリリース</small><strong>2</strong><span>件</span></div>
+      <div class="case-prose case-prose--full" data-reveal>
+        <h3>Roadmap Outcome</h3>
+        <ul>
+          <li>約300件の要望を16の機会領域へ構造化</li>
+          <li>9つのMVP候補から2件を除外</li>
+          <li>7つの開発テーマと実行順序を合意</li>
+          <li>優先度の高い2テーマを、ロードマップ策定後4か月以内にリリース</li>
+        </ul>
       </div>
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Operational Impact</p>
           <h3>記憶から書く日報を、事実を確認する業務へ</h3>
-          <p>GPSログのタイムスタンプを基準にすることで、手書きよりも時間情報の誤差を抑え、日報データの信頼性を高めました。日報作成の半自動化によって提出率も向上しています。</p>
-          <p>現在は、蓄積したデータの請求、集計、業務分析への利用が進んでいます。</p>
+          <p>GPSログのタイムスタンプを基準にすることで、手書きよりも時間情報の誤差を抑え、日報データの信頼性を高めました。</p>
+          <p>日報作成の半自動化によって、記憶から一件ずつ書き起こす負担を減らし、日報を継続して提出しやすい運用へ変えました。</p>
+          <p>日報データを、請求、集計、業務分析へ利用できる構造として設計しました。</p>
         </div>
         <div class="case-prose">
           <p class="case-label">Business Impact</p>
-          <h3>共通構造によって、他業種へ展開</h3>
-          <p>農業固有の画面ではなく、「車両を使う現場が、位置と時間から作業記録を作る」という共通構造を設計しました。</p>
-          <p>その結果、農業だけでなく、除雪やごみ収集など、車両を使う他業種への導入にもつながりました。</p>
+          <h3>車両を使う現場に共通する構造</h3>
+          <p>農業固有の手順ではなく、「車両を使う現場が、位置と時間から作業記録を作る」という共通構造として設計しました。この構造は、除雪やごみ収集など、車両を使う他業種でも利用されています。</p>
         </div>
       </div>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <p class="case-label">My Contribution</p>
-        <p>私は最終的な投資判断を行う立場ではありませんでした。しかし、現場の事実、顧客要望、各部門の構想、技術的な前提を同じ地図の上へ載せ、CEO・CTOが「何を作るか」「何を作らないか」を判断できる状態を設計しました。</p>
-        <p>そして、選ばれた日報というテーマでは、リサーチ、課題定義、プロダクト構造、UX・UI、プロトタイプ、ロードマップ、ヘルプまでを一貫して担当しました。</p>
+        <h3>My Contribution</h3>
+        <p>最終的な投資判断はCEO・CTOが担いました。</p>
+        <p>私は、約300件の要望と各部門の構想を構造化し、プロトタイプ制作と顧客検証を担当しました。</p>
+        <p>優先された日報では、現場観察、課題定義、プロダクト構造、UX・UI、プロトタイプ、段階的なロードマップ、導入後のヘルプまでを一貫して担当しました。</p>
         <blockquote>
-          <p><strong>複雑な要望を減らしたのではなく、複雑さを、チームが判断し、開発し、運用できる順序へ変えました。</strong></p>
+          <p><strong>複雑な要望を減らしたのではありません。<br />複雑さを、チームが判断し、開発し、運用できる順序へ変えました。</strong></p>
         </blockquote>
       </div>
 
@@ -511,6 +479,37 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     height: auto;
   }
 
+  .decide-convergence-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 12px;
+    background: var(--keyvisual-background);
+  }
+
+  .decide-convergence-gallery img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+  }
+
+  .decide-mvp-boundary {
+    max-width: 960px;
+    padding: clamp(24px, 4vw, 48px);
+    border-block: 1px solid var(--divider-color);
+    background: var(--keyvisual-background);
+  }
+
+  .decide-mvp-boundary blockquote {
+    border-left-color: var(--accent-color);
+  }
+
+  .decide-mvp-boundary blockquote p {
+    font-size: clamp(20px, 2.7vw, 36px);
+    line-height: 1.5;
+  }
+
   .related-list h3 {
     margin: 14px 0 0;
   }
@@ -550,6 +549,18 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     .decide-image-grid--two {
       grid-template-columns: 1fr;
       gap: 32px;
+    }
+
+    .decide-convergence-gallery {
+      grid-template-columns: 1fr;
+    }
+
+    .decide-convergence-gallery img {
+      height: auto;
+    }
+
+    .decide-mvp-boundary {
+      padding: 24px;
     }
   }
 </style>

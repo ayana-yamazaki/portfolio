@@ -203,6 +203,7 @@ export const createRoughGlassCausticMaterial = (
     uWaveAmplitude: surfaceMaterial.uniforms.uWaveAmplitude,
     uWaveEdgeStrength: surfaceMaterial.uniforms.uWaveEdgeStrength,
     uWaveShadow: surfaceMaterial.uniforms.uWaveShadow,
+    uSpectralStrength: surfaceMaterial.uniforms.uSpectralStrength,
     uProjectionStrength: surfaceMaterial.uniforms.uProjectionStrength,
     uLightDirection: surfaceMaterial.uniforms.uLightDirection,
   },

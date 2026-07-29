@@ -78,6 +78,48 @@ const controls: ControlDefinition[] = [
     max: 1.5,
     step: .01,
   },
+  {
+    label: '柔影ぼかし',
+    uniform: 'uShadowSoftBlur',
+    min: 0,
+    max: 60,
+    step: 1,
+  },
+  {
+    label: '柔影濃度',
+    uniform: 'uShadowSoftOpacity',
+    min: 0,
+    max: 1.5,
+    step: .01,
+  },
+  {
+    label: '中影ぼかし',
+    uniform: 'uShadowMiddleBlur',
+    min: 0,
+    max: 40,
+    step: 1,
+  },
+  {
+    label: '中影濃度',
+    uniform: 'uShadowMiddleOpacity',
+    min: 0,
+    max: 1.5,
+    step: .01,
+  },
+  {
+    label: '接地ぼかし',
+    uniform: 'uShadowContactBlur',
+    min: 0,
+    max: 20,
+    step: 1,
+  },
+  {
+    label: '接地濃度',
+    uniform: 'uShadowContactOpacity',
+    min: 0,
+    max: 1.5,
+    step: .01,
+  },
 ];
 
 const clamp = (value: number, min: number, max: number) => (
@@ -134,7 +176,9 @@ export const createRoughGlassControls = (
       form {
         display: grid;
         gap: 10px;
+        max-height: calc(100vh - 78px);
         padding: 4px 12px 12px;
+        overflow-y: auto;
       }
       label {
         display: grid;
@@ -232,7 +276,7 @@ export const createRoughGlassControls = (
   Object.assign(host.style, {
     position: 'fixed',
     top: '16px',
-    right: '304px',
+    right: '16px',
     zIndex: '10000',
   });
   document.body.append(host);

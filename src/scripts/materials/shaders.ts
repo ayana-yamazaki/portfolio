@@ -1875,6 +1875,7 @@ export const roughGlassCausticFragmentShader = `
   uniform float uWaveAmplitude;
   uniform float uWaveEdgeStrength;
   uniform float uWaveShadow;
+  uniform float uSpectralStrength;
   uniform float uProjectionStrength;
   uniform vec3 uLightDirection;
   varying vec2 vUv;
