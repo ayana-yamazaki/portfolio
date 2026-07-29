@@ -174,6 +174,7 @@ export const createRoughGlassFaceMaterial = (
     uWaveEdgeStrength: { value: roughGlassTuning.waveEdgeStrength },
     uWaveRefraction: { value: roughGlassTuning.waveRefraction },
     uWaveShadow: { value: roughGlassTuning.waveShadow },
+    uSpectralStrength: { value: roughGlassTuning.spectralStrength },
     uEnhancedSurface: { value: enhancedSurface ? 1 : 0 },
     uLightDirection: {
       value: new Vector3(...lightingTuning.key.position).normalize(),

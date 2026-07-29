@@ -40,7 +40,9 @@ import {
   glassTuning,
   lightingTuning,
   materialProfiles,
+  roughGlassTuning,
   roughGlassDesktopShadowProfile,
+  seaGlassTuning,
   seaGlassDesktopShadowProfile,
   sceneTuning,
   simpleShadowProfiles,
@@ -376,6 +378,10 @@ if (canvas && cases && hero) {
   const eventController = new AbortController();
   const trackedTextures = new Set<Texture>();
   const cardStates: CardState[] = [];
+  const adjustableShadowOpacity = {
+    'sea-glass': { value: seaGlassTuning.shadowOpacity },
+    'rough-glass': { value: roughGlassTuning.shadowOpacity },
+  };
   const preparedCardKinds = new Set<MaterialKind>();
   const failedCardKinds = new Set<MaterialKind>();
   const preparingCardKinds = new Map<MaterialKind, Promise<void>>();
@@ -631,8 +637,12 @@ if (canvas && cases && hero) {
       cardStates.forEach((state) => {
         if (!state.element.hasAttribute('data-material-pbr-ready')) return;
         const material = state.shadow.material as MeshBasicMaterial;
-        if (material.opacity === 1) return;
-        material.opacity = 1;
+        const targetOpacity = state.kind === 'sea-glass'
+          || state.kind === 'rough-glass'
+          ? adjustableShadowOpacity[state.kind].value
+          : 1;
+        if (material.opacity === targetOpacity) return;
+        material.opacity = targetOpacity;
         changed = true;
       });
       if (changed) {
@@ -831,15 +841,25 @@ if (canvas && cases && hero) {
       && !isSmallViewport
     ) {
       cleanupSeaGlassControls = createSeaGlassControls({
-        uniforms: seaGlassMaterial.uniforms,
+        uniforms: {
+          ...seaGlassMaterial.uniforms,
+          uBackdropShadow: adjustableShadowOpacity['sea-glass'],
+        },
         getRadius: () => materialProfiles['sea-glass'].radiusPx,
         setRadius: (value) => {
           materialProfiles['sea-glass'].radiusPx = value;
         },
-        onAppearanceChange: () => invalidate(
-          RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
-        ),
+        onAppearanceChange: () => {
+          const state = cardStates.find(({ kind }) => kind === 'sea-glass');
+          const material = state?.shadow.material;
+          if (material && !Array.isArray(material)) {
+            material.opacity = adjustableShadowOpacity['sea-glass'].value;
+          }
+          invalidate(
+            RenderDirtyFlag.appearance
+            | RenderDirtyFlag.motionCache,
+          );
+        },
         onGeometryChange: () => {
           lastSignature = '';
           markLayoutDirty();
@@ -851,11 +871,21 @@ if (canvas && cases && hero) {
       && !isSmallViewport
     ) {
       cleanupRoughGlassControls = createRoughGlassControls(
-        roughGlassFaceMaterial.uniforms,
-        () => invalidate(
-          RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
-        ),
+        {
+          ...roughGlassFaceMaterial.uniforms,
+          uBackdropShadow: adjustableShadowOpacity['rough-glass'],
+        },
+        () => {
+          const state = cardStates.find(({ kind }) => kind === 'rough-glass');
+          const material = state?.shadow.material;
+          if (material && !Array.isArray(material)) {
+            material.opacity = adjustableShadowOpacity['rough-glass'].value;
+          }
+          invalidate(
+            RenderDirtyFlag.appearance
+            | RenderDirtyFlag.motionCache,
+          );
+        },
       );
     }
     const baseRefraction = {
@@ -2398,7 +2428,9 @@ if (canvas && cases && hero) {
           -0.65,
         );
         if (adjustableRoughGlass && !Array.isArray(state.shadow.material)) {
-          state.shadow.material.opacity = roughGlassPresentation.shadowOpacity;
+          state.shadow.material.opacity = (
+            adjustableShadowOpacity['rough-glass'].value
+          );
         }
         if (state.caustic) {
           const isGlass = state.kind === 'glass';

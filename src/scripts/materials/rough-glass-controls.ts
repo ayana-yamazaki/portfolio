@@ -64,6 +64,20 @@ const controls: ControlDefinition[] = [
     max: 2.5,
     step: .01,
   },
+  {
+    label: '分光',
+    uniform: 'uSpectralStrength',
+    min: 0,
+    max: 1.5,
+    step: .01,
+  },
+  {
+    label: '背面影',
+    uniform: 'uBackdropShadow',
+    min: 0,
+    max: 1.5,
+    step: .01,
+  },
 ];
 
 const clamp = (value: number, min: number, max: number) => (

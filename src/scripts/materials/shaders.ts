@@ -1186,6 +1186,7 @@ export const roughGlassFragmentShader = `
   uniform float uWaveEdgeStrength;
   uniform float uWaveRefraction;
   uniform float uWaveShadow;
+  uniform float uSpectralStrength;
   uniform float uEnhancedSurface;
   uniform float uFloorY;
   uniform float uBandBottomY;
@@ -1270,6 +1271,67 @@ export const roughGlassFragmentShader = `
       amplitude*=.42;
     }
     return value;
+  }
+
+  float roughGlassGaussian(float value,float center,float width){
+    float distanceFromCenter=(value-center)/width;
+    return exp(-distanceFromCenter*distanceFromCenter);
+  }
+
+  vec3 roughGlassSpectralColor(float position){
+    float blueWeight=roughGlassGaussian(position,.02,.18);
+    float greenWeight=roughGlassGaussian(position,.25,.17);
+    float yellowWeight=roughGlassGaussian(position,.49,.15);
+    float orangeWeight=roughGlassGaussian(position,.71,.16);
+    float redWeight=roughGlassGaussian(position,.96,.19);
+    float totalWeight=blueWeight+greenWeight+yellowWeight
+      +orangeWeight+redWeight;
+    return (
+      vec3(.38,.62,1.0)*blueWeight
+      +vec3(.38,.9,.67)*greenWeight
+      +vec3(1.0,.88,.3)*yellowWeight
+      +vec3(1.0,.48,.25)*orangeWeight
+      +vec3(.95,.3,.57)*redWeight
+    )/max(totalWeight,.0001);
+  }
+
+  vec3 roughGlassApplySpectrum(
+    vec3 baseColor,
+    vec3 surfaceNormal,
+    float surfaceDetail
+  ){
+    float topBlue=smoothstep(.12,.92,vUv.y);
+    float bottomPink=smoothstep(.12,.92,1.0-vUv.y);
+    float spectrumPosition=clamp(
+      surfaceNormal.y*.46+surfaceNormal.x*.2+.5,
+      0.0,
+      1.0
+    );
+    spectrumPosition=mix(spectrumPosition,.02,topBlue*.82);
+    spectrumPosition=mix(spectrumPosition,.96,bottomPink*.82);
+    vec3 spectralColor=roughGlassSpectralColor(spectrumPosition);
+    float spectralSweep=exp(
+      -pow((vUv.x-(.16+vUv.y*.68))/.17,2.0)
+    );
+    float spectralFresnel=pow(
+      1.0-clamp(abs(surfaceNormal.z),0.0,1.0),
+      2.2
+    );
+    float spectralStrength=clamp(
+      (
+        spectralFresnel*.5
+        +spectralSweep*.28
+        +clamp(surfaceDetail,0.0,1.0)*.14
+      )
+        *uSpectralStrength
+        *mix(.88,1.18,bottomPink),
+      0.0,
+      .38
+    );
+    vec3 spectralTint=mix(vec3(1.0),spectralColor,.68);
+    baseColor*=mix(vec3(1.0),spectralTint,spectralStrength);
+    baseColor+=spectralColor*spectralStrength*.065;
+    return baseColor;
   }
 
   float localLiquidWave(
@@ -1532,10 +1594,15 @@ export const roughGlassFragmentShader = `
       uBandColor,
       .32
     );
-    return mix(
+    vec3 reflectedColor=mix(
       color,
       roughReflectedBackdrop,
       roughUpperReflection
+    );
+    return roughGlassApplySpectrum(
+      reflectedColor,
+      surfaceNormal,
+      crestLight+waveHighlight*.5
     );
   }
 
@@ -1774,6 +1841,11 @@ export const roughGlassFragmentShader = `
       *topBevel
       *.54
       *uSettleLightStrength;
+    color=roughGlassApplySpectrum(
+      color,
+      localNormal,
+      waveEdgeMask
+    );
 
     gl_FragColor=vec4(max(color,vec3(0.0)),1.0);
     #include <tonemapping_fragment>
