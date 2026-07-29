@@ -127,6 +127,10 @@ body:has(.home-main) {
   word-break: auto-phrase;
 }
 
+.home-hero__capability-nowrap {
+  white-space: nowrap;
+}
+
 .home-hero__title {
   position: absolute;
   z-index: 2;
