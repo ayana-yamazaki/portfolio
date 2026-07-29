@@ -126,45 +126,28 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         <div class="case-prose">
           <p class="case-label">Convergence</p>
           <h3>9つのMVP候補から7つの開発テーマを選定</h3>
-        </div>
-        <div class="case-prose">
           <p>9つのMVP候補を簡易プロトタイプまで具体化し、利用場面、データの前提、実装・運用負荷を比較しました。2件は他テーマへ統合できる、または現時点で事業効果が小さいと判断して除外し、7つの開発テーマと実行順序を全体ロードマップへ配置しました。</p>
+          <p>最終的な投資判断はCEO・CTOが担い、選定した7つの開発テーマを全体ロードマップへ反映しました。</p>
         </div>
+        <figure class="case-figure">
+          <img
+            src="/images/cases/decide/source/roadmap-seven-themes-board.webp"
+            width="2626"
+            height="1844"
+            alt="9つのMVP候補を具体化し、2件を除外して7つの開発テーマへ収束した検討ボードの全景"
+            loading="lazy"
+          />
+          <figcaption class="media-caption">7つの開発テーマとそれぞれの簡易プロトタイプ</figcaption>
+        </figure>
       </div>
 
-      <figure class="case-figure" data-reveal>
-        <div class="decide-convergence-gallery" aria-label="9つのMVP候補を具体化し、2件を除外して7つの開発テーマへ収束した検討資料">
-          <img
-            src="/images/cases/decide/roadmap-theme-organization-access.webp"
-            width="1500"
-            height="700"
-            alt="組織間連携、アカウント払い出し、権限設定の検討"
-            loading="lazy"
-          />
-          <img
-            src="/images/cases/decide/roadmap-theme-map-report.webp"
-            width="1650"
-            height="900"
-            alt="フィルター、表示設定、端末設定、日報の検討"
-            loading="lazy"
-          />
-          <img
-            src="/images/cases/decide/roadmap-theme-field-registration.webp"
-            width="2626"
-            height="464"
-            alt="圃場登録、圃場属性、作付情報の検討"
-            loading="lazy"
-          />
-        </div>
-        <figcaption class="media-caption">9つのMVP候補を具体化 → 2件を除外 → 7つの開発テーマをロードマップへ採用</figcaption>
-      </figure>
-
-      <div class="case-key-facts" aria-label="9つのMVP候補から7つの開発テーマを選定した結果" data-reveal>
+      <!-- <div class="case-key-facts" aria-label="9つのMVP候補から7つの開発テーマを選定した結果" data-reveal>
         <div><small>MVP候補</small><strong>9</strong><span>件</span></div>
         <div><small>開発対象から除外</small><strong>2</strong><span>件</span></div>
         <div><small>開発テーマに選定</small><strong>7</strong><span>件</span></div>
-      </div>
+      </div> -->
 
+      <!--
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Selected themes</p>
@@ -182,79 +165,81 @@ const description = '経営・顧客・現場に散らばった要望を構造�
           </ol>
         </div>
       </div>
-
-      <div class="case-prose case-prose--full" data-reveal>
-        <p>この中でも日報は、進捗把握、請求、分析、将来の自動化に必要なデータを生み出す基盤として、優先度の高いテーマの一つになりました。</p>
-        <p>最終的な投資判断はCEO・CTOが担い、選定した7つの開発テーマを全体ロードマップへ反映しました。</p>
-      </div>
+      -->
     </section>
 
     <section class="case-section">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Decision 2 — Daily Report</p>
-        <h2>優先テーマの日報で、何を作るか</h2>
+        <h2>優先テーマのMVPを定義する</h2>
       </header>
 
       <div class="case-prose case-prose--full" data-reveal>
-        <p>7テーマのロードマップのうち、優先度が高かったテーマの一つが日報でした。</p>
-        <p>当初は、手書きの日報をスマートフォンへ置き換える入力機能として考えられていました。しかし、入力画面を作る前に、日報が実際にどのように作られているかを観察しました。</p>
+        <p>7つのテーマの中で、日報機能は、<strong>将来の自動化に必要なデータを生み出す基盤</strong>として最優先となりました。</p>
       </div>
 
-      <div class="case-two-column" data-reveal>
-        <figure class="case-figure">
-          <img
-            src="/images/cases/decide/report-research.webp"
-            width="1400"
-            height="1046"
-            alt="農作業後に手書きの日報を作成する現場の様子"
-            loading="lazy"
-          />
-        </figure>
-        <div class="case-prose">
-          <p class="case-label">Discovery</p>
-          <h3>16人が帰宅するまで、日報業務を観察する</h3>
-          <p>農作業の終了から事務所への集合、日報の記入・提出、全員の帰宅までを観察しました。対象は、コントラクターに勤務する16人です。</p>
-          <ul class="case-observation-list">
-            <li>作業終了は20時23分、全員の解散は22時31分</li>
-            <li>一日の行動を記憶から思い出して記入</li>
-            <li>時間の丸め方が人によって異なる</li>
-            <li>運転中のメモの内容と粒度が揃わない</li>
-            <li>全員が書き終わるまで待機</li>
-            <li>マネージャーが16人分を再集計</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="case-prose case-insight" data-reveal>
-        <p class="case-label">Insight</p>
-        <div class="text-emphasis">
-          <p><strong>問題は紙ではありませんでした。</strong></p>
-          <p><strong>一日の終わりに、記憶から日報を作り直す業務そのものが問題でした。</strong></p>
-        </div>
-        <p>紙をスマートフォン入力へ置き換えるだけでは、思い出す作業も、入力負荷も、管理者の再集計も残ります。入力項目を増やせばデータは詳しくなりますが、作業者の負担が増え、提出率は下がります。</p>
-      </div>
+      <figure class="case-figure" data-reveal>
+        <img
+          src="/images/cases/decide/daily-report-mvp-definition.png"
+          width="3252"
+          height="1908"
+          alt="旭岳の日報方針とMVP要件を整理した検討ボード"
+          loading="lazy"
+        />
+      </figure>
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Redefinition</p>
-          <h3>日報の価値を、入力機能からデータ基盤へ再定義する</h3>
+          <h3>データ基盤にするため必要な要件を定義</h3>
+          <p>データを取得するためにはオンボーディングと活用の成功が不可欠です。</p>
+          <div class="text-emphasis">
+            <p><strong>MVPの要件は、将来の分析に足る「正確なデータ」を取得できること</strong></p>
+          </div>
+        </div>
+        <figure class="case-figure">
+          <img
+            src="/images/cases/decide/source/daily-report-flow-board.webp"
+            width="2374"
+            height="1180"
+            alt="出勤、端末設定、作業、日報提出までの一日の体験と画面遷移を整理した検討ボード"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section
+      class="case-section case-section--background-image"
+      style="--case-background-image: image-set(url('/images/optimized/reposaku-report-research-1600.avif') type('image/avif'), url('/images/optimized/reposaku-report-research-1600.webp') type('image/webp'));"
+    >
+      <header class="case-section-header" data-reveal>
+        <p class="section-title">01 Discovery</p>
+        <h2>業務観察で課題の解像度を上げる</h2>
+      </header>
+      <div class="case-two-column case-two-column--wide-first" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Context</p>
+          <p>農業法人の事務所に張り付き、16名の農家さんの実際の日報業務を観察しました。</p>
+          <p>農家さんたちに日報をきちんと作りたいというモチベーションは無く、彼らにとっては非本質的な業務だった。そのため人によって記載粒度が異なったり、整合性が取れない記述があったり、データとしての正しさも担保されていなかった。</p>
+          <p class="case-label">Insight</p>
+          <div class="text-emphasis">
+            <p><strong>紙を単純にDXするだけでは、彼らのモチベーションは上がらず、今後データ基盤として利用するに足る正しいデータ取得も難しい</strong></p>
+          </div>
         </div>
         <div class="case-prose">
-          <p>上位の価値を実現するには、まず入力負荷を下げながら、正確なデータを継続して蓄積できなければなりません。</p>
-          <blockquote>
-            <p><strong>人の入力を最小限にしながら、将来使える正確なデータをどう集めるか。</strong></p>
-          </blockquote>
+          <p class="case-label">Observed</p>
+          <ul class="case-observation-list">
+            <li>一日の行動を記憶から思い出して記入</li>
+            <li>時間の丸め方が人によって異なる</li>
+            <li>運転中のメモの内容と粒度が揃わない</li>
+            <li>「めんどくせぇ」「覚えてない」などの発話を多数確認</li>
+          </ul>
         </div>
       </div>
+    </section>
 
-      <div class="phase-list" data-reveal>
-        <div class="phase-item"><h3>1. 簡単に登録できる</h3><p>誰でも、現場で無理なくデータを残せる。</p></div>
-        <div class="phase-item"><h3>2. 正確なデータが揃う</h3><p>記憶や人ごとの丸め方に依存しない作業記録になる。</p></div>
-        <div class="phase-item"><h3>3. 進捗や実績がわかる</h3><p>現場やチームの状態を、必要な情報に絞って把握できる。</p></div>
-        <div class="phase-item"><h3>4. 分析や改善に使える</h3><p>請求、集計、業務分析へ同じデータを再利用できる。</p></div>
-        <div class="phase-item"><h3>5. 将来の自動化へ</h3><p>他業種への展開や、より高度な自動化の基盤になる。</p></div>
-      </div>
-
+    <section class="case-section case-section--no-divider case-section--compact-top" aria-label="Decision 2 — Daily Report continued">
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Options</p>
@@ -484,21 +469,6 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     height: auto;
   }
 
-  .decide-convergence-gallery {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    padding: 12px;
-    background: var(--keyvisual-background);
-  }
-
-  .decide-convergence-gallery img {
-    display: block;
-    width: 100%;
-    height: 220px;
-    object-fit: contain;
-  }
-
   .decide-mvp-boundary {
     max-width: 960px;
     padding: clamp(24px, 4vw, 48px);
@@ -554,14 +524,6 @@ const description = '経営・顧客・現場に散らばった要望を構造�
     .decide-image-grid--two {
       grid-template-columns: 1fr;
       gap: 32px;
-    }
-
-    .decide-convergence-gallery {
-      grid-template-columns: 1fr;
-    }
-
-    .decide-convergence-gallery img {
-      height: auto;
     }
 
     .decide-mvp-boundary {
