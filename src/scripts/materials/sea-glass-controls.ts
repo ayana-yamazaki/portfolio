@@ -71,6 +71,7 @@ export const createSeaGlassControls = ({
     uniformControl('uSurfaceNoiseStrength', '表面粒子', 0, 2.5, .01),
     uniformControl('uSpectralStrength', '分光', 0, 1.5, .01),
     uniformControl('uGlintStrength', 'ハイライト', 0, 3, .01),
+    uniformControl('uBackdropShadow', '背面影', 0, 1.5, .01),
   ];
   const defaults = Object.fromEntries(controls.map(({ key, get }) => [
     key,
@@ -224,7 +225,7 @@ export const createSeaGlassControls = ({
   Object.assign(host.style, {
     position: 'fixed',
     top: '16px',
-    right: '304px',
+    right: '16px',
     zIndex: '10000',
   });
   document.body.append(host);

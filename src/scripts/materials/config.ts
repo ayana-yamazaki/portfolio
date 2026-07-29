@@ -74,7 +74,7 @@ export const materialProfiles: Record<MaterialKind, {
   thicknessPx: number;
 }> = {
   gem: { radiusPx: 22, thicknessPx: gemThicknessPx },
-  'sea-glass': { radiusPx: 130, thicknessPx: 110 },
+  'sea-glass': { radiusPx: 135, thicknessPx: 110 },
   'rough-glass': { radiusPx: 4, thicknessPx: gemThicknessPx },
   glass: { radiusPx: 32, thicknessPx: 68 },
 };
@@ -285,12 +285,13 @@ export const glassTuning = {
 
 export const seaGlassTuning = {
   refractionPx: 46,
-  refractionScale: .18,
-  blurStrength: .53,
-  veilStrength: .87,
-  surfaceNoiseStrength: 1.5,
-  spectralStrength: .27,
+  refractionScale: .16,
+  blurStrength: .7,
+  veilStrength: .7,
+  surfaceNoiseStrength: 2.5,
+  spectralStrength: .42,
   glintStrength: 3,
+  shadowOpacity: 1,
 } as const;
 
 export const roughGlassTuning = {
@@ -301,11 +302,13 @@ export const roughGlassTuning = {
   glassReflection: 1.05,
   glassEdgeLight: 3,
   projectionStrength: .67,
-  hammeredStrength: .71,
-  waveScale: 1.17,
-  waveRandomness: .46,
-  waveAmplitude: .87,
-  waveEdgeStrength: 3,
+  hammeredStrength: .8,
+  waveScale: 1.22,
+  waveRandomness: .68,
+  waveAmplitude: .73,
+  waveEdgeStrength: 1.87,
   waveRefraction: 2.5,
-  waveShadow: 1.35,
+  waveShadow: 1.84,
+  spectralStrength: .42,
+  shadowOpacity: 1,
 } as const;

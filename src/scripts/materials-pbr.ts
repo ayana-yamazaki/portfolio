@@ -829,7 +829,6 @@ if (canvas && cases && hero) {
     if (
       import.meta.env.DEV
       && !isSmallViewport
-      && new URLSearchParams(window.location.search).has('seaGlassControls')
     ) {
       cleanupSeaGlassControls = createSeaGlassControls({
         uniforms: seaGlassMaterial.uniforms,
@@ -850,7 +849,6 @@ if (canvas && cases && hero) {
     if (
       import.meta.env.DEV
       && !isSmallViewport
-      && new URLSearchParams(window.location.search).has('roughGlassControls')
     ) {
       cleanupRoughGlassControls = createRoughGlassControls(
         roughGlassFaceMaterial.uniforms,

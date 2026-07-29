@@ -3,32 +3,35 @@ import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
 import CaseStudyHero from '../components/CaseStudyHero.astro';
 
 const title = 'Decide What to Build';
-const description = '経営・顧客・現場に散らばったアイデアを、1年間の開発ロードマップへ。優先テーマの日報では、入力機能を将来使えるデータ基盤へ再定義しました。';
+const headline = '約300件の要望を、7つの開発テーマへ';
+const description = '経営・顧客・現場に散らばった要望を構造化し、1年間の開発ロードマップを策定。優先テーマの日報では、現場観察からプロダクト構造、UX・UI、運用までを設計しました。';
 ---
 
 <CaseStudyLayout title={title} description={description} locale="ja">
   <CaseStudyHero>
     <Fragment slot="copy">
-      <h1>約300件の要望を、7つの開発テーマへ</h1>
-      <p>顧客から蓄積された約300件の要望と、経営・開発・営業・サポートが持つ構想を整理し、1年間の開発ロードマップを策定。優先テーマの日報では、単なる入力機能ではなく、事業に必要なデータ基盤へ再定義しました。</p>
+      <h1>{headline}</h1>
+      <p>現場の事実と事業の成長順序から、作るもの・作らないものを決めました。</p>
+      <p>シード期のスタートアップで一人目のプロダクトデザイナーとして、顧客要望と社内の構想を整理し、1年間の開発ロードマップを策定。優先テーマの日報では、16人の業務観察から課題を定義し、GPSデータからシステムが下書きを作る体験を設計しました。</p>
     </Fragment>
 
     <Fragment slot="meta">
       <dl class="case-meta-list">
-        <div><dt class="meta-label">Role</dt><dd>プロジェクトリーダー / ファシリテーター / プロダクトデザイナー</dd></div>
-        <div><dt class="meta-label">Timeline</dt><dd>2023年6月〜8月</dd></div>
-        <div><dt class="meta-label">Team</dt><dd>CEO / CTO / セールス / サポート</dd></div>
-        <div><dt class="meta-label">Scope</dt><dd>要望の構造化 / ロードマップ / MVP定義 / プロトタイピング</dd></div>
+        <div><dt class="meta-label">Role</dt><dd>1st Designer / Lead Product Designer</dd></div>
+        <div><dt class="meta-label">Team</dt><dd>CEO / CTO / Engineers / Sales / Support — 9-person seed startup</dd></div>
+        <div><dt class="meta-label">Roadmap</dt><dd>2023年6月〜8月</dd></div>
+        <div><dt class="meta-label">Product</dt><dd>2022〜2025</dd></div>
+        <div><dt class="meta-label">Scope</dt><dd>UX Research / Product Definition / Roadmap / UX・UI / Prototyping</dd></div>
       </dl>
     </Fragment>
 
     <Fragment slot="media">
       <figure class="case-figure">
         <img
-          src="/images/cases/decide/report-hero.webp"
-          width="1600"
-          height="1154"
-          alt="手書きの日報と、位置情報から日報を作成するスマートフォン画面"
+          src="/images/cases/decide/source/roadmap-seven-themes-board.webp"
+          width="2626"
+          height="1844"
+          alt="組織間連携、権限設定、表示設定、日報、圃場登録など7つの開発テーマを整理したFigmaロードマップ"
           loading="eager"
           fetchpriority="high"
         />
@@ -52,16 +55,17 @@ const description = '経営・顧客・現場に散らばったアイデアを�
         <p class="section-title">Context</p>
         <h2>ビジョンはあった。しかし、開発の順序がなかった</h2>
       </header>
+
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
-          <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがある一方、短期的な開発方針は定まっていませんでした。</p>
-          <p>CEO、CTO、セールス、サポートがそれぞれ異なるアイデアを持ち、顧客要望も約300件蓄積。個別要望への対応を続ければ、開発リソースが分散し、将来の自動化に必要なデータ基盤が後回しになる状態でした。</p>
+          <p>レポサクには「北海道に無人農場を作る」という長期ビジョンがありました。一方で、短期的に何を積み上げればその未来へ近づけるのかは、明確になっていませんでした。</p>
+          <p>CEO、CTO、開発、営業、サポートは、それぞれ異なる立場からプロダクトの将来像を持っていました。さらに、顧客から届いた約300件の要望が蓄積され、緊急度の高い相談や個別要望が開発の優先順位を左右していました。</p>
         </div>
         <div class="case-prose">
-          <p>そこで、曖昧な構想を比較可能な形へ変換し、会社として何に投資するかを決めるロードマップ策定をリードしました。</p>
-          <p class="case-label">Objective</p>
+          <p>そのまま個別要望へ対応し続けると、開発リソースが分散し、将来の分析や自動化に必要なデータ基盤が後回しになります。</p>
+          <p>そこで、顧客要望と各部門の構想を同じ粒度で比較し、会社として何に投資するかを決めるロードマップ策定をリードしました。</p>
           <blockquote>
-            <p><strong>経営ビジョンと顧客課題を接続し、1年間の開発ロードマップを策定する。</strong></p>
+            <p><strong>設計したのは、要望を並べたロードマップではなく、経営と開発が「何を、なぜ、どの順序で作るか」を判断できる状態です。</strong></p>
           </blockquote>
         </div>
       </div>
@@ -73,87 +77,143 @@ const description = '経営・顧客・現場に散らばったアイデアを�
         <h2>会社として、何に投資するか</h2>
       </header>
 
-      <div class="case-block" data-reveal>
-        <div class="case-two-column">
-          <div class="case-prose">
-            <p class="case-label">Structure</p>
-            <h3>約300件の要望を、比較できる16領域へ</h3>
-          </div>
-          <div class="case-prose">
-            <p>顧客要望を棚卸しし、重複や類似項目を統合して16の機会領域へ整理しました。同時にCEO、CTO、セールス、サポートへヒアリングを実施。顧客から直接要望として上がっていない、経営・開発・運用上の課題も収集しました。</p>
-            <p>部門によって優先したい方向が異なったため、各案を同じ粒度で比較できる状態を作りました。</p>
-          </div>
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Structure</p>
+          <h3>異なる立場の要望を、比較できる状態にする</h3>
         </div>
-
-        <div class="stakeholder-directions" role="list" aria-label="将来のデータ活用、進捗把握、サポート軽減という三つの開発方針">
-          <article role="listitem">
-            <span>01</span>
-            <h4>将来に役立つデータ</h4>
-            <p>日報を整理し、分析や自動化に使える正確な情報へ。</p>
-            <small>開発：入力精度とデータ構造</small>
-          </article>
-          <article role="listitem">
-            <span>02</span>
-            <h4>進捗状況をさらに便利に</h4>
-            <p>現場やチームの状況を、必要な情報に絞って把握。</p>
-            <small>営業：利用場面ごとの見やすさ</small>
-          </article>
-          <article role="listitem">
-            <span>03</span>
-            <h4>サポート業務の軽労化</h4>
-            <p>集計や問い合わせ対応を減らし、運用を持続可能に。</p>
-            <small>サポート：定型作業の自動化</small>
-          </article>
+        <div class="case-prose">
+          <p>蓄積されていた顧客要望の重複や類似項目を整理し、16の機会領域へまとめました。</p>
+          <p>同時に、CEO、CTO、開発、営業、サポートへヒアリングを実施。顧客から直接は要望されていないものの、事業や運用のボトルネックになっている課題も収集しました。</p>
         </div>
       </div>
 
-      <div class="case-block" data-reveal>
-        <div class="case-two-column">
-          <div class="case-prose">
-            <p class="case-label">Trade-off</p>
-            <h3>トレードオフを可視化する</h3>
-          </div>
-          <div class="case-prose">
-            <p>各アイデアを、提供価値・対象ユーザー・事業インパクト・開発負荷が比較できるカードへ変換しました。</p>
-            <p>CEO、CTO、セールスとカードを並べながら、「何を入れたいか」だけではなく、<strong>そのために何を後回しにするか</strong>を議論しました。</p>
-          </div>
-        </div>
+      <div class="decide-image-grid" data-reveal>
+        <figure class="case-figure">
+          <img
+            src="/images/cases/decide/direction-future-data.webp"
+            width="668"
+            height="1526"
+            alt="日報を将来の分析や自動化に利用できるデータへ変える開発方針"
+            loading="lazy"
+          />
+          <figcaption class="media-caption">開発・経営：入力精度とデータ構造を整え、将来の分析や自動化へつなげる</figcaption>
+        </figure>
+        <figure class="case-figure">
+          <img
+            src="/images/cases/decide/direction-progress.webp"
+            width="668"
+            height="1526"
+            alt="進捗状況を必要な情報に絞って把握できるようにする開発方針"
+            loading="lazy"
+          />
+          <figcaption class="media-caption">営業：現場やチームの状況を、顧客へ説明しやすくする</figcaption>
+        </figure>
+        <figure class="case-figure">
+          <img
+            src="/images/cases/decide/direction-support.webp"
+            width="668"
+            height="1526"
+            alt="データ集計や面積計測を自動化してサポート業務を軽減する開発方針"
+            loading="lazy"
+          />
+          <figcaption class="media-caption">サポート：集計や面積計測などの手作業を減らす</figcaption>
+        </figure>
+      </div>
 
-        <div class="image-grid image-grid--two">
-          <figure>
-            <div class="neutral-placeholder" role="img" aria-label="事業価値と開発負荷を比較する開発アイデアカードのプレースホルダー">
-              <span>Image placeholder</span>
-              <small>Development idea cards</small>
-            </div>
-            <figcaption>事業価値と開発負荷を比較するため、アイデアをカード化</figcaption>
-          </figure>
-          <figure>
-            <div class="neutral-placeholder" role="img" aria-label="開発カードを並べて優先順位を議論するチーム写真のプレースホルダー">
-              <span>Image placeholder</span>
-              <small>Roadmap workshop</small>
-            </div>
-            <figcaption>CEO・CTO・セールスと第一次ロードマップを検討</figcaption>
-          </figure>
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Evaluation</p>
+          <h3>機能名ではなく、実現したい状態を比べる</h3>
+        </div>
+        <div class="case-prose">
+          <p>部門ごとの案は、そのままでは「データ基盤」「便利な画面」「サポート工数」と評価軸が揃いません。</p>
+          <p>そこで、誰のどの業務を改善するのか、どのような変化を生むのか、将来構想へどう接続するのか、必要なデータや運用コストは何かを明確にしました。</p>
         </div>
       </div>
 
-      <div class="case-block" data-reveal>
-        <div class="case-two-column">
-          <div class="case-prose">
-            <p class="case-label">Convergence</p>
-            <h3>プロトタイプを作ってから、作るかを判断する</h3>
-          </div>
-          <div class="case-prose">
-            <p>第一次選定だけでは候補が多く残ったため、それぞれを具体的なプロトタイプへ落としました。CEO・CTOとのレビューと顧客ヒアリングを通じて、誰のどの課題を解くのか、最低限どこまで実現すれば価値が成立するのかを定義しました。</p>
-            <p>9つのMVP候補を同じ粒度で比較した結果、価値が確認できなかった2機能を開発対象から除外し、残る7つをロードマップへ採用しました。</p>
-          </div>
-        </div>
+      <figure class="case-figure" data-reveal>
+        <img
+          src="/images/cases/decide/roadmap-output-model.webp"
+          width="1784"
+          height="1000"
+          alt="北極星、顧客のジョブ、機能という手段、年度別UIの関係を整理したロードマップのアウトプットモデル"
+          loading="lazy"
+        />
+        <figcaption class="media-caption">要望を機能のまま並べず、北極星、顧客のジョブ、実現手段へ分けて整理</figcaption>
+      </figure>
 
-        <div class="case-key-facts" aria-label="9つのMVP候補から7つを選択した結果">
-          <div><small>MVP候補</small><strong>9</strong><span>件</span></div>
-          <div><small>開発対象から除外</small><strong>2</strong><span>件</span></div>
-          <div><small>ロードマップへ採用</small><strong>7</strong><span>件</span></div>
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Convergence</p>
+          <h3>抽象的な構想を、操作できる案に変える</h3>
         </div>
+        <div class="case-prose">
+          <p>優先度の高いテーマは簡易プロトタイプまで具体化し、CEO・CTOと実際の利用場面をウォークスルーしました。</p>
+          <p>プロトタイプは完成画面を示すためではなく、誰が入力・確認するのか、例外的な現場でも破綻しないか、次の開発へ再利用できる構造かを確認し、投資判断の不確実性を減らすために使いました。</p>
+        </div>
+      </div>
+
+      <div class="case-key-facts" aria-label="9つのMVP候補から7つを選択した結果" data-reveal>
+        <div><small>MVP候補</small><strong>9</strong><span>件</span></div>
+        <div><small>開発対象から除外</small><strong>2</strong><span>件</span></div>
+        <div><small>ロードマップへ採用</small><strong>7</strong><span>件</span></div>
+      </div>
+
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Selected themes</p>
+          <h3>9つのMVP候補を、7つのロードマップへ</h3>
+          <p>2件は、他のテーマへ統合できる、または現時点では事業効果が小さいと判断して除外。残る7件を、依存関係と事業インパクトに基づいて並べました。</p>
+        </div>
+        <div class="case-prose">
+          <ol class="case-observation-list">
+            <li>組織間の連携</li>
+            <li>アカウントの払い出しと権限設定</li>
+            <li>フィルター・表示設定の改善</li>
+            <li>端末設定と日報の最適化</li>
+            <li>歩いた軌跡による圃場登録</li>
+            <li>圃場属性を組み替えられる構造</li>
+            <li>作付情報の管理</li>
+          </ol>
+        </div>
+      </div>
+
+      <figure class="case-figure" data-reveal>
+        <img
+          src="/images/cases/decide/roadmap-theme-organization-access.webp"
+          width="1500"
+          height="700"
+          alt="組織間連携とアカウント払い出し、権限設定を検討したロードマップ"
+          loading="lazy"
+        />
+        <figcaption class="media-caption">組織をまたぐデータ連携と、管理者・メンバー・ゲストの権限設計</figcaption>
+      </figure>
+
+      <figure class="case-figure" data-reveal>
+        <img
+          src="/images/cases/decide/roadmap-theme-map-report.webp"
+          width="1650"
+          height="900"
+          alt="フィルターと表示設定、チームマップ、端末設定、日報を検討したロードマップ"
+          loading="lazy"
+        />
+        <figcaption class="media-caption">地図上の表示設定から、その日の作業をその日のうちに記録する日報までを一つの業務として検討</figcaption>
+      </figure>
+
+      <figure class="case-figure" data-reveal>
+        <img
+          src="/images/cases/decide/roadmap-theme-field-registration.webp"
+          width="2626"
+          height="464"
+          alt="歩いた軌跡から圃場を登録し、圃場属性と作付情報を入力するロードマップ"
+          loading="lazy"
+        />
+        <figcaption class="media-caption">圃場登録、圃場属性、作付を、再利用できるデータ構造として整理</figcaption>
+      </figure>
+
+      <div class="case-prose case-prose--full" data-reveal>
+        <p>最終的な投資判断はCEO・CTOが担いました。私は、要望の構造化、関係者へのヒアリング、選択肢の具体化、プロトタイプ検証を通じて、経営が「作る・作らない」を判断できる状態を設計しました。</p>
       </div>
     </section>
 
@@ -163,39 +223,9 @@ const description = '経営・顧客・現場に散らばったアイデアを�
         <h2>優先テーマの日報で、何を作るか</h2>
       </header>
 
-      <div class="case-block" data-reveal>
-        <div class="case-two-column">
-          <div class="case-prose">
-            <p class="case-label">Redefinition</p>
-            <h3>日報は、将来のプロダクト価値を支える基盤だった</h3>
-          </div>
-          <div class="case-prose">
-            <p>正確な作業データが蓄積されなければ、進捗把握、分析、業務改善、将来的な自動化はいずれも成立しません。一方、当時の日報は作業後の記憶と手入力に依存し、入力負荷とデータ精度に課題がありました。</p>
-          </div>
-        </div>
-
-        <div class="before-after" aria-label="日報の再定義">
-          <article>
-            <span>Before</span>
-            <strong>作業後に人が入力し、管理者へ提出する機能</strong>
-          </article>
-          <article>
-            <span>After</span>
-            <strong>将来使える正確な作業データを、無理なく蓄積する基盤</strong>
-          </article>
-        </div>
-
-        <div class="value-ladder" role="img" aria-label="日報を入力機能から将来使えるデータ基盤へ再定義した価値の階層">
-          <div><span>Lv1</span><strong>誰でも簡単に<br />データを登録できる</strong></div>
-          <div><span>Lv2</span><strong>正確な作業<br />データが揃う</strong></div>
-          <div><span>Lv3</span><strong>進捗や実績を<br />把握できる</strong></div>
-          <div><span>Lv4</span><strong>分析や改善に<br />利用できる</strong></div>
-          <div><span>Lv5</span><strong>将来の自動化や<br />事業展開に利用できる</strong></div>
-        </div>
-
-        <div class="case-prose case-insight">
-          <p>この再定義によって、中心課題は「入力フォームを改善すること」から、<strong>人の入力を最小限にしながら、価値のあるデータをどう集めるか</strong>へ変わりました。</p>
-        </div>
+      <div class="case-prose case-prose--full" data-reveal>
+        <p>7つのロードマップのうち、優先度が高かったテーマの一つが日報でした。</p>
+        <p>当初は、手書きの日報をスマートフォンへ置き換える入力機能として考えられていました。しかし、入力画面を作る前に、日報が実際にどのように作られているかを観察しました。</p>
       </div>
 
       <div class="case-two-column" data-reveal>
@@ -209,107 +239,171 @@ const description = '経営・顧客・現場に散らばったアイデアを�
           />
         </figure>
         <div class="case-prose">
-          <p class="case-label">Field evidence</p>
-          <h3>問題は紙ではなく、記憶から一日を再現する業務だった</h3>
-          <p>16人が帰宅するまで日報業務を観察すると、作業者は一日の行動を思い出し、時刻と内容を入力していました。時間の丸め方やメモの粒度は人によって異なり、全員の提出後には管理者の再集計も必要でした。</p>
+          <p class="case-label">Discovery</p>
+          <h3>16人が帰宅するまで、日報業務を観察する</h3>
+          <p>農作業の終了から事務所への集合、日報の記入・提出、全員の帰宅までを観察しました。対象は、コントラクターに勤務する16人です。</p>
+          <ul class="case-observation-list">
+            <li>作業終了は20時23分、全員の解散は22時31分</li>
+            <li>一日の行動を記憶から思い出して記入</li>
+            <li>時間の丸め方が人によって異なる</li>
+            <li>運転中のメモの内容と粒度が揃わない</li>
+            <li>全員が書き終わるまで待機</li>
+            <li>マネージャーが16人分を再集計</li>
+          </ul>
         </div>
       </div>
 
-      <div class="case-block" data-reveal>
-        <div class="case-two-column">
-          <div class="case-prose">
-            <p class="case-label">Options</p>
-            <h3>一つの案に飛びつかず、複数の方法を比較する</h3>
-          </div>
-          <div class="case-prose">
-            <p>現場負荷、データ精度、継続性、開発負荷、将来の自動化への接続を比較しました。その結果、位置情報から日報の下書きを生成し、人が不足情報だけを補う方向を選びました。</p>
-          </div>
+      <div class="case-prose case-insight" data-reveal>
+        <p class="case-label">Insight</p>
+        <div class="text-emphasis">
+          <p><strong>問題は紙ではありませんでした。</strong></p>
+          <p><strong>一日の終わりに、記憶から日報を作り直す業務そのものが問題でした。</strong></p>
         </div>
-
-        <div class="solution-cards" role="list" aria-label="日報を登録するために比較した複数の解決方法">
-          <article role="listitem"><span>01</span><h4>事務所でまとめて入力</h4><p>作業後に全員で登録する</p></article>
-          <article role="listitem"><span>02</span><h4>仮登録</h4><p>現場での待ち時間を減らす</p></article>
-          <article role="listitem"><span>03</span><h4>LINEから登録</h4><p>普段使うツールを入口にする</p></article>
-          <article role="listitem"><span>04</span><h4>音声入力</h4><p>項目選択の手間を減らす</p></article>
-          <article class="is-selected" role="listitem"><span>05 / Selected</span><h4>位置情報から生成</h4><p>下書きを作り、不足だけ補う</p></article>
-        </div>
+        <p>紙をスマートフォン入力へ置き換えるだけでは、思い出す作業も、入力負荷も、管理者の再集計も残ります。入力項目を増やせばデータは詳しくなりますが、作業者の負担が増え、提出率は下がります。</p>
       </div>
-    </section>
 
-    <section class="case-section">
-      <header class="case-section-header" data-reveal>
-        <p class="section-title">Prototype</p>
-        <h2>動くプロトタイプで、MVPの境界を決める</h2>
-      </header>
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
-          <p>日報作成、GPSブロックの分割・修正、手動補正、提出・承認までを操作可能なプロトタイプへ落としました。</p>
+          <p class="case-label">Redefinition</p>
+          <h3>日報の価値を、入力機能からデータ基盤へ再定義する</h3>
         </div>
         <div class="case-prose">
-          <p>CEO・CTOと実際の業務をウォークスルーしながら、どこまでをシステムが自動化し、どこからを人の判断として残すかを検討しました。</p>
+          <p>上位の価値を実現するには、まず入力負荷を下げながら、正確なデータを継続して蓄積できなければなりません。</p>
+          <blockquote>
+            <p><strong>人の入力を最小限にしながら、将来使える正確なデータをどう集めるか。</strong></p>
+          </blockquote>
         </div>
       </div>
 
-      <figure class="prototype-overview" data-reveal>
+      <div class="phase-list" data-reveal>
+        <div class="phase-item"><h3>1. 簡単に登録できる</h3><p>誰でも、現場で無理なくデータを残せる。</p></div>
+        <div class="phase-item"><h3>2. 正確なデータが揃う</h3><p>記憶や人ごとの丸め方に依存しない作業記録になる。</p></div>
+        <div class="phase-item"><h3>3. 進捗や実績がわかる</h3><p>現場やチームの状態を、必要な情報に絞って把握できる。</p></div>
+        <div class="phase-item"><h3>4. 分析や改善に使える</h3><p>請求、集計、業務分析へ同じデータを再利用できる。</p></div>
+        <div class="phase-item"><h3>5. 将来の自動化へ</h3><p>他業種への展開や、より高度な自動化の基盤になる。</p></div>
+      </div>
+
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Options</p>
+          <h3>一つの案に飛びつかず、複数の方法を比較する</h3>
+        </div>
+        <div class="case-prose">
+          <p>事務所での一括登録、車両番号を使った端末設定、仮登録、LINE、音声入力などを検討。現場負荷、データ精度、継続性、開発負荷、将来の自動化への接続という観点で比較しました。</p>
+          <p>その結果、入力方法を工夫するだけではなく、すでに取得しているGPSデータから日報の下書きを作る方向を選びました。</p>
+        </div>
+      </div>
+
+      <figure class="case-figure" data-reveal>
         <img
-          src="/images/cases/decide/prototype-overview.webp"
-          width="1800"
-          height="1341"
-          alt="日報作成から提出承認までを検討したプロトタイプ全景"
+          src="/images/cases/decide/daily-report-options.webp"
+          width="1850"
+          height="770"
+          alt="事務所での一括登録、仮登録、LINE、音声入力などを比較した解決案"
           loading="lazy"
         />
-        <ol aria-label="プロトタイプで検討した三つの領域">
-          <li><span>1</span>日報を作る</li>
-          <li><span>2</span>GPSブロックを修正する</li>
-          <li><span>3</span>提出・承認する</li>
-        </ol>
-        <figcaption>細部を読ませるのではなく、業務全体の接続とMVPの境界を確認するためのプロトタイプ</figcaption>
+        <figcaption class="media-caption">日報登録と端末設定について比較した複数の解決案</figcaption>
       </figure>
 
-      <div class="image-grid image-grid--three" data-reveal>
-        <figure>
-          <span>01 / Generate</span>
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Before</p>
+          <h3>記憶から一件ずつ入力</h3>
+          <p>一日の行動を思い出し、時刻、場所、作業内容を空のフォームへ入力する。</p>
+        </div>
+        <div class="case-prose">
+          <p class="case-label">After</p>
+          <h3>システムが事実を下書きする</h3>
+          <p>GPSの位置と時刻を基に作業候補を生成し、人は不足している情報だけを補う。</p>
+        </div>
+      </div>
+
+      <div class="decide-image-grid decide-image-grid--two" data-reveal>
+        <figure class="case-figure">
           <img
             src="/images/cases/decide/report-product.webp"
             width="1200"
             height="800"
-            alt="位置情報から作業候補を生成した日報画面"
+            alt="位置情報から生成された作業候補を確認する日報画面"
             loading="lazy"
           />
-          <figcaption>位置情報から作業候補を生成</figcaption>
+          <figcaption class="media-caption">位置と時刻から、一日の作業候補を生成</figcaption>
         </figure>
-        <figure>
-          <span>02 / Correct</span>
+        <figure class="case-figure">
           <img
             src="/images/cases/decide/report-split.webp"
             width="1000"
             height="667"
-            alt="位置と速度を確認して作業ブロックを分割する画面"
+            alt="位置と速度を確認しながらGPSログを複数の作業へ分割する画面"
             loading="lazy"
           />
-          <figcaption>作業ブロックを分割・修正</figcaption>
-        </figure>
-        <figure>
-          <span>03 / Submit</span>
-          <div class="neutral-placeholder" role="img" aria-label="不足情報を補足して日報を提出する画面のプレースホルダー">
-            <span>Image placeholder</span>
-            <small>Submit daily report</small>
-          </div>
-          <figcaption>不足情報を補足して提出</figcaption>
+          <figcaption class="media-caption">位置、速度、時刻を見ながら作業のまとまりを分割・修正</figcaption>
         </figure>
       </div>
 
+      <div class="case-prose case-prose--full" data-reveal>
+        <p>内部ではGPSログのブロックとして扱いますが、利用者には「シーン」と表現しました。日報作成は、自分がどこで何をしていたかを思い出す行為です。技術用語よりも、映画の場面を思い出す「シーン」の方が利用者の理解に近いと判断しました。</p>
+      </div>
+
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Product Structure</p>
+          <h3>例外を追加機能ではなく、共通構造として扱う</h3>
+          <p>現場では、想定どおりのGPSデータが常に得られるわけではありません。異なる現場や業種でも破綻しない構造として例外を設計しました。</p>
+        </div>
+        <div class="case-prose">
+          <p><strong>Multiple Tasks</strong></p>
+          <p>一つのGPSログを、位置、速度、時刻を見ながら複数の作業へ分割する。</p>
+          <p><strong>Multiple People</strong></p>
+          <p>ログを個人へ固定せず、会社全体のデータから自分の作業を選ぶ。</p>
+          <p><strong>Without GPS</strong></p>
+          <p>事務、整備、端末トラブルなどGPSがない日も、同じ流れで手動提出する。</p>
+        </div>
+      </div>
+
+      <div class="case-two-column" data-reveal>
+        <div class="case-prose">
+          <p class="case-label">Prototype</p>
+          <h3>一日の業務全体で、MVPの境界を決める</h3>
+        </div>
+        <div class="case-prose">
+          <p>画面単位ではなく、出勤、車両と作業者のチェックイン、位置情報の記録、作業終了、日報候補の生成、修正、提出までをつないだプロトタイプを作成しました。</p>
+          <p>管理者、メンバー、ゲストで権限が異なる場合や、複数人が同じ車両へ乗る場合も含め、誰がどのデータを作成・確認するのかを検討しました。</p>
+        </div>
+      </div>
+
+      <figure class="case-figure" data-reveal>
+        <img
+          src="/images/cases/decide/daily-report-flow.webp"
+          width="1980"
+          height="1000"
+          alt="出勤、端末設定、作業、日報作成、提出までをつないだ具体的な画面フロー"
+          loading="lazy"
+        />
+        <figcaption class="media-caption">出勤から日報提出までをつなぎ、誰がどのデータを扱うかを検証</figcaption>
+      </figure>
+
       <div class="case-prose case-insight" data-reveal>
-        <p class="case-label">Initial release</p>
-        <p class="text-emphasis"><strong>作業者が無理なく、正確な作業データを継続的に蓄積できること。</strong></p>
-        <p>高度な分析や完全自動化まで広げず、この前提が成立してから上位の価値を積み上げると判断しました。</p>
+        <p class="case-label">MVP Boundary</p>
+        <p class="text-emphasis"><strong>システムが事実の下書きを作り、人が判断の必要な部分だけを確認する。</strong></p>
+        <p>完全自動化まで広げず、この関係が成立してから上位の価値を積み上げると判断しました。</p>
+      </div>
+
+      <div class="phase-list" data-reveal>
+        <div class="phase-item"><h3>Phase 1 — まず提出できる</h3><p>GPSデータから日報を作成し、スマートフォンで確認・提出できる。</p></div>
+        <div class="phase-item"><h3>Phase 1.1 — 継続して使える</h3><p>提出状態、代理提出、修正、手動登録、エラー時の導線、ヘルプを整える。</p></div>
+        <div class="phase-item"><h3>Phase 2 — 事業に活かせる</h3><p>集計、CSV、請求、分析、他業種展開に耐えられるデータ品質へ拡張する。</p></div>
+      </div>
+
+      <div class="case-prose case-prose--full" data-reveal>
+        <p>リリース後は、操作導線に合わせた7本のヘルプ記事も作成しました。スマートフォンに不慣れな利用者でも迷わないよう、機能名ではなく「何をしたいか」を起点に、平易な言葉と一貫した手順で構成しました。</p>
       </div>
     </section>
 
     <section class="case-section">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Outcome</p>
-        <h2>判断できる状態を設計し、4か月以内のリリースへ</h2>
+        <h2>判断できるロードマップと、運用できるプロダクトを作る</h2>
       </header>
 
       <div class="case-key-facts case-key-facts--four" aria-label="ロードマップ策定の成果" data-reveal>
@@ -321,136 +415,141 @@ const description = '経営・顧客・現場に散らばったアイデアを�
 
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
-          <p>ロードマップ策定の結果、9つのMVP候補から2つを除外し、7つの開発テーマと優先順位を合意しました。事業インパクトと緊急性の高かった上位2機能は、4か月以内にリリースされました。</p>
+          <p class="case-label">Operational Impact</p>
+          <h3>記憶から書く日報を、事実を確認する業務へ</h3>
+          <p>GPSログのタイムスタンプを基準にすることで、手書きよりも時間情報の誤差を抑え、日報データの信頼性を高めました。日報作成の半自動化によって提出率も向上しています。</p>
+          <p>現在は、蓄積したデータの請求、集計、業務分析への利用が進んでいます。</p>
         </div>
         <div class="case-prose">
-          <p>最終的な投資判断はCEO・CTOが担いました。</p>
-          <p>私は、顧客要望の構造化、関係者へのヒアリング、選択肢の具体化、プロトタイプ検証を通じて、<strong>経営が開発する・しないを判断できる状態そのものを設計しました。</strong></p>
+          <p class="case-label">Business Impact</p>
+          <h3>共通構造によって、他業種へ展開</h3>
+          <p>農業固有の画面ではなく、「車両を使う現場が、位置と時間から作業記録を作る」という共通構造を設計しました。</p>
+          <p>その結果、農業だけでなく、除雪やごみ収集など、車両を使う他業種への導入にもつながりました。</p>
         </div>
       </div>
 
-      <a class="related-case-card" href="/reframe-the-problem" data-reveal>
-        <div>
-          <span>Related case</span>
+      <div class="case-prose case-prose--full" data-reveal>
+        <p class="case-label">My Contribution</p>
+        <p>私は最終的な投資判断を行う立場ではありませんでした。しかし、現場の事実、顧客要望、各部門の構想、技術的な前提を同じ地図の上へ載せ、CEO・CTOが「何を作るか」「何を作らないか」を判断できる状態を設計しました。</p>
+        <p>そして、選ばれた日報というテーマでは、リサーチ、課題定義、プロダクト構造、UX・UI、プロトタイプ、ロードマップ、ヘルプまでを一貫して担当しました。</p>
+        <blockquote>
+          <p><strong>複雑な要望を減らしたのではなく、複雑さを、チームが判断し、開発し、運用できる順序へ変えました。</strong></p>
+        </blockquote>
+      </div>
+
+      <div class="related-list" data-reveal>
+        <a href="/reframe-the-problem">
+          <span class="case-label">Related case</span>
           <h3>選んだ課題を、リリース後の成果へ</h3>
-          <p>QRコードを読み取るだけで登録が完了するオンボーディングを設計。成功率82%、代理操作率28%から12%へ。</p>
-        </div>
-        <strong aria-hidden="true">→</strong>
-      </a>
+        </a>
+      </div>
     </section>
   </div>
 </CaseStudyLayout>
 
 <style>
-  .decision-funnel { display: flex; margin: 0; padding: 0; border-block: 1px solid var(--divider-color); list-style: none; }
-  .decision-funnel li { position: relative; display: flex; flex: 1; min-width: 0; flex-direction: column; justify-content: center; gap: 6px; min-height: 112px; padding: 18px 32px 18px 20px; }
-  .decision-funnel li + li { border-left: 1px solid var(--divider-color); }
-  .decision-funnel li:not(:last-child)::after { position: absolute; top: 50%; right: 10px; color: var(--accent-color); font-size: 20px; content: '→'; transform: translateY(-50%); }
-  .decision-funnel strong { font-size: clamp(26px, 3.2vw, 48px); line-height: 1; letter-spacing: -.04em; }
-  .decision-funnel span { color: var(--text-color-secondary); font-size: 12px; line-height: 1.5; }
+  .decision-funnel {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border-block: 1px solid var(--divider-color);
+    list-style: none;
+  }
 
-  .stakeholder-directions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #181818; }
-  .stakeholder-directions article { display: flex; min-width: 0; flex-direction: column; gap: 20px; min-height: 300px; padding: clamp(22px, 3vw, 40px); background: #fff; }
-  .stakeholder-directions article + article { border-left: 1px solid #181818; }
-  .stakeholder-directions span { color: var(--accent-color); font-size: 12px; }
-  .stakeholder-directions h4 { margin: auto 0 0; font-size: clamp(21px, 2.3vw, 32px); line-height: 1.4; }
-  .stakeholder-directions p { margin: 0; font-size: 14px; line-height: 1.7; }
-  .stakeholder-directions small { padding-top: 16px; border-top: 1px solid rgb(24 24 24 / 35%); color: var(--text-color-secondary); font-size: 11px; line-height: 1.6; }
+  .decision-funnel li {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    min-height: 104px;
+    padding: 18px 30px 18px 18px;
+  }
 
-  .image-grid { display: grid; gap: 24px; }
-  .image-grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .image-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .image-grid figure { margin: 0; }
-  .image-grid figcaption, .prototype-overview figcaption { margin-top: 12px; color: var(--text-color-secondary); font-size: 12px; line-height: 1.6; }
-  .neutral-placeholder { display: flex; aspect-ratio: 16 / 10; flex-direction: column; justify-content: space-between; padding: 24px; border: 1px solid #c8c8c4; color: #666; background: #d6d3ca; }
-  .neutral-placeholder span, .neutral-placeholder small { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+  .decision-funnel li + li {
+    border-left: 1px solid var(--divider-color);
+  }
 
-  .before-after { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #181818; background: #fff; }
-  .before-after article { display: flex; flex-direction: column; gap: 40px; min-height: 250px; padding: clamp(24px, 4vw, 48px); }
-  .before-after article + article { border-left: 1px solid #181818; background: var(--accent-color); color: #fff; }
-  .before-after span { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
-  .before-after strong { margin-top: auto; font-size: clamp(22px, 3vw, 40px); font-weight: 500; line-height: 1.5; }
+  .decision-funnel li:not(:last-child)::after {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    color: var(--accent-color);
+    font-size: 18px;
+    content: '→';
+    transform: translateY(-50%);
+  }
 
-  .value-ladder { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end; min-height: 360px; padding-top: 48px; }
-  .value-ladder div { display: flex; min-width: 0; flex-direction: column; gap: 16px; justify-content: flex-end; padding: 18px; border: 1px solid #181818; background: #fff; }
-  .value-ladder div + div { border-left: 0; }
-  .value-ladder div:nth-child(1) { min-height: 120px; }
-  .value-ladder div:nth-child(2) { min-height: 165px; }
-  .value-ladder div:nth-child(3) { min-height: 210px; }
-  .value-ladder div:nth-child(4) { min-height: 255px; }
-  .value-ladder div:nth-child(5) { min-height: 300px; color: #fff; background: var(--accent-color); }
-  .value-ladder span { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
-  .value-ladder strong { font-size: clamp(13px, 1.3vw, 17px); font-weight: 500; line-height: 1.6; }
+  .decision-funnel strong {
+    font-size: clamp(26px, 3vw, 44px);
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
 
-  .solution-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-block: 1px solid #181818; }
-  .solution-cards article { display: flex; min-width: 0; flex-direction: column; gap: 16px; min-height: 230px; padding: 20px; }
-  .solution-cards article + article { border-left: 1px solid #181818; }
-  .solution-cards article.is-selected { color: #fff; background: var(--accent-color); }
-  .solution-cards span { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-  .solution-cards h4 { margin: auto 0 0; font-size: clamp(17px, 1.55vw, 22px); line-height: 1.45; }
-  .solution-cards p { margin: 0; font-size: 12px; line-height: 1.6; }
+  .decision-funnel span {
+    color: var(--text-color-secondary);
+    font-size: 11px;
+    line-height: 1.5;
+  }
 
-  .prototype-overview { position: relative; margin: 0; padding: clamp(18px, 3vw, 36px); border: 1px solid var(--divider-color); background: #d6d3ca; }
-  .prototype-overview img { display: block; width: 100%; height: auto; opacity: .48; filter: saturate(.25); }
-  .prototype-overview ol { position: absolute; inset: clamp(36px, 7vw, 100px); display: flex; flex-direction: column; justify-content: space-between; margin: 0; padding: 0; list-style: none; pointer-events: none; }
-  .prototype-overview li { display: flex; width: fit-content; align-items: center; gap: 12px; padding: 9px 14px 9px 9px; border: 1px solid #181818; background: rgb(255 255 255 / 92%); font-size: clamp(12px, 1.3vw, 17px); font-weight: 600; }
-  .prototype-overview li:nth-child(2) { align-self: center; }
-  .prototype-overview li:nth-child(3) { align-self: flex-end; }
-  .prototype-overview li span { display: grid; width: 28px; height: 28px; place-items: center; color: #fff; background: var(--accent-color); }
-  .prototype-overview figcaption { margin-bottom: -12px; }
+  .decide-image-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
 
-  .image-grid--three figure { display: flex; min-width: 0; flex-direction: column; }
-  .image-grid--three figure > span { margin-bottom: 10px; color: var(--accent-color); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-  .image-grid--three img, .image-grid--three .neutral-placeholder { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--keyvisual-background); }
+  .decide-image-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-  .related-case-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; margin-top: clamp(24px, 4vw, 56px); padding: clamp(28px, 5vw, 64px); border: 1px solid #181818; color: inherit; background: #fff; text-decoration: none; transition: color 200ms ease, background-color 200ms ease; }
-  .related-case-card div { display: flex; flex-direction: column; gap: 14px; }
-  .related-case-card span { color: var(--accent-color); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
-  .related-case-card h3 { font-size: clamp(26px, 4vw, 54px); line-height: 1.25; }
-  .related-case-card p { max-width: 680px; margin: 0; font-size: 14px; line-height: 1.75; }
-  .related-case-card > strong { font-size: clamp(44px, 6vw, 80px); font-weight: 300; transition: transform 200ms ease; }
-  .related-case-card:hover { color: #fff; background: #181818; }
-  .related-case-card:hover > strong { transform: translateX(8px); }
+  .decide-image-grid img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 
-  @media (max-width: 1024px) {
-    .decision-funnel li { padding-inline: 14px 26px; }
-    .stakeholder-directions article { min-height: 260px; padding: 24px; }
-    .solution-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #181818; }
-    .solution-cards article { min-height: 190px; border-bottom: 1px solid #181818; }
-    .solution-cards article:nth-child(odd) { border-left: 0; }
-    .solution-cards article:last-child { grid-column: 1 / -1; min-height: 170px; border-bottom: 0; border-left: 0; }
-    .value-ladder strong br { display: none; }
+  .related-list h3 {
+    margin: 14px 0 0;
   }
 
   @media (max-width: 720px) {
-    .decision-funnel { flex-direction: column; }
-    .decision-funnel li { min-height: 76px; padding: 14px 42px 14px 0; }
-    .decision-funnel li + li { border-top: 1px solid var(--divider-color); border-left: 0; }
-    .decision-funnel li:not(:last-child)::after { top: auto; right: 8px; bottom: -16px; z-index: 1; width: 28px; height: 28px; background: #fff; content: '↓'; transform: none; }
-    .decision-funnel strong { font-size: 32px; }
-    .stakeholder-directions, .image-grid--two, .image-grid--three, .before-after { grid-template-columns: 1fr; }
-    .stakeholder-directions article { min-height: 230px; }
-    .stakeholder-directions article + article { border-top: 1px solid #181818; border-left: 0; }
-    .neutral-placeholder { padding: 18px; }
-    .before-after article { min-height: 210px; }
-    .before-after article + article { border-top: 1px solid #181818; border-left: 0; }
-    .value-ladder { grid-template-columns: 1fr; min-height: 0; padding-top: 0; }
-    .value-ladder div,
-    .value-ladder div:nth-child(n) { min-height: 96px; }
-    .value-ladder div + div { border-top: 0; border-left: 1px solid #181818; }
-    .solution-cards { grid-template-columns: 1fr; }
-    .solution-cards article { min-height: 160px; border-left: 0; }
-    .solution-cards article:last-child { grid-column: auto; }
-    .prototype-overview { padding: 14px; }
-    .prototype-overview ol { position: static; gap: 8px; margin-top: 14px; }
-    .prototype-overview li, .prototype-overview li:nth-child(n) { align-self: stretch; width: 100%; }
-    .prototype-overview figcaption { margin-bottom: 0; }
-    .image-grid--three { gap: 32px; }
-    .related-case-card { grid-template-columns: 1fr; padding: 24px; }
-    .related-case-card > strong { justify-self: end; }
-  }
+    .decision-funnel {
+      flex-direction: column;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
-    .related-case-card, .related-case-card > strong { transition: none; }
+    .decision-funnel li {
+      min-height: 72px;
+      padding: 14px 40px 14px 0;
+    }
+
+    .decision-funnel li + li {
+      border-top: 1px solid var(--divider-color);
+      border-left: 0;
+    }
+
+    .decision-funnel li:not(:last-child)::after {
+      top: auto;
+      right: 8px;
+      bottom: -15px;
+      z-index: 1;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      content: '↓';
+      transform: none;
+    }
+
+    .decision-funnel strong {
+      font-size: 32px;
+    }
+
+    .decide-image-grid,
+    .decide-image-grid--two {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
   }
 </style>
