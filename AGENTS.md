@@ -41,6 +41,17 @@ requests that action in the current message.
 
 When multiple changes are requested together, apply all changes in one patch.
 
+## Proofreading harness
+
+When the user asks for proofreading, typo checking, copy editing, or a text
+review:
+
+- Include visible item and section numbering in the same review.
+- Check for missing, duplicated, skipped, or out-of-order numbers.
+- Check every affected locale and confirm that localized versions use the same
+  numbering structure.
+- Fix unambiguous numbering errors within the requested scope.
+
 ## Deployment
 
 When the user instructs you to deploy:
