@@ -111,6 +111,10 @@ body:has(.home-main) {
   text-wrap: balance;
 }
 
+.home-hero__description-break {
+  display: none;
+}
+
 .home-hero__capability {
   width: 100%;
   max-width: none;
@@ -1298,6 +1302,10 @@ html:lang(ja) .home-hero__case-text {
     margin-top: clamp(24px, 2vw, 28px);
   }
 
+  .home-hero__description-break {
+    display: block;
+  }
+
   .home-hero__capability {
     margin-top: clamp(6px, .5vw, 8px);
   }
@@ -1310,7 +1318,7 @@ html:lang(ja) .home-hero__case-text {
   .home-hero__cases {
     align-self: stretch;
     width: calc(100% + 24px);
-    margin-top: 12px;
+    margin-top: 6px;
     margin-left: -24px;
     overflow: visible;
     padding: 0;
