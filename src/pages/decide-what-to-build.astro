@@ -188,24 +188,13 @@ const description = '経営・顧客・現場に散らばった要望を構造�
         />
       </figure>
 
-      <div class="case-two-column" data-reveal>
-        <div class="case-prose">
-          <p class="case-label">Redefinition</p>
-          <h3>データ基盤にするため必要な要件を定義</h3>
-          <p>データを取得するためにはオンボーディングと活用の成功が不可欠です。</p>
-          <div class="text-emphasis">
-            <p><strong>MVPの要件は、将来の分析に足る「正確なデータ」を取得できること</strong></p>
-          </div>
+      <div class="case-prose case-prose--full" data-reveal>
+        <p class="case-label">Redefinition</p>
+        <h3>データ基盤にするため必要な要件を定義</h3>
+        <p>データを取得するためにはオンボーディングと活用の成功が不可欠です。</p>
+        <div class="text-emphasis">
+          <p><strong>MVPの要件は、将来の分析に足る「正確なデータ」を取得できること</strong></p>
         </div>
-        <figure class="case-figure">
-          <img
-            src="/images/cases/decide/source/daily-report-flow-board.webp"
-            width="2374"
-            height="1180"
-            alt="出勤、端末設定、作業、日報提出までの一日の体験と画面遷移を整理した検討ボード"
-            loading="lazy"
-          />
-        </figure>
       </div>
     </section>
 
@@ -224,7 +213,8 @@ const description = '経営・顧客・現場に散らばった要望を構造�
           <p>農家さんたちに日報をきちんと作りたいというモチベーションは無く、彼らにとっては非本質的な業務だった。そのため人によって記載粒度が異なったり、整合性が取れない記述があったり、データとしての正しさも担保されていなかった。</p>
           <p class="case-label">Insight</p>
           <div class="text-emphasis">
-            <p><strong>紙を単純にDXするだけでは、彼らのモチベーションは上がらず、今後データ基盤として利用するに足る正しいデータ取得も難しい</strong></p>
+            <p><strong>紙を単純にDXするだけでは、正しいデータ取得は難しい。</strong></p>
+            <p><strong>気づけば正しく日報が作成されている ＝ 日報業務を透明にする ことを目指す</strong></p>
           </div>
         </div>
         <div class="case-prose">
@@ -243,31 +233,21 @@ const description = '経営・顧客・現場に散らばった要望を構造�
       <div class="case-two-column" data-reveal>
         <div class="case-prose">
           <p class="case-label">Options</p>
-          <h3>一つの案に飛びつかず、複数の方法を比較する</h3>
+          <h3>日報業務を透明にするため、入力負荷の下げる方法を検討</h3>
+          <p>とにかく入力を簡単にするため、入力のUI自体をLINEや音声入力にしてみるなど幅広く検討</p>
         </div>
-        <div class="case-prose">
-          <p>事務所での一括登録、車両番号を使った端末設定、仮登録、LINE、音声入力などを検討。現場負荷、データ精度、継続性、開発負荷、将来の自動化への接続という観点で比較しました。</p>
-          <p>その結果、入力方法を工夫するだけではなく、すでに取得しているGPSデータから日報の下書きを作る方向を選びました。</p>
-        </div>
+        <figure class="case-figure">
+          <img
+            src="/images/cases/decide/source/daily-report-flow-board.webp"
+            width="2374"
+            height="1180"
+            alt="出勤、端末設定、作業、日報提出までの一日の体験と画面遷移を整理した検討ボード"
+            loading="lazy"
+          />
+        </figure>
       </div>
 
-      <figure class="case-figure" data-reveal>
-        <img
-          src="/images/cases/decide/daily-report-options.webp"
-          width="1850"
-          height="770"
-          alt="事務所での一括登録、仮登録、LINE、音声入力などを比較した解決案"
-          loading="lazy"
-        />
-        <figcaption class="media-caption">日報登録と端末設定について比較した複数の解決案</figcaption>
-      </figure>
-
       <div class="case-two-column" data-reveal>
-        <div class="case-prose">
-          <p class="case-label">Before</p>
-          <h3>記憶から一件ずつ入力</h3>
-          <p>一日の行動を思い出し、時刻、場所、作業内容を空のフォームへ入力する。</p>
-        </div>
         <div class="case-prose">
           <p class="case-label">After</p>
           <h3>システムが事実を下書きする</h3>
