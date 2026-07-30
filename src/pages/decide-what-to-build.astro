@@ -180,27 +180,34 @@ const description = locale === 'en'
     <section class="case-section">
       <header class="case-section-header" data-reveal>
         <p class="section-title">Decision 2 — Daily Report</p>
-        <h2>優先テーマのMVPを定義する</h2>
       </header>
 
-      <div class="case-prose case-prose--full" data-reveal>
-        <p class="case-label">Redefinition</p>
-        <h3>要件定義</h3>
-        <p>7つのテーマの中で、日報機能は、<strong>将来の自動化に必要なデータを生み出す基盤</strong>として最優先となった。</p>
-        <div class="text-emphasis">
-          <p><strong>分析や自動化に必要なのは、「正確」かつ「抜け漏れのない」データを取得できること</strong></p>
-        </div>
-      </div>
+      <div class="case-two-column" data-reveal>
+        <div class="case-block">
+          <header class="case-section-header">
+            <h2>優先テーマのMVPを定義する</h2>
+          </header>
 
-      <figure class="case-figure case-figure--bordered" data-reveal>
-        <img
-          src="/images/cases/decide/daily-report-mvp-definition.png"
-          width="3252"
-          height="1908"
-          alt="旭岳の日報方針とMVP要件を整理した検討ボード"
-          loading="lazy"
-        />
-      </figure>
+          <div class="case-prose">
+            <p class="case-label">Redefinition</p>
+            <h3>要件定義</h3>
+            <p>7つのテーマの中で、日報機能は、<strong>将来の自動化に必要なデータを生み出す基盤</strong>として最優先となった。</p>
+            <div class="text-emphasis">
+              <p><strong>分析や自動化に必要なのは、「正確」かつ「抜け漏れのない」データを取得できること</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <figure class="case-figure case-figure--bordered">
+          <img
+            src="/images/cases/decide/daily-report-mvp-definition.png"
+            width="3252"
+            height="1908"
+            alt="旭岳の日報方針とMVP要件を整理した検討ボード"
+            loading="lazy"
+          />
+        </figure>
+      </div>
     </section>
 
     <section
@@ -381,10 +388,8 @@ const description = locale === 'en'
             />
           </figure>
         </article>
-        <div class="decision-exception-stack">
-          <article><h3>一台の車両に、複数人が乗る</h3><p>ログを個人へ固定せず、会社全体のデータから自分の作業を選べる構造にした。</p></article>
-          <article><h3>GPSデータがない日もある</h3><p>事務や整備の日も、GPSがある日と同じ導線で手動提出できるようにした。</p></article>
-        </div>
+        <article><h3>一台の車両に、複数人が乗る</h3><p>ログを個人へ固定せず、会社全体のデータから自分の作業を選べる構造にした。</p></article>
+        <article><h3>GPSデータがない日もある</h3><p>事務や整備の日も、GPSがある日と同じ導線で手動提出できるようにした。</p></article>
       </div>
     </section>
 
@@ -524,20 +529,28 @@ const description = locale === 'en'
   }
 
   .decision-exception-featured {
-    border-right: 1px solid var(--divider-color);
+    display: grid !important;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(24px, 4vw, 56px) !important;
+    border-bottom: 1px solid var(--divider-color);
+  }
+
+  .decision-exception-featured > h3,
+  .decision-exception-featured > p {
+    grid-column: 1;
   }
 
   .decision-exception-featured .case-figure {
-    margin-top: auto;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    width: 50%;
+    justify-self: end;
   }
 
-  .decision-exception-stack {
-    display: grid;
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-  }
-
-  .decision-exception-stack article + article {
-    border-top: 1px solid var(--divider-color);
+  .decision-exceptions > article:nth-child(2) {
+    border-right: 1px solid var(--divider-color);
   }
 
   .decision-exceptions h3 {
@@ -612,6 +625,20 @@ const description = locale === 'en'
     }
 
     .decision-exception-featured {
+      grid-column: auto;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+    }
+
+    .decision-exception-featured > h3,
+    .decision-exception-featured > p,
+    .decision-exception-featured .case-figure {
+      grid-column: 1;
+      grid-row: auto;
+      width: 50%;
+    }
+
+    .decision-exceptions > article:nth-child(2) {
       border-right: 0;
       border-bottom: 1px solid var(--divider-color);
     }
