@@ -1202,10 +1202,8 @@ if (canvas && cases && hero) {
 
     const cardLiftPx = 12;
     const cardLiftDurationMs = 360;
-    const introLightDelayMs = 80;
-    const introLightDurationMs = 900;
     const hoverLightDurationMs = 400;
-    const introLightStrengthByMaterial = {
+    const lightSweepStrengthByMaterial = {
       gem: .3,
       'sea-glass': .8,
       'rough-glass': .6,
@@ -1215,9 +1213,6 @@ if (canvas && cases && hero) {
     const defaultLightY = (lightingTuning.key.position[1] - 7.4) / 2.6;
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
-    let introLightStartedAt: number | null = null;
-    let introLightAllowed = !reducedMotionQuery.matches;
-    let introLightComplete = reducedMotionQuery.matches;
     let settleLightPosition = 0;
     let settleLightStrength = 0;
     let settleLightTarget: MaterialKind | 'all' | null = null;
@@ -1238,13 +1233,6 @@ if (canvas && cases && hero) {
       value + Math.sin(value * Math.PI * 2) * .115
     );
 
-    const cancelIntroLight = () => {
-      introLightAllowed = false;
-      introLightComplete = true;
-      if (introLightStartedAt === null) return;
-      introLightStartedAt = null;
-    };
-
     const requestMotionFrame = () => {
       cancelMotionCacheWarm?.();
       cancelMotionCacheWarm = undefined;
@@ -1254,7 +1242,6 @@ if (canvas && cases && hero) {
 
     const startHoverLight = (state: CardState) => {
       if (reducedMotionQuery.matches) return;
-      cancelIntroLight();
       hoverLightState = state;
       hoverLightStartedAt = performance.now();
       requestMotionFrame();
@@ -1282,7 +1269,6 @@ if (canvas && cases && hero) {
       clientX: number,
       clientY: number,
     ) => {
-      cancelIntroLight();
       activeInteractionState = state;
       const cardRect = state.element.getBoundingClientRect();
       const stageRect = cases.getBoundingClientRect();
@@ -1534,7 +1520,6 @@ if (canvas && cases && hero) {
       element.addEventListener('focus', () => {
         state.keyboardFocused = element.matches(':focus-visible');
         if (state.keyboardFocused) {
-          cancelIntroLight();
           requestMotionFrame();
         }
         updateLiftTarget(state);
@@ -1728,7 +1713,6 @@ if (canvas && cases && hero) {
       if (
         hoverQuery.matches
         || reducedMotionQuery.matches
-        || !introLightComplete
         || activeInteractionState
         || !isVisible
       ) {
@@ -1779,8 +1763,6 @@ if (canvas && cases && hero) {
     });
     reducedMotionQuery.addEventListener('change', () => {
       if (!reducedMotionQuery.matches) return;
-      cancelIntroLight();
-      introLightComplete = true;
       hoverLightState = null;
       hoverLightStartedAt = null;
       activeInteractionState = null;
@@ -2686,7 +2668,7 @@ if (canvas && cases && hero) {
       motionCache?.invalidate();
     };
 
-    const applyIntroLight = (
+    const applyLightSweep = (
       position: number,
       strength: number,
       target: MaterialKind | 'all' | null,
@@ -2694,25 +2676,25 @@ if (canvas && cases && hero) {
       settleLightPosition = position;
       settleLightStrength = strength;
       settleLightTarget = target;
-      const introLightMaterials: Array<[
+      const lightSweepMaterials: Array<[
         MaterialKind,
         ShaderMaterial,
         number,
       ]> = [
-        ['gem', gemFaceMaterial, introLightStrengthByMaterial.gem],
+        ['gem', gemFaceMaterial, lightSweepStrengthByMaterial.gem],
         [
           'sea-glass',
           seaGlassMaterial,
-          introLightStrengthByMaterial['sea-glass'],
+          lightSweepStrengthByMaterial['sea-glass'],
         ],
         [
           'rough-glass',
           roughGlassFaceMaterial,
-          introLightStrengthByMaterial['rough-glass'],
+          lightSweepStrengthByMaterial['rough-glass'],
         ],
-        ['glass', glassMaterial, introLightStrengthByMaterial.glass],
+        ['glass', glassMaterial, lightSweepStrengthByMaterial.glass],
       ];
-      introLightMaterials.forEach(([kind, material, materialStrength]) => {
+      lightSweepMaterials.forEach(([kind, material, materialStrength]) => {
         const isTarget = target === 'all' || target === kind;
         material.uniforms.uSettleLightPosition.value = position;
         material.uniforms.uSettleLightStrength.value = (
@@ -2724,7 +2706,7 @@ if (canvas && cases && hero) {
       if (roughGlassEdgeSettleLight) {
         roughGlassEdgeSettleLight.value = (
           target === 'all' || target === 'rough-glass'
-            ? strength * introLightStrengthByMaterial['rough-glass']
+            ? strength * lightSweepStrengthByMaterial['rough-glass']
             : 0
         );
       }
@@ -2746,18 +2728,6 @@ if (canvas && cases && hero) {
       const easeAmount = reducedMotionQuery.matches
         ? 1
         : 1 - Math.pow(.78, frameDelta / 16.67);
-      let introProgress: number | null = null;
-      if (introLightStartedAt !== null) {
-        introProgress = MathUtils.clamp(
-          (now - introLightStartedAt) / introLightDurationMs,
-          0,
-          1,
-        );
-        if (introProgress >= 1) {
-          introLightStartedAt = null;
-          introLightComplete = true;
-        }
-      }
       const hoverLightStateForFrame = hoverLightState;
       let hoverLightProgress: number | null = null;
       if (
@@ -2791,26 +2761,7 @@ if (canvas && cases && hero) {
       let nextSettleLightPosition = settleLightPosition;
       let nextSettleLightStrength = 0;
       let nextSettleLightTarget: MaterialKind | 'all' | null = null;
-      if (introProgress !== null) {
-        const easedIntroProgress = fastEndsSlowMiddle(introProgress);
-        nextSettleLightPosition = MathUtils.lerp(
-          .035,
-          .965,
-          easedIntroProgress,
-        );
-        const fadeIn = smoothstep(MathUtils.clamp(
-          easedIntroProgress / .08,
-          0,
-          1,
-        ));
-        const fadeOut = smoothstep(MathUtils.clamp(
-          (1 - easedIntroProgress) / .08,
-          0,
-          1,
-        ));
-        nextSettleLightStrength = fadeIn * fadeOut;
-        nextSettleLightTarget = 'all';
-      } else if (
+      if (
         hoverLightProgress !== null
         && hoverLightStateForFrame
       ) {
@@ -2833,13 +2784,13 @@ if (canvas && cases && hero) {
         nextSettleLightStrength = fadeIn * fadeOut;
         nextSettleLightTarget = hoverLightStateForFrame.kind;
       }
-      const introLightChanged = (
+      const lightSweepChanged = (
         Math.abs(settleLightPosition - nextSettleLightPosition) > .001
         || Math.abs(settleLightStrength - nextSettleLightStrength) > .001
         || settleLightTarget !== nextSettleLightTarget
       );
-      if (introLightChanged) {
-        applyIntroLight(
+      if (lightSweepChanged) {
+        applyLightSweep(
           nextSettleLightPosition,
           nextSettleLightStrength,
           nextSettleLightTarget,
@@ -2917,7 +2868,6 @@ if (canvas && cases && hero) {
         lightChanged
         || lightAnimating
         || activeInteractionState
-        || introLightStartedAt !== null
       ) {
         cardStates.forEach(({ kind }) => dynamicIds.add(kind));
       }
@@ -2928,7 +2878,6 @@ if (canvas && cases && hero) {
         isAnimating: (
           isAnimating
           || lightAnimating
-          || introLightStartedAt !== null
           || hoverLightStartedAt !== null
         ),
         dynamicIds,
@@ -2953,7 +2902,6 @@ if (canvas && cases && hero) {
           || !isVisible
           || dirty.has(RenderDirtyFlag.layout)
           || dirty.has(RenderDirtyFlag.cardPosition)
-          || introLightStartedAt !== null
           || hoverLightStartedAt !== null
           || activeInteractionState !== null
           || cardStates.some(({ liftPx, liftToPx }) => (
@@ -3082,20 +3030,6 @@ if (canvas && cases && hero) {
           timeoutMs: 2_500,
           fallbackDelayMs: 400,
         });
-      }
-      if (introLightAllowed && !reducedMotionQuery.matches) {
-        introLightComplete = false;
-        window.setTimeout(() => {
-          if (
-            disposed
-            || reducedMotionQuery.matches
-            || !introLightAllowed
-          ) {
-            return;
-          }
-          introLightStartedAt = performance.now();
-          requestMotionFrame();
-        }, introLightDelayMs);
       }
     };
     void finishInitialization().catch((error) => {
