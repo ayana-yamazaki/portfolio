@@ -595,7 +595,6 @@ if (canvas && cases && hero) {
     let lastHeight = 0;
     let lastPixelRatio = 0;
     let lastSignature = '';
-    let lastDomSignature = '';
     let lastBackdropSignature = '';
     let lastFloorY = 0;
     let renderFrame = () => {};
@@ -700,12 +699,6 @@ if (canvas && cases && hero) {
       return material;
     };
 
-    const refractionSources = Array.from(
-      document.querySelectorAll<HTMLElement>(
-        '[data-glass-refraction-source], [data-rough-glass-refraction-source]',
-      ),
-    );
-    const observedTextSources = [...refractionSources];
     const backdropImage = cases.querySelector<HTMLImageElement>('[data-glass-backdrop-image-source]');
     const meshBackdropSources = Array.from(
       cases.querySelectorAll<HTMLElement>('[data-mesh-gradient-card]'),
@@ -720,20 +713,6 @@ if (canvas && cases && hero) {
         | RenderDirtyFlag.appearance,
       );
     }, { signal: eventController.signal });
-    const domRefractionCanvas = document.createElement('canvas');
-    domRefractionCanvas.width = 2;
-    domRefractionCanvas.height = 2;
-    const domRefractionContext = domRefractionCanvas.getContext('2d');
-    if (!domRefractionContext) throw new Error('Unable to create DOM refraction texture');
-    const domRefractionTexture = new CanvasTexture(domRefractionCanvas);
-    domRefractionTexture.colorSpace = SRGBColorSpace;
-    domRefractionTexture.minFilter = LinearFilter;
-    domRefractionTexture.magFilter = LinearFilter;
-    domRefractionTexture.generateMipmaps = false;
-    domRefractionTexture.wrapS = ClampToEdgeWrapping;
-    domRefractionTexture.wrapT = ClampToEdgeWrapping;
-    trackedTextures.add(domRefractionTexture);
-
     const glassBackdropCanvas = document.createElement('canvas');
     glassBackdropCanvas.width = 2;
     glassBackdropCanvas.height = 2;
@@ -795,27 +774,23 @@ if (canvas && cases && hero) {
     const gemFaceMaterial = createGemFaceMaterial(
       glassBackdropTexture,
       // EMBEDDED GLASS: embeddedGlassTarget.texture,
-      domRefractionTexture,
       gemEnvironmentTarget.texture,
       gemFloorInteraction,
     );
     const glassMaterial = createGlassMaterial(
       glassBackdropTexture,
       // EMBEDDED GLASS: embeddedGlassTarget.texture,
-      domRefractionTexture,
       gemEnvironmentTarget.texture,
     );
     const seaGlassMaterial = createSeaGlassMaterial(
       glassBackdropTexture,
       seaGlassBlurTexture,
       // EMBEDDED GLASS: embeddedGlassTarget.texture,
-      domRefractionTexture,
     );
     const roughGlassFaceMaterial = createRoughGlassFaceMaterial(
       roughGlassBump,
       glassBackdropTexture,
       // EMBEDDED GLASS: embeddedGlassTarget.texture,
-      domRefractionTexture,
       gemEnvironmentTarget.texture,
       !isSmallViewport,
     );
@@ -914,7 +889,6 @@ if (canvas && cases && hero) {
     const gemFloorCausticMaterial = new ShaderMaterial({
       uniforms: {
         uBackdrop: { value: glassBackdropTexture },
-        uDomRefraction: { value: domRefractionTexture },
         uCaustic: { value: gemFloorCaustic },
         uOpacity: { value: .84 },
         uSpectralStrength: { value: 1.2 },
@@ -933,7 +907,6 @@ if (canvas && cases && hero) {
       fragmentShader: `
         precision highp float;
         uniform sampler2D uBackdrop;
-        uniform sampler2D uDomRefraction;
         uniform sampler2D uCaustic;
         uniform float uOpacity;
         uniform float uSpectralStrength;
@@ -942,8 +915,7 @@ if (canvas && cases && hero) {
 
         vec3 sceneAt(vec2 uv) {
           vec4 backdrop = texture2D(uBackdrop, clamp(uv, vec2(.002), vec2(.998)));
-          vec4 dom = texture2D(uDomRefraction, clamp(uv, vec2(.002), vec2(.998)));
-          return mix(backdrop.rgb, dom.rgb, dom.a);
+          return backdrop.rgb;
         }
 
         vec3 hardLight(vec3 base, vec3 light) {
@@ -1605,100 +1577,6 @@ if (canvas && cases && hero) {
       setLightTarget(defaultLightX, defaultLightY);
     }, { signal: eventController.signal });
 
-    const readTextLines = (element: HTMLElement) => {
-      const lines: Array<{ text: string; fontWeight?: string }> = [{ text: '' }];
-      element.childNodes.forEach((node) => {
-        if (node.nodeName === 'BR') {
-          lines.push({ text: '' });
-          return;
-        }
-        const line = lines[lines.length - 1];
-        line.text += node.textContent ?? '';
-        if (node instanceof HTMLElement) line.fontWeight = getComputedStyle(node).fontWeight;
-      });
-      return lines;
-    };
-
-    const syncTextTexture = (
-      sources: HTMLElement[],
-      targetCanvas: HTMLCanvasElement,
-      targetContext: CanvasRenderingContext2D,
-      targetTexture: CanvasTexture,
-      canvasRect: DOMRect,
-      pixelRatio: number,
-      previousSignature: string,
-      blurPx = 0,
-      force = false,
-    ) => {
-      const sourceData = sources.map((element) => {
-        const rect = element.getBoundingClientRect();
-        const style = getComputedStyle(element);
-        const color = element.dataset.refractionColor ?? style.color;
-        return { rect, style, color, lines: readTextLines(element) };
-      });
-      const signature = [
-        canvasRect.left,
-        canvasRect.top,
-        canvasRect.width,
-        canvasRect.height,
-        pixelRatio,
-        sourceData.map(({ rect, style, color, lines }) => [
-          rect.left,
-          rect.top,
-          rect.width,
-          rect.height,
-          style.fontFamily,
-          style.fontSize,
-          style.fontWeight,
-          style.lineHeight,
-          style.letterSpacing,
-          color,
-          style.opacity,
-          lines.map(({ text, fontWeight }) => `${text}:${fontWeight ?? style.fontWeight}`).join('\n'),
-        ].join('|')).join('::'),
-      ].join('::');
-      if (!force && signature === previousSignature) return previousSignature;
-
-      const textureWidth = Math.max(1, Math.round(canvasRect.width * pixelRatio));
-      const textureHeight = Math.max(1, Math.round(canvasRect.height * pixelRatio));
-      if (targetCanvas.width !== textureWidth || targetCanvas.height !== textureHeight) {
-        targetCanvas.width = textureWidth;
-        targetCanvas.height = textureHeight;
-      }
-      targetContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      targetContext.clearRect(0, 0, canvasRect.width, canvasRect.height);
-      targetContext.filter = blurPx > 0 ? `blur(${blurPx}px)` : 'none';
-
-      sourceData.forEach(({ rect, style, color, lines }) => {
-        const fontSize = Number.parseFloat(style.fontSize) || 16;
-        const parsedLineHeight = Number.parseFloat(style.lineHeight);
-        const lineHeight = Number.isFinite(parsedLineHeight) ? parsedLineHeight : fontSize * 1.2;
-        targetContext.fillStyle = color;
-        const parsedOpacity = Number.parseFloat(style.opacity);
-        targetContext.globalAlpha = Number.isFinite(parsedOpacity) ? parsedOpacity : 1;
-        targetContext.textBaseline = 'top';
-        targetContext.textAlign = style.textAlign as CanvasTextAlign;
-        const contextWithSpacing = targetContext as CanvasRenderingContext2D & {
-          letterSpacing?: string;
-        };
-        if ('letterSpacing' in contextWithSpacing) contextWithSpacing.letterSpacing = style.letterSpacing;
-
-        let x = rect.left - canvasRect.left;
-        if (style.textAlign === 'right' || style.textAlign === 'end') x = rect.right - canvasRect.left;
-        if (style.textAlign === 'center') x = rect.left - canvasRect.left + rect.width / 2;
-        const y = rect.top - canvasRect.top + (lineHeight - fontSize) / 2;
-        lines.forEach(({ text, fontWeight: lineFontWeight }, lineIndex) => {
-          const fontWeight = lineFontWeight ?? style.fontWeight;
-          targetContext.font = `${style.fontStyle} ${fontWeight} ${style.fontSize} ${style.fontFamily}`;
-          targetContext.fillText(text, x, y + lineIndex * lineHeight);
-        });
-      });
-      targetContext.globalAlpha = 1;
-      targetContext.filter = 'none';
-      targetTexture.needsUpdate = true;
-      return signature;
-    };
-
     const syncGlassBackdropTexture = (
       canvasRect: DOMRect,
       pixelRatio: number,
@@ -2033,25 +1911,6 @@ if (canvas && cases && hero) {
       syncSeaGlassBlurTexture();
     };
 
-    const syncDomRefractionTextures = (
-      canvasRect: DOMRect,
-      pixelRatio: number,
-      force = false,
-    ) => {
-      lastDomSignature = syncTextTexture(
-        refractionSources,
-        domRefractionCanvas,
-        domRefractionContext,
-        domRefractionTexture,
-        canvasRect,
-        pixelRatio,
-        lastDomSignature,
-        0,
-        force,
-      );
-      syncGlassBackdropTexture(canvasRect, pixelRatio);
-    };
-
     const syncLayout = (
       force = false,
       refreshStaticTextures = true,
@@ -2095,7 +1954,7 @@ if (canvas && cases && hero) {
       }
 
       if (refreshStaticTextures || sizeChanged) {
-        syncDomRefractionTextures(canvasRect, pixelRatio, force || sizeChanged);
+        syncGlassBackdropTexture(canvasRect, pixelRatio);
       }
 
       const rects = cardStates.map(({ element }) => (
@@ -2755,16 +2614,9 @@ if (canvas && cases && hero) {
       const card = element.querySelector<HTMLElement>('.material-card');
       if (card) resizeObserver?.observe(card);
     });
-    observedTextSources.forEach((source) => resizeObserver?.observe(source));
     if (backdropImage) resizeObserver.observe(backdropImage);
 
     mutationObserver = new MutationObserver(markLayoutDirty);
-    observedTextSources.forEach((source) => mutationObserver?.observe(source, {
-      attributes: true,
-      childList: true,
-      characterData: true,
-      subtree: true,
-    }));
     if (backdropImage) {
       mutationObserver.observe(backdropImage, { attributes: true });
       backdropImage.addEventListener('load', markLayoutDirty, {
@@ -2778,7 +2630,6 @@ if (canvas && cases && hero) {
     });
     document.fonts?.ready.then(() => {
       if (disposed) return;
-      lastDomSignature = '';
       lastBackdropSignature = '';
       markLayoutDirty();
     });

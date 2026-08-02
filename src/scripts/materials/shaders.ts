@@ -28,7 +28,6 @@ export const gemFragmentShader = `
   precision highp float;
   uniform sampler2D uBackdrop;
   // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
-  uniform sampler2D uDomRefraction;
   uniform sampler2D uFloorInteraction;
   uniform samplerCube uEnvironment;
   uniform vec2 uCanvasSize;
@@ -69,8 +68,7 @@ export const gemFragmentShader = `
     vec4 backdrop=texture2D(uBackdrop,sampleUv);
     // EMBEDDED GLASS: vec4 embeddedGlass=texture2D(uEmbeddedGlass,sampleUv);
     // EMBEDDED GLASS: backdrop.rgb=mix(backdrop.rgb,embeddedGlass.rgb,embeddedGlass.a);
-    vec4 dom=texture2D(uDomRefraction,sampleUv);
-    return mix(backdrop.rgb,dom.rgb,dom.a);
+    return backdrop.rgb;
   }
 
   vec2 refractionOffset(vec3 normal,vec3 viewDirection,float ior){
@@ -515,7 +513,6 @@ export const glassFragmentShader = `
   precision highp float;
   uniform sampler2D uBackdrop;
   // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
-  uniform sampler2D uDomRefraction;
   uniform samplerCube uEnvironment;
   uniform vec2 uCanvasSize;
   uniform vec2 uWorldCardSize;
@@ -563,8 +560,7 @@ export const glassFragmentShader = `
     );
     vec3 base=mix(uWallColor,uFloorColor,floorMask);
     vec3 scene=mix(base,backdrop.rgb,backdrop.a);
-    vec4 text=texture2D(uDomRefraction,sampleUv);
-    return mix(scene,text.rgb,text.a);
+    return scene;
   }
 
   vec3 safeRefract(vec3 incident,vec3 surfaceNormal,float eta){
@@ -939,7 +935,6 @@ export const seaGlassFragmentShader = `
   uniform sampler2D uBackdrop;
   uniform sampler2D uBackdropBlurred;
   // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
-  uniform sampler2D uDomRefraction;
   uniform vec2 uCanvasSize;
   uniform float uRefraction;
   uniform float uRefractionScale;
@@ -1016,12 +1011,6 @@ export const seaGlassFragmentShader = `
     vec4 sharpSample=texture2D(uBackdrop,sampleUv);
     vec4 blurredSample=texture2D(uBackdropBlurred,sampleUv);
     // EMBEDDED GLASS: vec4 embeddedGlass=texture2D(uEmbeddedGlass,sampleUv);
-    vec2 domBlurStep=vec2(2.5)/uCanvasSize;
-    vec4 domSample=texture2D(uDomRefraction,sampleUv)*.4;
-    domSample+=texture2D(uDomRefraction,sampleUv+vec2(domBlurStep.x,0.0))*.15;
-    domSample+=texture2D(uDomRefraction,sampleUv-vec2(domBlurStep.x,0.0))*.15;
-    domSample+=texture2D(uDomRefraction,sampleUv+vec2(0.0,domBlurStep.y))*.15;
-    domSample+=texture2D(uDomRefraction,sampleUv-vec2(0.0,domBlurStep.y))*.15;
     vec3 backdropBase=vec3(.976,.972,.965);
     vec3 sharpScene=mix(backdropBase,sharpSample.rgb,sharpSample.a);
     vec3 blurredScene=mix(backdropBase,blurredSample.rgb,blurredSample.a);
@@ -1031,8 +1020,6 @@ export const seaGlassFragmentShader = `
     // EMBEDDED GLASS:   embeddedGlass.rgb,
     // EMBEDDED GLASS:   embeddedGlass.a*.82
     // EMBEDDED GLASS: );
-    sharpScene=mix(sharpScene,domSample.rgb,domSample.a);
-    blurredScene=mix(blurredScene,domSample.rgb,domSample.a*.72);
     float blurAmount=clamp(
       mix(.2,1.0,smoothstep(.28,.74,opticalThickness))
         *uBlurStrength,
@@ -1172,7 +1159,6 @@ export const roughGlassFragmentShader = `
   uniform sampler2D uBump;
   uniform sampler2D uBackdrop;
   // EMBEDDED GLASS: uniform sampler2D uEmbeddedGlass;
-  uniform sampler2D uDomRefraction;
   uniform samplerCube uEnvironment;
   uniform vec2 uTexel;
   uniform float uRefractionStrength;
@@ -1223,8 +1209,7 @@ export const roughGlassFragmentShader = `
     );
     vec3 base=mix(uWallColor,uFloorColor,floorMask);
     vec3 scene=mix(base,backdrop.rgb,backdrop.a);
-    vec4 dom=texture2D(uDomRefraction,uv);
-    return mix(scene,dom.rgb,dom.a);
+    return scene;
   }
 
   float distributionGgx(float nDotH,float roughness){
