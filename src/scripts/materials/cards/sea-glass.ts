@@ -11,6 +11,7 @@ export const seaGlassCardDefinition: PreparedCardDefinition = {
   shadowColor: 0x000000,
   shadowProfile: 'sea-glass',
   shadowFollowsLift: true,
+  cacheDuringMotion: false,
   createGeometry: (width, height, depth, radius) => (
     makeSeaGlassGeometry(width, height, depth, radius)
   ),

@@ -4,7 +4,8 @@ export const RenderDirtyFlag = {
   backdrop: 1 << 1,
   appearance: 1 << 2,
   transform: 1 << 3,
-  cardPosition: 1 << 4,
+  motionCache: 1 << 4,
+  cardPosition: 1 << 5,
 } as const;
 
 export type RenderDirtyFlags = number;

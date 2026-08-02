@@ -15,6 +15,7 @@ export const cardDefinitions: Record<MaterialKind, CardDefinition> = {
     shadowColor: 0x000000,
     shadowProfile: 'gem',
     shadowFollowsLift: true,
+    cacheDuringMotion: true,
   },
   'sea-glass': {
     kind: 'sea-glass',
@@ -26,6 +27,7 @@ export const cardDefinitions: Record<MaterialKind, CardDefinition> = {
     shadowColor: 0x000000,
     shadowProfile: 'sea-glass',
     shadowFollowsLift: true,
+    cacheDuringMotion: false,
   },
   'rough-glass': {
     kind: 'rough-glass',
@@ -37,6 +39,7 @@ export const cardDefinitions: Record<MaterialKind, CardDefinition> = {
     shadowColor: 0x000000,
     shadowProfile: 'rough-glass',
     shadowFollowsLift: true,
+    cacheDuringMotion: true,
   },
   glass: {
     kind: 'glass',
@@ -48,6 +51,7 @@ export const cardDefinitions: Record<MaterialKind, CardDefinition> = {
     shadowColor: 0x000000,
     shadowProfile: 'glass',
     shadowFollowsLift: true,
+    cacheDuringMotion: true,
   },
 };
 

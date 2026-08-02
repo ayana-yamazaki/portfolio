@@ -11,5 +11,6 @@ export const glassCardDefinition: PreparedCardDefinition = {
   shadowColor: 0x000000,
   shadowProfile: 'glass',
   shadowFollowsLift: true,
+  cacheDuringMotion: true,
   createGeometry: makeGlassPanelGeometry,
 };

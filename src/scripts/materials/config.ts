@@ -85,6 +85,8 @@ export const sceneTuning = {
   maxContinuousFrames: 180,
   maxDrawCalls: 20,
   maxTriangles: 50_000,
+  motionCachePaddingPx: 72,
+  motionCacheSamples: 4,
   exposure: 0.82,
   baseTilt: 2,
   baseYaw: 0,
