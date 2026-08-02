@@ -71,13 +71,6 @@ export const createSeaGlassControls = ({
     uniformControl('uSurfaceNoiseStrength', '表面粒子', 0, 2.5, .01),
     uniformControl('uSpectralStrength', '分光', 0, 1.5, .01),
     uniformControl('uGlintStrength', 'ハイライト', 0, 3, .01),
-    uniformControl('uBackdropShadow', '背面影', 0, 1.5, .01),
-    uniformControl('uShadowSoftBlur', '柔影ぼかし', 0, 60, 1),
-    uniformControl('uShadowSoftOpacity', '柔影濃度', 0, 1.5, .01),
-    uniformControl('uShadowMiddleBlur', '中影ぼかし', 0, 40, 1),
-    uniformControl('uShadowMiddleOpacity', '中影濃度', 0, 1.5, .01),
-    uniformControl('uShadowContactBlur', '接地ぼかし', 0, 20, 1),
-    uniformControl('uShadowContactOpacity', '接地濃度', 0, 1.5, .01),
   ];
   const defaults = Object.fromEntries(controls.map(({ key, get }) => [
     key,

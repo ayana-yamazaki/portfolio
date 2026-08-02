@@ -155,11 +155,6 @@ type SimpleShadowProfile = {
     xRatio: number;
     yRatio: number;
   };
-  layers: {
-    soft: { blur: number; opacity: number; x: number; y: number };
-    middle: { blur: number; opacity: number; x: number; y: number };
-    contact: { blur: number; opacity: number; x: number; y: number };
-  };
 };
 
 export const simpleShadowProfiles: Record<
@@ -169,29 +164,14 @@ export const simpleShadowProfiles: Record<
   'sea-glass': {
     scale: [1.3, 1.18],
     offset: { xRatio: .03, yRatio: -.01 },
-    layers: {
-      soft: { blur: 41, opacity: .16, x: 34, y: 27 },
-      middle: { blur: 12, opacity: .35, x: 19, y: 14 },
-      contact: { blur: 6, opacity: 1.36, x: 4, y: 3 },
-    },
   },
   'rough-glass': {
     scale: [1.3, 1.18],
     offset: { xRatio: .032, yRatio: -.012 },
-    layers: {
-      soft: { blur: 38, opacity: .58, x: 38, y: 29 },
-      middle: { blur: 0, opacity: 0, x: 23, y: 17 },
-      contact: { blur: 0, opacity: .34, x: 4, y: 3 },
-    },
   },
   glass: {
     scale: [1.34, 1.18],
     offset: { xRatio: .082, yRatio: -.012 },
-    layers: {
-      soft: { blur: 32, opacity: .14, x: 54, y: 29 },
-      middle: { blur: 10, opacity: .22, x: 34, y: 17 },
-      contact: { blur: .45, opacity: .28, x: 8, y: 3 },
-    },
   },
 };
 
@@ -203,21 +183,11 @@ export const glassContactShadowProfile = {
 export const seaGlassDesktopShadowProfile = {
   scale: [1.32, 1.17],
   offset: { xRatio: .064, yRatio: -.012 },
-  layers: {
-    soft: { blur: 41, opacity: .16, x: 44, y: 27 },
-    middle: { blur: 12, opacity: .35, x: 27, y: 14 },
-    contact: { blur: 6, opacity: 1.36, x: 7, y: 3 },
-  },
 } as const satisfies SimpleShadowProfile;
 
 export const roughGlassDesktopShadowProfile = {
   scale: [1.34, 1.18],
   offset: { xRatio: .074, yRatio: -.012 },
-  layers: {
-    soft: { blur: 38, opacity: .58, x: 48, y: 28 },
-    middle: { blur: 0, opacity: 0, x: 31, y: 15 },
-    contact: { blur: 0, opacity: .34, x: 8, y: 3 },
-  },
 } as const satisfies SimpleShadowProfile;
 
 type BackgroundReflectionProfile = {

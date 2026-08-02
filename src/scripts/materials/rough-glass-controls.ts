@@ -71,55 +71,6 @@ const controls: ControlDefinition[] = [
     max: 1.5,
     step: .01,
   },
-  {
-    label: '背面影',
-    uniform: 'uBackdropShadow',
-    min: 0,
-    max: 1.5,
-    step: .01,
-  },
-  {
-    label: '柔影ぼかし',
-    uniform: 'uShadowSoftBlur',
-    min: 0,
-    max: 60,
-    step: 1,
-  },
-  {
-    label: '柔影濃度',
-    uniform: 'uShadowSoftOpacity',
-    min: 0,
-    max: 1.5,
-    step: .01,
-  },
-  {
-    label: '中影ぼかし',
-    uniform: 'uShadowMiddleBlur',
-    min: 0,
-    max: 40,
-    step: 1,
-  },
-  {
-    label: '中影濃度',
-    uniform: 'uShadowMiddleOpacity',
-    min: 0,
-    max: 1.5,
-    step: .01,
-  },
-  {
-    label: '接地ぼかし',
-    uniform: 'uShadowContactBlur',
-    min: 0,
-    max: 20,
-    step: 1,
-  },
-  {
-    label: '接地濃度',
-    uniform: 'uShadowContactOpacity',
-    min: 0,
-    max: 1.5,
-    step: .01,
-  },
 ];
 
 const clamp = (value: number, min: number, max: number) => (
