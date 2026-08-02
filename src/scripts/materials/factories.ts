@@ -238,20 +238,6 @@ export const createSeaGlassMaterial = (
   toneMapped: false,
 });
 
-export const createBodyMaterials = (enhancedRoughGlass = true) => ({
-  'rough-glass': new MeshPhysicalMaterial({
-    color: enhancedRoughGlass ? 0xdcebed : 0xbcd2d5,
-    roughness: enhancedRoughGlass ? 0.09 : 0.12,
-    metalness: 0,
-    clearcoat: 1,
-    clearcoatRoughness: enhancedRoughGlass ? 0.035 : 0.08,
-    envMapIntensity: enhancedRoughGlass ? 1.35 : 0.9,
-    transparent: true,
-    opacity: enhancedRoughGlass ? 0.045 : 0.035,
-    depthWrite: false,
-  }),
-});
-
 const createRoughGlassSideMaterial = (
   enhancedRoughGlass: boolean,
 ) => new MeshPhysicalMaterial({

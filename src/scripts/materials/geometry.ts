@@ -190,10 +190,6 @@ export const makeRoughGlassGeometry = (
   const backTopLeft: Point = [-halfWidth, halfHeight, -halfDepth];
   const backTopRight: Point = [halfWidth, halfHeight, -halfDepth];
 
-  addQuad(frontBottomLeft, frontBottomRight, frontTopRight, frontTopLeft);
-  addQuad(backBottomLeft, backTopLeft, backTopRight, backBottomRight);
-  const bodyVertexCount = positions.length / 3;
-
   addQuad(chamferTopLeft, chamferTopRight, backTopRight, backTopLeft);
   addQuad(backBottomLeft, backBottomRight, frontBottomRight, frontBottomLeft);
   addPolygon([
@@ -210,10 +206,10 @@ export const makeRoughGlassGeometry = (
     chamferTopRight,
     frontTopRight,
   ]);
-  const sideVertexCount = positions.length / 3 - bodyVertexCount;
+  const sideVertexCount = positions.length / 3;
 
   addQuad(frontTopLeft, frontTopRight, chamferTopRight, chamferTopLeft);
-  const edgeVertexCount = positions.length / 3 - bodyVertexCount - sideVertexCount;
+  const edgeVertexCount = positions.length / 3 - sideVertexCount;
 
   const geometry = new BufferGeometry();
   geometry.setAttribute(
@@ -228,13 +224,8 @@ export const makeRoughGlassGeometry = (
     'aEdgeProgress',
     new Float32BufferAttribute(edgeProgress, 1),
   );
-  geometry.addGroup(0, bodyVertexCount, 0);
-  geometry.addGroup(bodyVertexCount, sideVertexCount, 1);
-  geometry.addGroup(
-    bodyVertexCount + sideVertexCount,
-    edgeVertexCount,
-    2,
-  );
+  geometry.addGroup(0, sideVertexCount, 0);
+  geometry.addGroup(sideVertexCount, edgeVertexCount, 1);
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
@@ -293,20 +284,6 @@ export const makeBeveledRoughGlassGeometry = (
   const backTopLeft: Point = [-halfWidth, halfHeight, -halfDepth];
   const backTopRight: Point = [halfWidth, halfHeight, -halfDepth];
 
-  addQuad(
-    innerBottomLeft,
-    innerBottomRight,
-    innerTopRight,
-    innerTopLeft,
-  );
-  addQuad(
-    backBottomLeft,
-    backTopLeft,
-    backTopRight,
-    backBottomRight,
-  );
-  const bodyVertexCount = positions.length / 3;
-
   addQuad(outerTopLeft, outerTopRight, backTopRight, backTopLeft);
   addQuad(
     backBottomLeft,
@@ -321,7 +298,7 @@ export const makeBeveledRoughGlassGeometry = (
     backTopRight,
     outerTopRight,
   );
-  const sideVertexCount = positions.length / 3 - bodyVertexCount;
+  const sideVertexCount = positions.length / 3;
 
   addQuad(innerTopLeft, innerTopRight, outerTopRight, outerTopLeft);
   addQuad(
@@ -342,9 +319,7 @@ export const makeBeveledRoughGlassGeometry = (
     outerTopRight,
     innerTopRight,
   );
-  const bevelVertexCount = positions.length / 3
-    - bodyVertexCount
-    - sideVertexCount;
+  const bevelVertexCount = positions.length / 3 - sideVertexCount;
 
   const geometry = new BufferGeometry();
   geometry.setAttribute(
@@ -359,13 +334,8 @@ export const makeBeveledRoughGlassGeometry = (
     'aEdgeProgress',
     new Float32BufferAttribute(edgeProgress, 1),
   );
-  geometry.addGroup(0, bodyVertexCount, 0);
-  geometry.addGroup(bodyVertexCount, sideVertexCount, 1);
-  geometry.addGroup(
-    bodyVertexCount + sideVertexCount,
-    bevelVertexCount,
-    2,
-  );
+  geometry.addGroup(0, sideVertexCount, 0);
+  geometry.addGroup(sideVertexCount, bevelVertexCount, 1);
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();

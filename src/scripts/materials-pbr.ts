@@ -50,7 +50,6 @@ import {
   type MaterialKind,
 } from './materials/config';
 import {
-  createBodyMaterials,
   createGemFaceMaterial,
   createGlassMaterial,
   createRoughGlassCausticMaterial,
@@ -847,7 +846,6 @@ if (canvas && cases && hero) {
       'rough-glass': roughGlassFaceMaterial.uniforms.uRefractionStrength.value as number,
       glass: glassMaterial.uniforms.uRefraction.value as number,
     } as const;
-    const bodyMaterials = createBodyMaterials(!isSmallViewport);
     const sideMaterials = createSideMaterials(
       gemFaceMaterial,
       !isSmallViewport,
@@ -859,7 +857,6 @@ if (canvas && cases && hero) {
       shadowDistance: 2,
       projectionSpread: .8,
     };
-    const roughGlassBodyBaseOpacity = bodyMaterials['rough-glass'].opacity;
     const roughGlassSideBaseOpacity = sideMaterials['rough-glass'].opacity;
     const roughGlassEdgeBaseOpacity = sideMaterials['rough-glass-edge'].opacity;
     const roughGlassBottomMaterial = isSmallViewport
@@ -1149,7 +1146,6 @@ if (canvas && cases && hero) {
         'sea-glass': seaGlassMaterial,
         glass: glassMaterial,
         body: [
-          bodyMaterials['rough-glass'],
           sideMaterials['rough-glass'],
           sideMaterials['rough-glass-edge'],
         ],
@@ -1349,9 +1345,6 @@ if (canvas && cases && hero) {
       )
     ) {
       const applyRoughGlassPresentation = () => {
-        bodyMaterials['rough-glass'].opacity = (
-          roughGlassBodyBaseOpacity * roughGlassPresentation.bodyOpacity
-        );
         sideMaterials['rough-glass'].opacity = Math.min(
           1,
           roughGlassSideBaseOpacity * roughGlassPresentation.bodyOpacity,
