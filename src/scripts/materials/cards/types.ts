@@ -24,7 +24,6 @@ export type CardDefinition = {
   shadowColor: number;
   shadowProfile: CardShadowProfileKind;
   shadowFollowsLift: boolean;
-  cacheDuringMotion: boolean;
   createGeometry?: CardGeometryFactory;
 };
 

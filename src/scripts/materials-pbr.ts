@@ -76,10 +76,6 @@ import {
 } from './materials/engine/dirty-state';
 import { scheduleIdleWork } from './materials/engine/idle-work';
 import {
-  createMotionCache,
-  type MotionCache,
-} from './materials/engine/motion-cache';
-import {
   loadBakedMaterialTextures,
   loadRoughGlassTextures,
 } from './materials/textures';
@@ -431,8 +427,6 @@ if (canvas && cases && hero) {
   let disposed = false;
   let renderer: WebGLRenderer | undefined;
   let renderHarness: RenderHarness | undefined;
-  let motionCache: MotionCache | undefined;
-  let cancelMotionCacheWarm: (() => void) | undefined;
   let cancelMobileCardPreparation: (() => void) | undefined;
   let cleanupRoughGlassControls: (() => void) | undefined;
   let cleanupSeaGlassControls: (() => void) | undefined;
@@ -488,8 +482,6 @@ if (canvas && cases && hero) {
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
-    cancelMotionCacheWarm?.();
-    cancelMotionCacheWarm = undefined;
     cancelMobileCardPreparation?.();
     cancelMobileCardPreparation = undefined;
     cleanupRoughGlassControls?.();
@@ -504,7 +496,6 @@ if (canvas && cases && hero) {
       cancelAnimationFrame(mobileScrollFrameId);
       mobileScrollFrameId = undefined;
     }
-    motionCache?.dispose();
     renderHarness?.dispose();
     eventController.abort();
     intersectionObserver?.disconnect();
@@ -699,8 +690,7 @@ if (canvas && cases && hero) {
     const dirty = createRenderDirtyState(
       RenderDirtyFlag.layout
       | RenderDirtyFlag.backdrop
-      | RenderDirtyFlag.appearance
-      | RenderDirtyFlag.motionCache,
+      | RenderDirtyFlag.appearance,
     );
     let lastWidth = 0;
     let lastHeight = 0;
@@ -718,13 +708,10 @@ if (canvas && cases && hero) {
     };
 
     const markLayoutDirty = () => {
-      cancelMotionCacheWarm?.();
-      cancelMotionCacheWarm = undefined;
       invalidate(
         RenderDirtyFlag.layout
         | RenderDirtyFlag.backdrop
-        | RenderDirtyFlag.appearance
-        | RenderDirtyFlag.motionCache,
+        | RenderDirtyFlag.appearance,
       );
     };
 
@@ -749,8 +736,7 @@ if (canvas && cases && hero) {
       });
       if (changed) {
         invalidate(
-          RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
+          RenderDirtyFlag.appearance,
         );
       }
     };
@@ -845,8 +831,7 @@ if (canvas && cases && hero) {
       lastBackdropSignature = '';
       invalidate(
         RenderDirtyFlag.backdrop
-        | RenderDirtyFlag.appearance
-        | RenderDirtyFlag.motionCache,
+        | RenderDirtyFlag.appearance,
       );
     }, { signal: eventController.signal });
     const domRefractionCanvas = document.createElement('canvas');
@@ -959,8 +944,7 @@ if (canvas && cases && hero) {
       cleanupGemControls = createGemControls(
         gemFaceMaterial.uniforms,
         () => invalidate(
-          RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
+          RenderDirtyFlag.appearance,
         ),
       );
     }
@@ -985,8 +969,7 @@ if (canvas && cases && hero) {
           materialProfiles['sea-glass'].radiusPx = value;
         },
         onAppearanceChange: () => invalidate(
-          RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
+          RenderDirtyFlag.appearance,
         ),
         onGeometryChange: () => {
           lastSignature = '';
@@ -1011,8 +994,7 @@ if (canvas && cases && hero) {
           uShadowContactOpacity: adjustableShadows['rough-glass'].contactOpacity,
         },
         () => invalidate(
-          RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
+          RenderDirtyFlag.appearance,
         ),
       );
     }
@@ -1234,8 +1216,6 @@ if (canvas && cases && hero) {
     );
 
     const requestMotionFrame = () => {
-      cancelMotionCacheWarm?.();
-      cancelMotionCacheWarm = undefined;
       renderHarness?.resetAnimationBudget();
       invalidate(RenderDirtyFlag.transform);
     };
@@ -1556,8 +1536,7 @@ if (canvas && cases && hero) {
           roughGlassPresentation.shadowOpacity
         );
         invalidate(
-          RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
+          RenderDirtyFlag.appearance,
         );
       };
       cleanupRoughGlassMaterialControls = createRoughGlassMaterialControls({
@@ -1638,7 +1617,6 @@ if (canvas && cases && hero) {
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
           if (disposed || !syncLayout(true)) return;
         }
-        motionCache?.invalidate();
         state.renderables.forEach((object) => {
           object.visible = true;
         });
@@ -1651,8 +1629,7 @@ if (canvas && cases && hero) {
         }
         invalidate(
           RenderDirtyFlag.layout
-          | RenderDirtyFlag.appearance
-          | RenderDirtyFlag.motionCache,
+          | RenderDirtyFlag.appearance,
         );
       })().catch(() => {
         state.renderables.forEach((object) => {
@@ -1749,12 +1726,7 @@ if (canvas && cases && hero) {
       signal: eventController.signal,
     });
     const markCardPositionDirty = () => {
-      cancelMotionCacheWarm?.();
-      cancelMotionCacheWarm = undefined;
-      invalidate(
-        RenderDirtyFlag.cardPosition
-        | RenderDirtyFlag.motionCache,
-      );
+      invalidate(RenderDirtyFlag.cardPosition);
     };
 
     carousel?.addEventListener('scroll', markCardPositionDirty, {
@@ -1775,18 +1747,6 @@ if (canvas && cases && hero) {
       });
       setLightTarget(defaultLightX, defaultLightY);
     }, { signal: eventController.signal });
-
-    motionCache = createMotionCache({
-      renderer,
-      scene,
-      camera,
-      samples: sceneTuning.motionCacheSamples,
-      items: cardStates.map(({ kind, definition, renderables }) => ({
-        id: kind,
-        renderables,
-        cacheable: definition.cacheDuringMotion,
-      })),
-    });
 
     const readTextLines = (element: HTMLElement) => {
       const lines: Array<{ text: string; fontWeight?: string }> = [{ text: '' }];
@@ -2266,10 +2226,6 @@ if (canvas && cases && hero) {
           Math.max(1, Math.round(canvasRect.height * pixelRatio)),
         );
         EMBEDDED GLASS — END */
-        motionCache?.resize(
-          canvasRect.width * pixelRatio,
-          canvasRect.height * pixelRatio,
-        );
         const aspect = canvasRect.width / canvasRect.height;
         camera.aspect = aspect;
         camera.updateProjectionMatrix();
@@ -2288,31 +2244,6 @@ if (canvas && cases && hero) {
       const rects = cardStates.map(({ element }) => (
         element.querySelector<HTMLElement>('.material-card')?.getBoundingClientRect()
       ));
-      rects.forEach((rect, index) => {
-        const state = cardStates[index];
-        if (!rect || !state) return;
-        const padding = sceneTuning.motionCachePaddingPx;
-        const left = Math.max(0, Math.floor(
-          (rect.left - canvasRect.left - padding) * pixelRatio,
-        ));
-        const top = Math.max(0, Math.floor(
-          (rect.top - canvasRect.top - padding) * pixelRatio,
-        ));
-        const right = Math.min(
-          Math.round(canvasRect.width * pixelRatio),
-          Math.ceil((rect.right - canvasRect.left + padding) * pixelRatio),
-        );
-        const bottom = Math.min(
-          Math.round(canvasRect.height * pixelRatio),
-          Math.ceil((rect.bottom - canvasRect.top + padding) * pixelRatio),
-        );
-        motionCache?.setItemBounds(state.kind, {
-          x: left,
-          y: top,
-          width: right - left,
-          height: bottom - top,
-        });
-      });
       const floorY = rects[0]
         ? rects[0].top + rects[0].height * 0.9 - heroRect.top
         : 0;
@@ -2663,9 +2594,6 @@ if (canvas && cases && hero) {
       seaGlassMaterial.uniforms.uLightDirection.value.copy(lightDirection2);
       roughGlassFaceMaterial.uniforms.uLightDirection.value.copy(lightDirection3);
       glassMaterial.uniforms.uLightDirection.value.copy(lightDirection2);
-      cancelMotionCacheWarm?.();
-      cancelMotionCacheWarm = undefined;
-      motionCache?.invalidate();
     };
 
     const applyLightSweep = (
@@ -2715,8 +2643,6 @@ if (canvas && cases && hero) {
       if (roughGlassEdgeLightPosition) {
         roughGlassEdgeLightPosition.value = position;
       }
-      cancelMotionCacheWarm?.();
-      cancelMotionCacheWarm = undefined;
     };
 
     const updateSceneMotion = (now: number) => {
@@ -2802,7 +2728,6 @@ if (canvas && cases && hero) {
         || Math.abs(lightY - lightTargetY) >= .002
       );
       let isAnimating = false;
-      const dynamicIds = new Set<MaterialKind>();
       cardStates.forEach((state, index) => {
         if (state.liftPx !== state.liftToPx) {
           const elapsed = now - state.liftStartedAt;
@@ -2855,76 +2780,14 @@ if (canvas && cases && hero) {
         if (state.prism) {
           state.prism.position.y = state.basePrismY + liftWorld * .5;
         }
-        if (
-          Math.abs(state.liftPx) > .01
-          || Math.abs(state.liftToPx) > .01
-          || Math.abs(state.tiltXRad) > .0002
-          || Math.abs(state.tiltYRad) > .0002
-        ) {
-          dynamicIds.add(state.kind);
-        }
       });
-      if (
-        lightChanged
-        || lightAnimating
-        || activeInteractionState
-      ) {
-        cardStates.forEach(({ kind }) => dynamicIds.add(kind));
-      }
-      if (hoverLightStateForFrame) {
-        dynamicIds.add(hoverLightStateForFrame.kind);
-      }
       return {
         isAnimating: (
           isAnimating
           || lightAnimating
           || hoverLightStartedAt !== null
         ),
-        dynamicIds,
       };
-    };
-
-    const scheduleMotionCacheWarm = () => {
-      if (
-        disposed
-        || !isVisible
-        || cancelMotionCacheWarm
-        || !motionCache?.needsPreparation()
-        || preparedCardKinds.size < cardStates.length
-      ) {
-        return;
-      }
-
-      const warm = () => {
-        cancelMotionCacheWarm = undefined;
-        if (
-          disposed
-          || !isVisible
-          || dirty.has(RenderDirtyFlag.layout)
-          || dirty.has(RenderDirtyFlag.cardPosition)
-          || hoverLightStartedAt !== null
-          || activeInteractionState !== null
-          || cardStates.some(({ liftPx, liftToPx }) => (
-            Math.abs(liftPx) > 0.01 || Math.abs(liftToPx) > 0.01
-          ))
-          || cardStates.some(({
-            tiltXRad,
-            tiltYRad,
-            tiltTargetXRad,
-            tiltTargetYRad,
-          }) => (
-            Math.abs(tiltXRad) > .0002
-            || Math.abs(tiltYRad) > .0002
-            || Math.abs(tiltTargetXRad) > .0002
-            || Math.abs(tiltTargetYRad) > .0002
-          ))
-        ) {
-          return;
-        }
-        motionCache?.prepare();
-      };
-
-      cancelMotionCacheWarm = scheduleIdleWork(warm);
     };
 
     renderFrame = () => {
@@ -2942,12 +2805,7 @@ if (canvas && cases && hero) {
           | RenderDirtyFlag.appearance,
         );
       }
-      if (dirty.has(RenderDirtyFlag.motionCache)) {
-        motionCache?.invalidate();
-        dirty.clear(RenderDirtyFlag.motionCache);
-      }
       const sceneMotion = updateSceneMotion(performance.now());
-      const { dynamicIds } = sceneMotion;
 
       /* EMBEDDED GLASS — BEGIN: render inset glass before outer refraction
       if (embeddedGlassTarget) {
@@ -2962,12 +2820,10 @@ if (canvas && cases && hero) {
       }
       EMBEDDED GLASS — END */
 
-      if (!motionCache?.render(dynamicIds)) {
-        renderer.setRenderTarget(null);
-        renderer.setClearColor(0x000000, 0);
-        renderer.clear();
-        renderer.render(scene, camera);
-      }
+      renderer.setRenderTarget(null);
+      renderer.setClearColor(0x000000, 0);
+      renderer.clear();
+      renderer.render(scene, camera);
       dirty.clear(RenderDirtyFlag.transform);
       if (isSmallViewport && !mobileInitialFrameRendered) {
         mobileInitialFrameRendered = true;
@@ -2976,7 +2832,6 @@ if (canvas && cases && hero) {
       if (sceneMotion.isAnimating && renderHarness?.allowNextAnimationFrame()) {
         invalidate(RenderDirtyFlag.transform);
       }
-      if (!sceneMotion.isAnimating) scheduleMotionCacheWarm();
     };
 
     const finishInitialization = async () => {
