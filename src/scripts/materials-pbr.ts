@@ -67,7 +67,11 @@ import {
   prepareCardDefinition,
   type CardDefinition,
 } from './materials/cards/registry';
-import { createRenderHarness, type RenderHarness } from './materials/render-harness';
+import {
+  createRenderHarness,
+  type RenderDiagnostics,
+  type RenderHarness,
+} from './materials/render-harness';
 import {
   createRenderDirtyState,
   RenderDirtyFlag,
@@ -356,10 +360,30 @@ if (canvas && cases && hero) {
       maxPixelRatio: 1,
       maxPixelCount: 800_000,
     };
-  if (isSmallViewport) canvas.dataset.rendererQuality = mobileQuality.tier;
+  const desktopQualityLevels = [
+    {
+      tier: 'low',
+      maxPixelRatio: sceneTuning.maxPixelRatio,
+      maxPixelCount: sceneTuning.maxPixelCount,
+    },
+    {
+      tier: 'balanced',
+      maxPixelRatio: 1.25,
+      maxPixelCount: 1_250_000,
+    },
+    {
+      tier: 'high',
+      maxPixelRatio: 1.5,
+      maxPixelCount: 1_800_000,
+    },
+  ] as const;
+  canvas.dataset.rendererQuality = isSmallViewport
+    ? mobileQuality.tier
+    : 'calibrating';
   let disposed = false;
   let renderer: WebGLRenderer | undefined;
   let renderHarness: RenderHarness | undefined;
+  let handleRenderDiagnostics: (diagnostics: RenderDiagnostics) => void = () => {};
   let motionCache: MotionCache | undefined;
   let cancelMotionCacheWarm: (() => void) | undefined;
   let cancelMobileCardPreparation: (() => void) | undefined;
@@ -463,13 +487,14 @@ if (canvas && cases && hero) {
       renderer,
       maxPixelRatio: isSmallViewport
         ? mobileQuality.maxPixelRatio
-        : sceneTuning.maxPixelRatio,
+        : desktopQualityLevels[0].maxPixelRatio,
       maxPixelCount: isSmallViewport
         ? Math.min(mobileQuality.maxPixelCount, sceneTuning.maxPixelCount)
-        : sceneTuning.maxPixelCount,
+        : desktopQualityLevels[0].maxPixelCount,
       maxContinuousFrames: sceneTuning.maxContinuousFrames,
       maxDrawCalls: sceneTuning.maxDrawCalls,
       maxTriangles: sceneTuning.maxTriangles,
+      onFrameComplete: (diagnostics) => handleRenderDiagnostics(diagnostics),
     });
 
     scene = new Scene();
@@ -624,6 +649,51 @@ if (canvas && cases && hero) {
         | RenderDirtyFlag.motionCache,
       );
     };
+
+    if (!isSmallViewport) {
+      let desktopQualityIndex = 0;
+      let desktopQualityCalibrated = false;
+      let slowFrameStreak = 0;
+
+      const applyDesktopQuality = (nextIndex: number) => {
+        const resolvedIndex = Math.max(
+          0,
+          Math.min(nextIndex, desktopQualityLevels.length - 1),
+        );
+        const quality = desktopQualityLevels[resolvedIndex];
+        desktopQualityIndex = resolvedIndex;
+        canvas.dataset.rendererQuality = quality.tier;
+        renderHarness?.setQualityLimits(
+          quality.maxPixelRatio,
+          quality.maxPixelCount,
+        );
+        markLayoutDirty();
+      };
+
+      handleRenderDiagnostics = ({ lastFrameMs }) => {
+        if (!desktopQualityCalibrated) {
+          desktopQualityCalibrated = true;
+          const initialQualityIndex = lastFrameMs <= 7
+            ? 2
+            : lastFrameMs <= 12
+              ? 1
+              : 0;
+          applyDesktopQuality(initialQualityIndex);
+          return;
+        }
+
+        const slowFrameThreshold = desktopQualityIndex === 2 ? 20 : 24;
+        if (desktopQualityIndex > 0 && lastFrameMs > slowFrameThreshold) {
+          slowFrameStreak += 1;
+          if (slowFrameStreak >= 3) {
+            slowFrameStreak = 0;
+            applyDesktopQuality(desktopQualityIndex - 1);
+          }
+          return;
+        }
+        slowFrameStreak = 0;
+      };
+    }
 
     const revealReadyShadows = () => {
       if (disposed) return;

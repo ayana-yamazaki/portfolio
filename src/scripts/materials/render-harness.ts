@@ -22,19 +22,23 @@ type HarnessOptions = {
   maxContinuousFrames: number;
   maxDrawCalls: number;
   maxTriangles: number;
+  onFrameComplete?: (diagnostics: RenderDiagnostics) => void;
 };
 
 export const createRenderHarness = ({
   canvas,
   renderer,
-  maxPixelRatio,
-  maxPixelCount,
+  maxPixelRatio: initialMaxPixelRatio,
+  maxPixelCount: initialMaxPixelCount,
   maxContinuousFrames,
   maxDrawCalls,
   maxTriangles,
+  onFrameComplete,
 }: HarnessOptions) => {
   let disposed = false;
   let frameId: number | null = null;
+  let maxPixelRatio = initialMaxPixelRatio;
+  let maxPixelCount = initialMaxPixelCount;
   const diagnostics: RenderDiagnostics = {
     scheduledFrames: 0,
     renderedFrames: 0,
@@ -88,8 +92,17 @@ export const createRenderHarness = ({
         || diagnostics.drawCalls > maxDrawCalls
         || diagnostics.triangles > maxTriangles
         || diagnostics.pixelCount > maxPixelCount;
+      onFrameComplete?.(diagnostics);
     });
     return true;
+  };
+
+  const setQualityLimits = (
+    nextMaxPixelRatio: number,
+    nextMaxPixelCount: number,
+  ) => {
+    maxPixelRatio = Math.max(.75, nextMaxPixelRatio);
+    maxPixelCount = Math.max(1, nextMaxPixelCount);
   };
 
   const resetAnimationBudget = () => {
@@ -115,6 +128,7 @@ export const createRenderHarness = ({
     resolvePixelRatio,
     resize,
     schedule,
+    setQualityLimits,
     resetAnimationBudget,
     allowNextAnimationFrame,
     dispose,
