@@ -72,9 +72,7 @@ export const createGemControls = (
     ),
     uniformControl('uKeyIntensity', 'ハイライト', 0, 8, .01),
     uniformControl('uInternalShadowStrength', '内部影', 0, 3, .01),
-    uniformControl('uFacetShadowHardness', '影の硬さ', 0, 2, .01),
     uniformControl('uUpperTransmissionStrength', '上面透過', 0, 2, .01),
-    uniformControl('uFacetHighlightStrength', '面ハイライト', 0, 2, .01),
   ];
   const defaults=Object.fromEntries(controls.map(({key,get})=>[key,get()]));
 

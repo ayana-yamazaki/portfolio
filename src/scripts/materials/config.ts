@@ -235,9 +235,7 @@ export const gemTuning = {
   reflectionExposure: .84,
   keyIntensity: 8,
   internalShadowStrength: 1.63,
-  facetShadowHardness: 0,
   upperTransmissionStrength: .54,
-  facetHighlightStrength: 0,
 } as const;
 
 export const glassTuning = {

@@ -46,9 +46,7 @@ export const gemFragmentShader = `
   uniform vec3 uKeyColor;
   uniform float uKeyIntensity;
   uniform float uInternalShadowStrength;
-  uniform float uFacetShadowHardness;
   uniform float uUpperTransmissionStrength;
-  uniform float uFacetHighlightStrength;
   uniform float uSettleLightPosition;
   uniform float uSettleLightStrength;
   uniform vec3 uBackgroundReflectionFallback;
@@ -396,14 +394,9 @@ export const gemFragmentShader = `
       clamp(backgroundReflection,0.0,.72)
     );
     vec3 internalFacetLightDirection=normalize(vec3(-.58,.7,.42));
-    float facetShadowHalfWidth=mix(
-      .5,
-      .06,
-      clamp(uFacetShadowHardness*.5,0.0,1.0)
-    );
     float hardFacetLight=smoothstep(
-      .15-facetShadowHalfWidth,
-      .15+facetShadowHalfWidth,
+      -.35,
+      .65,
       dot(normal,internalFacetLightDirection)
     );
     float upperFacetMask=max(
@@ -425,11 +418,6 @@ export const gemFragmentShader = `
       clamp(upperTransmissionReveal,0.0,.72)
     );
     color*=1.0-clamp(hardFacetShadow,0.0,.72);
-    color+=vec3(1.0,.985,.95)
-      *upperFacetMask
-      *hardFacetLight
-      *.1
-      *uFacetHighlightStrength;
     vec3 settleGemLightDirection=normalize(vec3(-.38,.78,.62));
     vec3 settleGemHalfVector=normalize(
       settleGemLightDirection+viewDirection
